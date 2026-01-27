@@ -1,0 +1,81 @@
+# ====== ИЗМЕНИТЬ ПРИ КОПИРОВАНИИ ======
+# 1. Измените spring.application.name на имя вашего сервиса
+# 2. Измените server.port на нужный порт:
+#    - accounts-service: 8081
+#    - cash-service: 8082
+#    - transfer-service: 8083
+#    - notifications-service: 8084
+# 3. Измените spring.datasource.url (схему БД)
+
+server:
+  port: 8099  # ← ИЗМЕНИТЬ на нужный порт!
+
+spring:
+  application:
+    name: service-template  # ← ИЗМЕНИТЬ на имя вашего сервиса!
+
+  # ===== База данных PostgreSQL =====
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mybank?currentSchema=template  # ← ИЗМЕНИТЬ схему!
+    username: mybank
+    password: mybank_password
+    driver-class-name: org.postgresql.Driver
+
+  # ===== JPA / Hibernate =====
+  jpa:
+    hibernate:
+      ddl-auto: update  # update | validate | create | create-drop
+    show-sql: false     # true для отладки SQL запросов
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+
+# ===== Eureka Client (Service Discovery) =====
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+# ===== Actuator (Health checks, Metrics) =====
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
+
+# ===== Логирование =====
+logging:
+  level:
+    root: INFO
+    com.mybank.template: DEBUG  # ← ИЗМЕНИТЬ на ваш пакет!
+    org.hibernate.SQL: DEBUG    # SQL запросы (при необходимости)
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE  # Параметры SQL
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# ===== OAuth2 Resource Server (опционально) =====
+# Раскомментируйте, если сервис защищен OAuth2
+#spring:
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          issuer-uri: http://localhost:9000
+#          jwk-set-uri: http://localhost:9000/oauth2/jwks
