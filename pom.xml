@@ -17,6 +17,8 @@
     <modules>
         <module>front-ui</module>
         <module>discovery-service</module>
+        <module>config-service</module>
+        <module>gateway-service</module>
     </modules>
 
     <properties>
@@ -122,5 +124,4 @@
             </plugins>
         </pluginManagement>
     </build>
-
 </project>

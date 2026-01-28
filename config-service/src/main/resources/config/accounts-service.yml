@@ -1,0 +1,42 @@
+# Конфигурация для Accounts Service
+# Файл: accounts-service.yml
+# 
+# Config Server будет отдавать эту конфигурацию
+# когда accounts-service запросит свои настройки
+#
+# URL: http://localhost:8888/accounts-service/default
+
+server:
+  port: 8081
+
+spring:
+  application:
+    name: accounts-service
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mybank?currentSchema=accounts
+    username: mybank
+    password: mybank_password
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+# Eureka Client
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+# Логирование
+logging:
+  level:
+    com.mybank.accounts: DEBUG

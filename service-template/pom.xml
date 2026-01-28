@@ -18,7 +18,7 @@
         Например: accounts-service, cash-service, transfer-service
     -->
     <artifactId>service-template</artifactId>
-    <n>Service Template</n>
+    <name>Service Template</name>
     <description>Template for creating new microservices</description>
 
     <dependencies>

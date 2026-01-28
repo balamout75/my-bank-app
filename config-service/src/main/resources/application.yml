@@ -1,0 +1,62 @@
+server:
+  port: 8888  # Стандартный порт для Config Server
+
+spring:
+  application:
+    name: config-service
+  
+  # ===== Spring Cloud Config Server Configuration =====
+  cloud:
+    config:
+      server:
+        # Native profile (файловая система)
+        # Для production лучше использовать Git
+        native:
+          # Путь к директории с конфигурациями
+          search-locations: classpath:/config
+        
+        # Git profile (для production)
+        # Раскомментируйте и настройте для использования Git
+        #git:
+        #  uri: https://github.com/your-org/config-repo
+        #  default-label: main
+        #  search-paths: '{application}'
+        #  clone-on-start: true
+        #  username: ${GIT_USERNAME:}
+        #  password: ${GIT_PASSWORD:}
+  
+  # Используем native profile по умолчанию
+  profiles:
+    active: native
+
+# ===== Eureka Client (опционально) =====
+# Config Service может регистрироваться в Eureka,
+# чтобы другие сервисы могли его находить динамически
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true  # Регистрируемся в Eureka
+    fetch-registry: true
+  
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+# ===== Actuator =====
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,refresh,env
+  endpoint:
+    health:
+      show-details: always
+
+# ===== Логирование =====
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.config: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

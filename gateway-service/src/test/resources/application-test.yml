@@ -1,0 +1,21 @@
+# Конфигурация для тестов
+
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false  # Отключить автоматические routes для тестов
+
+# Отключить Eureka для тестов
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+# Упростить логирование для тестов
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: INFO

@@ -13,33 +13,39 @@ spring:
     mode: HTML
     encoding: UTF-8
 
-  # OAuth2 Client конфигурация (пока заглушка - будет настроено после создания OAuth2 Server)
+  # ===== SECURITY CONFIGURATION =====
+  # ТЕКУЩИЙ РЕЖИМ: БЕЗ KEYCLOAK (заглушка для разработки)
+  # Простая авторизация: alice / password
+  
   security:
-    oauth2:
-      client:
-        registration:
-          front-client:
-            client-id: front-client
-            client-secret: front-secret
-            authorization-grant-type: authorization_code
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-            scope:
-              - openid
-              - profile
-              - accounts.read
-              - accounts.write
-              - cash.read
-              - cash.write
-              - transfer.read
-              - transfer.write
-        provider:
-          front-client:
-            # Эти URL будут настроены после создания OAuth2 Server
-            issuer-uri: http://localhost:9000
-            authorization-uri: http://localhost:9000/oauth2/authorize
-            token-uri: http://localhost:9000/oauth2/token
-            user-info-uri: http://localhost:9000/userinfo
-            jwk-set-uri: http://localhost:9000/oauth2/jwks
+    user:
+      name: alice
+      password: password
+      roles: USER
+  
+  # ===== KEYCLOAK CONFIGURATION (закомментировано) =====
+  # Раскомментируйте когда Keycloak будет настроен
+  # 
+  # security:
+  #   oauth2:
+  #     client:
+  #       registration:
+  #         keycloak:
+  #           client-id: front-client
+  #           client-secret:  # Не нужен для public client
+  #           authorization-grant-type: authorization_code
+  #           redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+  #           scope:
+  #             - openid
+  #             - profile
+  #             - email
+  #             - accounts
+  #             - cash
+  #             - transfer
+  #       provider:
+  #         keycloak:
+  #           issuer-uri: http://localhost:9000/realms/mybank
+  #           user-name-attribute: preferred_username
 
 # URL Gateway API
 gateway:
@@ -49,5 +55,8 @@ gateway:
 logging:
   level:
     com.mybank.frontend: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.web: DEBUG
+    org.springframework.security: INFO
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+

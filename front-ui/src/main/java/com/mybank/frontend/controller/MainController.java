@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -40,17 +39,47 @@ public class MainController {
      * Отображает информацию об аккаунте, форму операций и форму перевода
      */
     @GetMapping("/")
-    public String mainPage(Model model, @AuthenticationPrincipal OAuth2User principal) {
+    public String mainPage(Model model, @AuthenticationPrincipal Object principal) {
         try {
-            // Получаем username из OAuth2 токена
-            String username = principal.getAttribute("sub");
+            // Получаем username
+            // В режиме заглушки (form login): principal это UserDetails
+            // В режиме OAuth2: principal это OAuth2User
+            String username;
+            if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
+                username = ((org.springframework.security.core.userdetails.UserDetails) principal).getUsername();
+            } else if (principal instanceof org.springframework.security.oauth2.core.user.OAuth2User) {
+                username = ((org.springframework.security.oauth2.core.user.OAuth2User) principal).getAttribute("sub");
+            } else {
+                username = "alice"; // Fallback
+            }
+            
             log.info("Loading main page for user: {}", username);
 
             // Получаем данные аккаунта
-            FrontendDTO.AccountInfo account = getMyAccount();
+            FrontendDTO.AccountInfo account;
+            try {
+                account = getMyAccount();
+            } catch (Exception e) {
+                log.warn("Backend services unavailable, using mock data");
+                // Заглушка когда бэкенд недоступен
+                account = FrontendDTO.AccountInfo.builder()
+                    .id(1L)
+                    .username(username)
+                    .firstName("Alice")
+                    .lastName("Smith")
+                    .email("alice@mybank.com")
+                    .balance(new BigDecimal("10000.00"))
+                    .build();
+            }
             
             // Получаем список других аккаунтов для переводов
-            List<FrontendDTO.AccountSummary> accounts = getAllAccounts();
+            List<FrontendDTO.AccountSummary> accounts;
+            try {
+                accounts = getAllAccounts();
+            } catch (Exception e) {
+                log.warn("Backend services unavailable, using empty list");
+                accounts = List.of(); // Пустой список если бэкенд недоступен
+            }
 
             // Создаем модель для страницы
             FrontendDTO.MainPageModel pageModel = FrontendDTO.MainPageModel.builder()
