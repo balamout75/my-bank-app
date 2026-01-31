@@ -28,6 +28,10 @@ public class FrontendDTO {
         
         @NotBlank(message = "Фамилия обязательна для заполнения")
         private String lastName;
+
+        @NotBlank(message = "e-mail обязателен для заполнения")
+        @Email(message = "Некорректный e-mail")
+        private String email;
         
         @NotNull(message = "Дата рождения обязательна")
         @Past(message = "Дата рождения должна быть в прошлом")

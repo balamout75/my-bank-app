@@ -4,17 +4,15 @@ import com.mybank.frontend.dto.FrontendDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.time.LocalDate;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -29,10 +27,7 @@ import java.util.Map;
 @Slf4j
 public class MainController {
 
-    private final RestTemplate restTemplate;
-
-    @Value("${gateway.url:http://localhost:8090}")
-    private String gatewayUrl;
+    private final RestClient gatewayClient;
 
     /**
      * Главная страница
@@ -68,6 +63,7 @@ public class MainController {
                     .firstName("Alice")
                     .lastName("Smith")
                     .email("alice@mybank.com")
+                    .dateOfBirth(LocalDate.of(1990, 1, 1))
                     .balance(new BigDecimal("10000.00"))
                     .build();
             }
@@ -117,14 +113,17 @@ public class MainController {
 
         try {
             log.info("Updating account: {} {}", form.getFirstName(), form.getLastName());
-            
-            String url = gatewayUrl + "/api/accounts/me";
-            restTemplate.put(url, form);
+
+            gatewayClient.put()
+                    .uri("/api/accounts/me")
+                    .body(form)
+                    .retrieve()
+                    .toBodilessEntity();
 
             redirectAttributes.addFlashAttribute("successMessage", 
                 "Данные успешно обновлены!");
             
-        } catch (HttpClientErrorException e) {
+        } catch (RestClientResponseException e) {
             log.error("Error updating account", e);
             String errorMsg = extractErrorMessage(e);
             redirectAttributes.addFlashAttribute("errorMessage", 
@@ -150,16 +149,19 @@ public class MainController {
 
         try {
             log.info("Depositing: {}", form.getAmount());
-            
-            String url = gatewayUrl + "/api/cash/deposit";
+
             Map<String, BigDecimal> request = Map.of("amount", form.getAmount());
-            
-            restTemplate.postForEntity(url, request, String.class);
+
+            gatewayClient.post()
+                    .uri("/api/cash/deposit")
+                    .body(request)
+                    .retrieve()
+                    .toBodilessEntity();
 
             redirectAttributes.addFlashAttribute("successMessage", 
                 "Счет успешно пополнен на " + form.getAmount() + " руб.!");
             
-        } catch (HttpClientErrorException e) {
+        } catch (RestClientResponseException e) {
             log.error("Error depositing", e);
             String errorMsg = extractErrorMessage(e);
             redirectAttributes.addFlashAttribute("errorMessage", 
@@ -186,15 +188,18 @@ public class MainController {
         try {
             log.info("Withdrawing: {}", form.getAmount());
             
-            String url = gatewayUrl + "/api/cash/withdraw";
             Map<String, BigDecimal> request = Map.of("amount", form.getAmount());
-            
-            restTemplate.postForEntity(url, request, String.class);
+
+            gatewayClient.post()
+                    .uri("/api/cash/withdraw")
+                    .body(request)
+                    .retrieve()
+                    .toBodilessEntity();
 
             redirectAttributes.addFlashAttribute("successMessage", 
                 "Со счета снято " + form.getAmount() + " руб.!");
             
-        } catch (HttpClientErrorException e) {
+        } catch (RestClientResponseException e) {
             log.error("Error withdrawing", e);
             String errorMsg = extractErrorMessage(e);
             redirectAttributes.addFlashAttribute("errorMessage", 
@@ -221,19 +226,22 @@ public class MainController {
         try {
             log.info("Transferring {} to {}", form.getAmount(), form.getToUsername());
             
-            String url = gatewayUrl + "/api/transfer";
             Map<String, Object> request = Map.of(
                 "toUsername", form.getToUsername(),
                 "amount", form.getAmount()
             );
-            
-            restTemplate.postForEntity(url, request, String.class);
+
+            gatewayClient.post()
+                    .uri("/api/transfer")
+                    .body(request)
+                    .retrieve()
+                    .toBodilessEntity();
 
             redirectAttributes.addFlashAttribute("successMessage", 
                 "Перевод " + form.getAmount() + " руб. пользователю " + 
                 form.getToUsername() + " выполнен успешно!");
             
-        } catch (HttpClientErrorException e) {
+        } catch (RestClientResponseException e) {
             log.error("Error transferring", e);
             String errorMsg = extractErrorMessage(e);
             redirectAttributes.addFlashAttribute("errorMessage", 
@@ -243,48 +251,34 @@ public class MainController {
         return "redirect:/";
     }
 
-    /**
-     * Выход из системы
-     */
-    @GetMapping("/logout")
-    public String logout() {
-        return "redirect:/";
-    }
-
     // ========== Вспомогательные методы ==========
 
     /**
      * Получить данные своего аккаунта
      */
     private FrontendDTO.AccountInfo getMyAccount() {
-        String url = gatewayUrl + "/api/accounts/me";
-        ResponseEntity<FrontendDTO.AccountInfo> response = restTemplate.exchange(
-            url,
-            HttpMethod.GET,
-            null,
-            FrontendDTO.AccountInfo.class
-        );
-        return response.getBody();
+        return gatewayClient.get()
+                .uri("/api/accounts/me")
+                .retrieve()
+                .body(FrontendDTO.AccountInfo.class);
     }
 
     /**
      * Получить список всех аккаунтов (кроме своего)
      */
     private List<FrontendDTO.AccountSummary> getAllAccounts() {
-        String url = gatewayUrl + "/api/accounts/all";
-        ResponseEntity<List<FrontendDTO.AccountSummary>> response = restTemplate.exchange(
-            url,
-            HttpMethod.GET,
-            null,
-            new ParameterizedTypeReference<List<FrontendDTO.AccountSummary>>() {}
-        );
-        return response.getBody();
+        FrontendDTO.AccountSummary[] arr = gatewayClient.get()
+                .uri("/api/accounts/all")
+                .retrieve()
+                .body(FrontendDTO.AccountSummary[].class);
+
+        return arr == null ? List.of() : List.of(arr);
     }
 
     /**
      * Извлечь сообщение об ошибке из исключения
      */
-    private String extractErrorMessage(HttpClientErrorException e) {
+    private String extractErrorMessage(RestClientResponseException e) {
         try {
             String body = e.getResponseBodyAsString();
             // Попытка извлечь поле "error" из JSON

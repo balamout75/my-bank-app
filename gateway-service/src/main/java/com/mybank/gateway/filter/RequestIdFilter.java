@@ -30,13 +30,13 @@ public class RequestIdFilter implements GlobalFilter, Ordered {
         HttpHeaders headers = exchange.getRequest().getHeaders();
         
         // Проверяем есть ли уже Request ID (от клиента)
-        String requestId = headers.getFirst(REQUEST_ID_HEADER);
-        
+        String incomingRequestId = headers.getFirst(REQUEST_ID_HEADER);
+
         // Если нет - генерируем новый
-        if (requestId == null || requestId.isEmpty()) {
-            requestId = UUID.randomUUID().toString();
-        }
-        
+        final String requestId = (incomingRequestId == null || incomingRequestId.isEmpty())
+                ? UUID.randomUUID().toString()
+                : incomingRequestId;
+
         // Добавляем Request ID в request (для микросервисов)
         ServerWebExchange modifiedExchange = exchange.mutate()
                 .request(builder -> builder.header(REQUEST_ID_HEADER, requestId))

@@ -4,59 +4,12 @@ server:
 spring:
   application:
     name: front-ui
-
-  # Thymeleaf конфигурация
   thymeleaf:
     cache: false
-    prefix: classpath:/templates/
-    suffix: .html
-    mode: HTML
-    encoding: UTF-8
+  config:
+    import: "optional:configserver:http://localhost:8888"
+  profiles:
+    active: local
 
-  # ===== SECURITY CONFIGURATION =====
-  # ТЕКУЩИЙ РЕЖИМ: БЕЗ KEYCLOAK (заглушка для разработки)
-  # Простая авторизация: alice / password
-  
-  security:
-    user:
-      name: alice
-      password: password
-      roles: USER
-  
-  # ===== KEYCLOAK CONFIGURATION (закомментировано) =====
-  # Раскомментируйте когда Keycloak будет настроен
-  # 
-  # security:
-  #   oauth2:
-  #     client:
-  #       registration:
-  #         keycloak:
-  #           client-id: front-client
-  #           client-secret:  # Не нужен для public client
-  #           authorization-grant-type: authorization_code
-  #           redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-  #           scope:
-  #             - openid
-  #             - profile
-  #             - email
-  #             - accounts
-  #             - cash
-  #             - transfer
-  #       provider:
-  #         keycloak:
-  #           issuer-uri: http://localhost:9000/realms/mybank
-  #           user-name-attribute: preferred_username
-
-# URL Gateway API
 gateway:
   url: http://localhost:8090
-
-# Логирование
-logging:
-  level:
-    com.mybank.frontend: DEBUG
-    org.springframework.security: INFO
-    org.springframework.web: INFO
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
-

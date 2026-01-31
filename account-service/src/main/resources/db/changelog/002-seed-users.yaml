@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-seed-users
+      author: ivan
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: username, value: alice }
+              - column: { name: first_name, value: Alice }
+              - column: { name: last_name, value: Smith }
+              - column: { name: email, value: alice@mybank.com }
+              - column: { name: date_of_birth, valueDate: 1990-01-01 }
+              - column: { name: balance, valueNumeric: 10000.00 }
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: username, value: bob }
+              - column: { name: first_name, value: Bob }
+              - column: { name: last_name, value: Brown }
+              - column: { name: email, value: bob@mybank.com }
+              - column: { name: date_of_birth, valueDate: 1992-02-02 }
+              - column: { name: balance, valueNumeric: 5000.00 }

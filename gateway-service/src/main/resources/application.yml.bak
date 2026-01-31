@@ -1,0 +1,129 @@
+server:
+  port: 8090  # API Gateway порт
+
+spring:
+  application:
+    name: gateway-service
+  
+  # ===== Spring Cloud Gateway Configuration =====
+  cloud:
+    gateway:
+      # Service Discovery через Eureka
+      discovery:
+        locator:
+          enabled: true  # Автоматическое создание routes из Eureka
+          lower-case-service-id: true  # accounts-service вместо ACCOUNTS-SERVICE
+      
+      # ===== Ручная настройка Routes =====
+      routes:
+        # Route для Accounts Service
+        - id: accounts-service
+          uri: lb://accounts-service  # lb = Load Balancer через Eureka
+          predicates:
+            - Path=/api/accounts/**
+          filters:
+            - StripPrefix=1  # Убрать /api из пути перед отправкой
+
+        # Route для Cash Service
+        - id: cash-service
+          uri: lb://cash-service
+          predicates:
+            - Path=/api/cash/**
+          filters:
+            - StripPrefix=1
+
+        # Route для Transfer Service
+        - id: transfer-service
+          uri: lb://transfer-service
+          predicates:
+            - Path=/api/transfer/**
+          filters:
+            - StripPrefix=1
+
+        # Route для Notifications Service (если будет)
+        - id: notifications-service
+          uri: lb://notifications-service
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - StripPrefix=1
+
+      # ===== Global CORS Configuration =====
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins: "*"  # В production указать конкретные origins!
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowed-headers: "*"
+            allow-credentials: true
+            max-age: 3600
+
+      # ===== Default Filters (применяются ко всем routes) =====
+      default-filters:
+        - AddResponseHeader=X-Response-Time, ${responseTime}
+
+# ===== Eureka Client =====
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+# ===== Actuator =====
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,gateway
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      enabled: true  # Gateway endpoint для просмотра routes
+
+# ===== Логирование =====
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# ===== ОПЦИОНАЛЬНО: Circuit Breaker =====
+# Раскомментируйте при использовании Resilience4j
+#resilience4j:
+#  circuitbreaker:
+#    configs:
+#      default:
+#        sliding-window-size: 10
+#        failure-rate-threshold: 50
+#        wait-duration-in-open-state: 10000
+#        permitted-number-of-calls-in-half-open-state: 3
+#  timelimiter:
+#    configs:
+#      default:
+#        timeout-duration: 3s
+
+# ===== ОПЦИОНАЛЬНО: Rate Limiting =====
+# spring:
+#   cloud:
+#     gateway:
+#       routes:
+#         - id: accounts-service
+#           filters:
+#             - name: RequestRateLimiter
+#               args:
+#                 redis-rate-limiter.replenishRate: 10
+#                 redis-rate-limiter.burstCapacity: 20

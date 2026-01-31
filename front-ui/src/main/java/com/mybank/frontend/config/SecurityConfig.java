@@ -11,7 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
  * 
  * ТЕКУЩИЙ РЕЖИМ: БЕЗ KEYCLOAK (заглушка для разработки)
  * - Простая форма логина
- * - Пользователь: alice / password (из application.yml)
+ * - Пользователь: alice / password (из application.yml.bak)
  * 
  * ДЛЯ KEYCLOAK: Раскомментируйте секцию oauth2Login ниже
  */
@@ -24,17 +24,13 @@ public class SecurityConfig {
         http
             // Настройка авторизации запросов
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/error", "/login").permitAll()
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/error").permitAll()
                 .anyRequest().authenticated()
             )
             
             // ВАРИАНТ 1: БЕЗ KEYCLOAK (текущий режим)
             // Простая форма логина
-            .formLogin(form -> form
-                .loginPage("/login")
-                .defaultSuccessUrl("/", true)
-                .permitAll()
-            )
+            .formLogin(form -> form.permitAll())
             
             // ВАРИАНТ 2: С KEYCLOAK (закомментировано)
             // Раскомментируйте когда Keycloak настроен

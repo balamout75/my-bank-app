@@ -3,13 +3,19 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/../../../../Practicum sandbox/Modile_three/nine/Microservice Chassis/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../../Practicum sandbox/Modile_three/nine/Microservice Chassis/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/account-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/account-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/config-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/config-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/discovery-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/discovery-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/front-ui/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/front-ui/src/main/java/com/mybank/frontend/client/GatewayClient.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/front-ui/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/gateway-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/gateway-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/notification-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/notification-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
   </component>

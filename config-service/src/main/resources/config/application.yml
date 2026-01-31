@@ -1,45 +1,27 @@
-# Общая конфигурация для всех микросервисов
-# Файл: application.yml
-#
-# Эти настройки применяются ко всем сервисам по умолчанию
-# Могут быть переопределены в специфичных для сервиса файлах
+# Общие настройки для всех микросервисов (Spring Cloud Config)
+# Раздаётся как: /application/{profile}
 
-# ===== Общие настройки Spring =====
 spring:
-  # JPA/Hibernate общие настройки
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-        jdbc:
-          time_zone: UTC
-  
-  # Jackson настройки
   jackson:
     serialization:
-      write-dates-as-timestamps: false
-      indent-output: true
+      INDENT_OUTPUT: true
     deserialization:
-      fail-on-unknown-properties: false
+      FAIL_ON_UNKNOWN_PROPERTIES: false
+    datatype:
+      datetime:
+        WRITE_DATES_AS_TIMESTAMPS: false
 
-# ===== Eureka Client (для всех сервисов) =====
 eureka:
   instance:
     prefer-ip-address: true
     lease-renewal-interval-in-seconds: 30
     lease-expiration-duration-in-seconds: 90
 
-# ===== Actuator (для всех сервисов) =====
 management:
   endpoint:
     health:
       show-details: always
-  health:
-    circuitbreakers:
-      enabled: true
 
-# ===== Общие настройки логирования =====
 logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

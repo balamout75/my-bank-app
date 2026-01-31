@@ -2,24 +2,29 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="config-service (1)" />
-        <module name="front-ui (2)" />
-        <module name="gateway-service (1)" />
+        <module name="notification" />
         <module name="config-service" />
         <module name="front-ui" />
+        <module name="account-service" />
         <module name="gateway-service" />
+        <module name="discovery-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="config-service (1)" target="1.5" />
       <module name="config-service (2)" target="1.5" />
-      <module name="discovery-service" target="21" />
       <module name="front-ui (1)" target="1.5" />
+      <module name="front-ui (2)" target="1.5" />
+      <module name="gateway-service (1)" target="1.5" />
       <module name="gateway-service (2)" target="1.5" />
+      <module name="my-bank-app (2)" target="21" />
       <module name="my-bank-front-app" target="21" />
+      <module name="notification-service" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
