@@ -1,0 +1,45 @@
+version: '28.5.2'
+
+# имена и описания контейнеров, которые должны быть развёрнуты
+services:
+  # описание контейнера db
+  db:
+    container_name: yp-database-M2-S5
+    # образ, из которого должен быть запущен контейнер
+    image: postgres:18.1
+    restart: always
+    # переменные окружения
+    environment:
+      - POSTGRES_USER=practicum_user
+      - POSTGRES_PASSWORD=mysecretpassword
+    # volume и связанная с ним директория в контейнере
+    volumes:
+      - db-data:/var/lib/postgresql/18/docker
+
+  app:
+    container_name: app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: app
+    restart: on-failure
+    environment:
+      - POSTGRES_USER=practicum_user
+      - POSTGRES_PASSWORD=mysecretpassword
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      - db
+
+  gw:
+    container_name: gw
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./proxy/nginx-practicum-proxy.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+
+volumes:
+  db-data:

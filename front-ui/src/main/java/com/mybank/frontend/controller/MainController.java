@@ -3,16 +3,15 @@ package com.mybank.frontend.controller;
 import com.mybank.frontend.client.GatewayClient;
 import com.mybank.frontend.client.dto.AccountUpdateRequest;
 import com.mybank.frontend.dto.FrontendDTO;
+import com.mybank.frontend.service.DashboardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
@@ -30,8 +29,8 @@ import java.util.Map;
 @Slf4j
 public class MainController {
 
-    //private final RestClient gatewayClient;
     private final GatewayClient gatewayClient;
+    private final DashboardService dashboardService;
 
     /**
      * Главная страница
