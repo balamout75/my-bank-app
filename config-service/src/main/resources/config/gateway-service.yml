@@ -12,7 +12,7 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: false
+          enabled: true
           lower-case-service-id: true
 
       routes:
@@ -21,28 +21,28 @@ spring:
           predicates:
             - Path=/api/accounts/**
           filters:
-            - StripPrefix=1
+            - RewritePath=/api/accounts/(?<segment>.*), /accounts/$\{segment}
 
         - id: cash-service
           uri: lb://cash-service
           predicates:
             - Path=/api/cash/**
           filters:
-            - StripPrefix=1
+            - RewritePath=/api/cash/(?<segment>.*), /cash/$\{segment}
 
         - id: transfer-service
           uri: lb://transfer-service
           predicates:
             - Path=/api/transfer/**
           filters:
-            - StripPrefix=1
+            - RewritePath=/api/transfer/(?<segment>.*), /transfer/$\{segment}
 
         - id: notifications-service
           uri: lb://notifications-service
           predicates:
             - Path=/api/notifications/**
           filters:
-            - StripPrefix=1
+            - RewritePath=/api/notifications/(?<segment>.*), /notifications/$\{segment}
 
       globalcors:
         cors-configurations:
@@ -74,4 +74,5 @@ logging:
     org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: TRACE
     org.springframework.cloud.gateway.route: DEBUG
     org.springframework.cloud.gateway: DEBUG
+    org.springframework.boot.autoconfigure: DEBUG
     reactor.netty: INFO
