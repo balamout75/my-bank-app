@@ -1,4 +1,4 @@
-package com.mybank.frontend.dto;
+package com.mybank.frontend.viewmodel;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * DTO для фронтенда
+ * ViewModel/Forms для SSR (Thymeleaf) — модели представления страниц и формы.
  */
 public class FrontendDTO {
 
@@ -22,21 +22,10 @@ public class FrontendDTO {
     public static class AccountInfo {
         private Long id;
         private String username;
-        
-        @NotBlank(message = "Имя обязательно для заполнения")
         private String firstName;
-        
-        @NotBlank(message = "Фамилия обязательна для заполнения")
         private String lastName;
-
-        @NotBlank(message = "e-mail обязателен для заполнения")
-        @Email(message = "Некорректный e-mail")
         private String email;
-        
-        @NotNull(message = "Дата рождения обязательна")
-        @Past(message = "Дата рождения должна быть в прошлом")
         private LocalDate dateOfBirth;
-        
         private BigDecimal balance;
         private Integer age;
     }
@@ -106,7 +95,19 @@ public class FrontendDTO {
     @Builder
     public static class MainPageModel {
         private AccountInfo account;
-        private List<AccountSummary> availableAccounts;
+
+        @Builder.Default
+        private List<AccountSummary> availableAccounts = List.of();
+
+        @Builder.Default
+        private AccountUpdateForm accountUpdateForm = new AccountUpdateForm();
+
+        @Builder.Default
+        private CashOperationForm cashOperationForm = new CashOperationForm();
+
+        @Builder.Default
+        private TransferForm transferForm = new TransferForm();
+
         private String errorMessage;
         private String successMessage;
     }
