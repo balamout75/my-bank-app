@@ -9,15 +9,6 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
-/**
- * Конфигурация Security для фронтенда
- * 
- * ТЕКУЩИЙ РЕЖИМ: БЕЗ KEYCLOAK (заглушка для разработки)
- * - Простая форма логина
- * - Пользователь: alice / password (из application.yml.bak)
- * 
- * ДЛЯ KEYCLOAK: Раскомментируйте секцию oauth2Login ниже
- */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -27,7 +18,7 @@ public class SecurityConfig {
             ClientRegistrationRepository clientRegistrationRepository
     ) {
         var handler = new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
-        handler.setPostLogoutRedirectUri("{baseUrl}/login?logout");
+        handler.setPostLogoutRedirectUri("{baseUrl}/");
         return handler;
     }
 
@@ -37,10 +28,11 @@ public class SecurityConfig {
         http
             // Настройка авторизации запросов
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/error").permitAll()
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/error", "/force-logout").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
+                .loginPage("/oauth2/authorization/keycloak")
                 .defaultSuccessUrl("/", true)
             )
             

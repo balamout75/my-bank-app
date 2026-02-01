@@ -3,7 +3,7 @@ package com.mybank.frontend.controller;
 import com.mybank.frontend.service.DashboardService;
 import com.mybank.frontend.viewmodel.FrontendDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +17,7 @@ public class MainController {
 
     @GetMapping("/")
     public String dashboard(
-            Authentication authentication,
+            OAuth2AuthenticationToken authentication,
             Model model,
             @ModelAttribute("successMessage") String successMessage,
             @ModelAttribute("errorMessage") String errorMessage
@@ -29,6 +29,6 @@ public class MainController {
         if (errorMessage != null && !errorMessage.isBlank()) page.setErrorMessage(errorMessage);
 
         model.addAttribute("page", page);
-        return "dashboard";
+        return "main";
     }
 }

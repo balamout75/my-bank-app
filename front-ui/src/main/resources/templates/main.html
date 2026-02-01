@@ -21,7 +21,10 @@
             </p>
         </div>
         <div class="col text-end">
-            <a href="/logout" class="btn btn-outline-secondary">Выход</a>
+            <form th:action="@{/logout}" method="post" class="d-inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="submit" class="btn btn-outline-secondary">Выход</button>
+            </form>
         </div>
     </div>
 
@@ -92,10 +95,9 @@
         </div>
         <div class="card-body">
             <div class="row">
-
                 <!-- DEPOSIT -->
                 <div class="col-md-6">
-                    <form th:action="@{/cash/deposit}" method="post" th:object="${page.depositForm}">
+                    <form th:action="@{/cash/deposit}" method="post" th:object="${page.cashOperationForm}">
                         <label class="form-label">Пополнить счет</label>
                         <div class="input-group">
                             <input type="number" class="form-control"
@@ -108,10 +110,9 @@
                         <div class="invalid-feedback d-block" th:errors="*{amount}"></div>
                     </form>
                 </div>
-
                 <!-- WITHDRAW -->
                 <div class="col-md-6">
-                    <form th:action="@{/cash/withdraw}" method="post" th:object="${page.withdrawForm}">
+                    <form th:action="@{/cash/withdraw}" method="post" th:object="${page.cashOperationForm}">
                         <label class="form-label">Снять со счета</label>
                         <div class="input-group">
                             <input type="number" class="form-control"
@@ -124,7 +125,6 @@
                         <div class="invalid-feedback d-block" th:errors="*{amount}"></div>
                     </form>
                 </div>
-
             </div>
         </div>
     </div>

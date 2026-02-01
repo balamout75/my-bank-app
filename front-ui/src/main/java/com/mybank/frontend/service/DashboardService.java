@@ -6,8 +6,9 @@ import com.mybank.frontend.client.TransferClient;
 import com.mybank.frontend.mapper.DashboardMapper;
 import com.mybank.frontend.viewmodel.FrontendDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,8 +21,9 @@ public class DashboardService {
     private final CashClient cashClient;
     private final TransferClient transferClient;
     private final DashboardMapper mapper;
+    private final OAuth2AuthorizedClientService clientService;
 
-    public FrontendDTO.MainPageModel buildPage(Authentication authentication) {
+    public FrontendDTO.MainPageModel buildPage(OAuth2AuthenticationToken authentication) {
         String token = extractToken(authentication);
 
         // 1) пользователь
@@ -50,28 +52,39 @@ public class DashboardService {
                 .build();
     }
 
-    public void deposit(Authentication auth, FrontendDTO.CashOperationForm form) {
+    public void deposit(OAuth2AuthenticationToken auth, FrontendDTO.CashOperationForm form) {
         String token = extractToken(auth);
         cashClient.deposit(token, null);
     }
 
-    public void withdraw(Authentication auth, FrontendDTO.CashOperationForm form) {
+    public void withdraw(OAuth2AuthenticationToken auth, FrontendDTO.CashOperationForm form) {
         String token = extractToken(auth);
         cashClient.withdraw(token, null);
     }
 
-    public void transfer(Authentication auth, FrontendDTO.TransferForm form) {
+    public void transfer(OAuth2AuthenticationToken auth, FrontendDTO.TransferForm form) {
         String token = extractToken(auth);
         transferClient.transfer(token, null);
     }
 
-    private String extractToken(Authentication authentication) {
+    private String extractToken(OAuth2AuthenticationToken authentication) {
         if (authentication == null) {
-            throw new IllegalStateException("Authentication is null. User is not authenticated.");
+            throw new IllegalStateException("Authentication is null");
         }
-        if (!(authentication instanceof JwtAuthenticationToken jwtAuth)) {
-            throw new IllegalStateException("Unsupported authentication type: " + authentication.getClass().getName());
+        // Получаем principal (пользователя)
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof OidcUser)) {
+            throw new IllegalStateException("Principal is not an OidcUser. Type: " +
+                    (principal != null ? principal.getClass().getName() : "null"));
         }
-        return jwtAuth.getToken().getTokenValue();
+        OidcUser oidcUser = (OidcUser) principal;
+        // Получаем ID Token (это JWT от Keycloak)
+        String tokenValue = oidcUser.getIdToken().getTokenValue();
+        if (tokenValue == null || tokenValue.isEmpty()) {
+            throw new IllegalStateException("ID Token is null or empty for user: " + authentication.getName());
+        }
+
+        System.out.println("Successfully extracted ID token for user: {}" + authentication.getName());
+        return tokenValue;
     }
 }
