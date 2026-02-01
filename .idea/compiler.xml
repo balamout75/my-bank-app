@@ -7,15 +7,15 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="notification" />
+        <module name="accounts-service" />
         <module name="config-service" />
         <module name="front-ui" />
-        <module name="account-service" />
         <module name="gateway-service" />
         <module name="discovery-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="account-service" target="21" />
       <module name="config-service (1)" target="1.5" />
       <module name="config-service (2)" target="1.5" />
       <module name="front-ui (1)" target="1.5" />
@@ -25,6 +25,7 @@
       <module name="my-bank-app (2)" target="21" />
       <module name="my-bank-front-app" target="21" />
       <module name="notification-service" target="21" />
+      <module name="notifications-service" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

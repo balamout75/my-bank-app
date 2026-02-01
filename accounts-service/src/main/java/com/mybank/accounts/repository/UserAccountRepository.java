@@ -7,6 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserAccountRepository extends JpaRepository<UserAccount, Long> {
-    Optional<UserAccount> findByUsername(String username);
-    List<UserAccount> findAllByUsernameNot(String username);
+    Optional<UserAccount> findByUserName(String username);
+    List<UserAccount> findAllByUserNameNot(String username);
 }

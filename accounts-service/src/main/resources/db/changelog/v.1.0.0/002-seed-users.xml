@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <changeSet id="002-seed-users" author="Ivan Vasilyev">
+        <comment>Вставка тестовых пользователей Alice и Bob</comment>
+
+        <!-- Вставка пользователя Alice -->
+        <insert tableName="users">
+            <!-- ✅ Используем sequence вместо хардкода ID -->
+            <column name="id" valueSequenceNext="users_sequence"/>
+            <column name="user_name" value="alice"/>
+            <column name="first_name" value="Alice"/>
+            <column name="last_name" value="Smith"/>
+            <column name="email" value="alice@mybank.com"/>
+            <column name="date_of_birth" value="1990-01-01"/>
+            <!-- ✅ valueNumeric с ТОЧКОЙ (не запятой!) -->
+            <column name="balance" valueNumeric="10000.00"/>
+        </insert>
+
+        <!-- Вставка пользователя Bob -->
+        <insert tableName="users">
+            <column name="id" valueSequenceNext="users_sequence"/>
+            <column name="user_name" value="bob"/>
+            <column name="first_name" value="Bob"/>
+            <column name="last_name" value="Brown"/>
+            <column name="email" value="bob@mybank.com"/>
+            <column name="date_of_birth" value="1992-02-02"/>
+            <!-- ✅ valueNumeric с ТОЧКОЙ -->
+            <column name="balance" valueNumeric="50000.00"/>
+        </insert>
+
+        <!-- ✅ Rollback в КОНЦЕ changeSet (не после каждого insert!) -->
+        <rollback>
+            <delete tableName="users">
+                <!-- Удаляем по username, т.к. ID генерируется автоматически -->
+                <where>username IN ('alice', 'bob')</where>
+            </delete>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

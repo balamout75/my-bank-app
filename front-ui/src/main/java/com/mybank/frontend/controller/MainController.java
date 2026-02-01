@@ -1,10 +1,13 @@
 package com.mybank.frontend.controller;
 
+import com.mybank.frontend.client.GatewayClient;
+import com.mybank.frontend.client.dto.AccountUpdateRequest;
 import com.mybank.frontend.dto.FrontendDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -27,54 +30,55 @@ import java.util.Map;
 @Slf4j
 public class MainController {
 
-    private final RestClient gatewayClient;
+    //private final RestClient gatewayClient;
+    private final GatewayClient gatewayClient;
 
     /**
      * Главная страница
      * Отображает информацию об аккаунте, форму операций и форму перевода
      */
     @GetMapping("/")
-    public String mainPage(Model model, @AuthenticationPrincipal Object principal) {
+    public String mainPage(Model model, OAuth2AuthenticationToken authentication) {
         try {
-            // Получаем username
-            // В режиме заглушки (form login): principal это UserDetails
-            // В режиме OAuth2: principal это OAuth2User
-            String username;
-            if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
-                username = ((org.springframework.security.core.userdetails.UserDetails) principal).getUsername();
-            } else if (principal instanceof org.springframework.security.oauth2.core.user.OAuth2User) {
-                username = ((org.springframework.security.oauth2.core.user.OAuth2User) principal).getAttribute("sub");
-            } else {
-                username = "alice"; // Fallback
-            }
-            
+            String username = authentication.getPrincipal().getAttribute("preferred_username");
             log.info("Loading main page for user: {}", username);
 
             // Получаем данные аккаунта
             FrontendDTO.AccountInfo account;
             try {
-                account = getMyAccount();
-            } catch (Exception e) {
-                log.warn("Backend services unavailable, using mock data");
-                // Заглушка когда бэкенд недоступен
+                // лучше напрямую брать ответ accounts-service, а не мок
+                var me = gatewayClient.getMe(authentication);
                 account = FrontendDTO.AccountInfo.builder()
-                    .id(1L)
-                    .username(username)
-                    .firstName("Alice")
-                    .lastName("Smith")
-                    .email("alice@mybank.com")
-                    .dateOfBirth(LocalDate.of(1990, 1, 1))
-                    .balance(new BigDecimal("10000.00"))
-                    .build();
+                        .username(me.username())
+                        .firstName(me.firstName())
+                        .lastName(me.lastName())
+                        .dateOfBirth(me.dateOfBirth())
+                        .balance(BigDecimal.valueOf(me.balance()))
+                        .build();
+            } catch (Exception e) {
+                log.warn("Backend services unavailable: {}", e.toString(), e);
+                account = FrontendDTO.AccountInfo.builder()
+                        .id(1L)
+                        .username(username)
+                        .firstName("Alice")
+                        .lastName("Smith")
+                        .email("alice@mybank.com")
+                        .dateOfBirth(LocalDate.of(1990, 1, 1))
+                        .balance(new BigDecimal("10000.00"))
+                        .build();
             }
             
             // Получаем список других аккаунтов для переводов
             List<FrontendDTO.AccountSummary> accounts;
+
             try {
-                accounts = getAllAccounts();
+                var arr = gatewayClient.getAllAccounts(authentication);
+                accounts = arr.stream()
+                        .map(a -> new FrontendDTO.AccountSummary(a.username(), a.fullName()))
+                        .toList();
             } catch (Exception e) {
-                log.warn("Backend services unavailable, using empty list");
-                accounts = List.of(); // Пустой список если бэкенд недоступен
+                log.warn("Backend services unavailable (accounts list): {}", e.toString(), e);
+                accounts = List.of();
             }
 
             // Создаем модель для страницы
@@ -103,7 +107,8 @@ public class MainController {
     @PostMapping("/account/update")
     public String updateAccount(@Valid @ModelAttribute("updateForm") FrontendDTO.AccountUpdateForm form,
                                 BindingResult result,
-                                RedirectAttributes redirectAttributes) {
+                                RedirectAttributes redirectAttributes,
+                                OAuth2AuthenticationToken authentication) {
         
         if (result.hasErrors()) {
             redirectAttributes.addFlashAttribute("errorMessage", 
@@ -113,14 +118,10 @@ public class MainController {
 
         try {
             log.info("Updating account: {} {}", form.getFirstName(), form.getLastName());
-
-            gatewayClient.put()
-                    .uri("/api/accounts/me")
-                    .body(form)
-                    .retrieve()
-                    .toBodilessEntity();
-
-            redirectAttributes.addFlashAttribute("successMessage", 
+            gatewayClient.updateMe(new AccountUpdateRequest(form.getFirstName(),
+                                                            form.getLastName(),
+                                                            form.getDateOfBirth()), authentication);
+            redirectAttributes.addFlashAttribute("successMessage",
                 "Данные успешно обновлены!");
             
         } catch (RestClientResponseException e) {
@@ -152,11 +153,14 @@ public class MainController {
 
             Map<String, BigDecimal> request = Map.of("amount", form.getAmount());
 
+            /*
             gatewayClient.post()
                     .uri("/api/cash/deposit")
                     .body(request)
                     .retrieve()
                     .toBodilessEntity();
+
+             */
 
             redirectAttributes.addFlashAttribute("successMessage", 
                 "Счет успешно пополнен на " + form.getAmount() + " руб.!");
@@ -190,11 +194,14 @@ public class MainController {
             
             Map<String, BigDecimal> request = Map.of("amount", form.getAmount());
 
+            /*
             gatewayClient.post()
                     .uri("/api/cash/withdraw")
                     .body(request)
                     .retrieve()
                     .toBodilessEntity();
+
+             */
 
             redirectAttributes.addFlashAttribute("successMessage", 
                 "Со счета снято " + form.getAmount() + " руб.!");
@@ -231,11 +238,14 @@ public class MainController {
                 "amount", form.getAmount()
             );
 
+            /*
             gatewayClient.post()
                     .uri("/api/transfer")
                     .body(request)
                     .retrieve()
                     .toBodilessEntity();
+
+             */
 
             redirectAttributes.addFlashAttribute("successMessage", 
                 "Перевод " + form.getAmount() + " руб. пользователю " + 
@@ -249,30 +259,6 @@ public class MainController {
         }
 
         return "redirect:/";
-    }
-
-    // ========== Вспомогательные методы ==========
-
-    /**
-     * Получить данные своего аккаунта
-     */
-    private FrontendDTO.AccountInfo getMyAccount() {
-        return gatewayClient.get()
-                .uri("/api/accounts/me")
-                .retrieve()
-                .body(FrontendDTO.AccountInfo.class);
-    }
-
-    /**
-     * Получить список всех аккаунтов (кроме своего)
-     */
-    private List<FrontendDTO.AccountSummary> getAllAccounts() {
-        FrontendDTO.AccountSummary[] arr = gatewayClient.get()
-                .uri("/api/accounts/all")
-                .retrieve()
-                .body(FrontendDTO.AccountSummary[].class);
-
-        return arr == null ? List.of() : List.of(arr);
     }
 
     /**

@@ -18,6 +18,7 @@
 
     <dependencies>
         <!-- Spring Cloud Gateway -->
+
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
@@ -46,12 +47,14 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- ОПЦИОНАЛЬНО: Circuit Breaker (Resilience4j) -->
-        <!--
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
         </dependency>
+
+        <!-- ОПЦИОНАЛЬНО: Circuit Breaker (Resilience4j) -->
+        <!--
+
         -->
 
         <!-- ОПЦИОНАЛЬНО: Config Client -->

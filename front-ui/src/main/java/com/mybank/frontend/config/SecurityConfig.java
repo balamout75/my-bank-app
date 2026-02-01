@@ -4,7 +4,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 /**
  * Конфигурация Security для фронтенда
@@ -20,30 +23,30 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public LogoutSuccessHandler oidcLogoutSuccessHandler(
+            ClientRegistrationRepository clientRegistrationRepository
+    ) {
+        var handler = new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
+        handler.setPostLogoutRedirectUri("{baseUrl}/login?logout");
+        return handler;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   LogoutSuccessHandler oidcLogoutSuccessHandler) throws Exception {
         http
             // Настройка авторизации запросов
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/error").permitAll()
                 .anyRequest().authenticated()
             )
-            
-            // ВАРИАНТ 1: БЕЗ KEYCLOAK (текущий режим)
-            // Простая форма логина
-            .formLogin(form -> form.permitAll())
-            
-            // ВАРИАНТ 2: С KEYCLOAK (закомментировано)
-            // Раскомментируйте когда Keycloak настроен
-            // 
-            // .oauth2Login(oauth2 -> oauth2
-            //     .loginPage("/login")
-            //     .defaultSuccessUrl("/", true)
-            //     .failureUrl("/login?error=true")
-            // )
+            .oauth2Login(oauth2 -> oauth2
+                .defaultSuccessUrl("/", true)
+            )
             
             // Настройка Logout
             .logout(logout -> logout
-                .logoutSuccessUrl("/login?logout")
+                .logoutSuccessHandler(oidcLogoutSuccessHandler)
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
                 .permitAll()

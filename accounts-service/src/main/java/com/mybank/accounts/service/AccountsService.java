@@ -26,7 +26,7 @@ public class AccountsService {
 
     @Transactional(readOnly = true)
     public AccountMeResponse getMe(String username) {
-        UserAccount u = repo.findByUsername(username)
+        UserAccount u = repo.findByUserName(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
 
         return toMeResponse(u);
@@ -36,7 +36,7 @@ public class AccountsService {
     public void updateMe(String username, AccountUpdateRequest req) {
         validateAdult(req.dateOfBirth());
 
-        UserAccount u = repo.findByUsername(username)
+        UserAccount u = repo.findByUserName(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
 
         u.setFirstName(req.firstName());
@@ -55,8 +55,8 @@ public class AccountsService {
 
     @Transactional(readOnly = true)
     public List<AccountSummaryResponse> getAllOthers(String username) {
-        return repo.findAllByUsernameNot(username).stream()
-                .map(u -> new AccountSummaryResponse(u.getUsername(), u.getFirstName() + " " + u.getLastName()))
+        return repo.findAllByUserNameNot(username).stream()
+                .map(u -> new AccountSummaryResponse(u.getUserName(), u.getFirstName() + " " + u.getLastName()))
                 .toList();
     }
 
@@ -70,7 +70,7 @@ public class AccountsService {
     private static AccountMeResponse toMeResponse(UserAccount u) {
         return AccountMeResponse.builder()
                 .id(u.getId())
-                .username(u.getUsername())
+                .username(u.getUserName())
                 .firstName(u.getFirstName())
                 .lastName(u.getLastName())
                 .email(u.getEmail())

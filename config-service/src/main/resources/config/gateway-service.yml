@@ -2,56 +2,59 @@ server:
   port: 8090
 
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/mybank
+
   cloud:
     gateway:
-      server:
-        webflux:
-          discovery:
-            locator:
-              enabled: true
-              lower-case-service-id: true
+      discovery:
+        locator:
+          enabled: false
+          lower-case-service-id: true
 
-          routes:
-            - id: accounts-service
-              uri: lb://accounts-service
-              predicates:
-                - Path=/api/accounts/**
-              filters:
-                - StripPrefix=1
+      routes:
+        - id: accounts-service
+          uri: lb://accounts-service
+          predicates:
+            - Path=/api/accounts/**
+          filters:
+            - StripPrefix=1
 
-            - id: cash-service
-              uri: lb://cash-service
-              predicates:
-                - Path=/api/cash/**
-              filters:
-                - StripPrefix=1
+        - id: cash-service
+          uri: lb://cash-service
+          predicates:
+            - Path=/api/cash/**
+          filters:
+            - StripPrefix=1
 
-            - id: transfer-service
-              uri: lb://transfer-service
-              predicates:
-                - Path=/api/transfer/**
-              filters:
-                - StripPrefix=1
+        - id: transfer-service
+          uri: lb://transfer-service
+          predicates:
+            - Path=/api/transfer/**
+          filters:
+            - StripPrefix=1
 
-            - id: notifications-service
-              uri: lb://notifications-service
-              predicates:
-                - Path=/api/notifications/**
-              filters:
-                - StripPrefix=1
+        - id: notifications-service
+          uri: lb://notifications-service
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - StripPrefix=1
 
-          globalcors:
-            cors-configurations:
-              "[/**]":
-                allowed-origins: "*"
-                allowed-methods: [GET, POST, PUT, DELETE, PATCH, OPTIONS]
-                allowed-headers: "*"
-                # ВАЖНО: нельзя true вместе с "*"
-                allow-credentials: false
-                max-age: 3600
+      globalcors:
+        cors-configurations:
+          "[/**]":
+            allowed-origins: "*"
+            allowed-methods: [GET, POST, PUT, DELETE, PATCH, OPTIONS]
+            allowed-headers: "*"
+            allow-credentials: false
+            max-age: 3600
 
-          default-filters:
-            - PreserveHostHeader
+      default-filters:
+        - PreserveHostHeader
 
 eureka:
   client:
@@ -68,5 +71,7 @@ management:
 
 logging:
   level:
+    org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: TRACE
+    org.springframework.cloud.gateway.route: DEBUG
     org.springframework.cloud.gateway: DEBUG
     reactor.netty: INFO

@@ -1,15 +1,5 @@
-server:
-  port: 8080
-
 spring:
   application:
     name: front-ui
-  thymeleaf:
-    cache: false
   config:
     import: "optional:configserver:http://localhost:8888"
-  profiles:
-    active: local
-
-gateway:
-  url: http://localhost:8090

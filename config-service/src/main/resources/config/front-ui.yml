@@ -1,0 +1,21 @@
+server:
+  port: 8081
+spring:
+  thymeleaf:
+    cache: false
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: front-ui
+            client-secret: ${KC_FRONT_SECRET:lLL8B1F0WroO7QXWC58nzfR2OZ4fUp9q}
+            scope: openid,profile,email
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          keycloak:
+            issuer-uri: ${KC_ISSUER:http://localhost:8080/realms/mybank}
+
+gateway:
+  url: http://localhost:8090
