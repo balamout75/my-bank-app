@@ -12,6 +12,7 @@
         <module name="front-ui" />
         <module name="gateway-service" />
         <module name="discovery-service" />
+        <module name="notifications-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -25,7 +26,6 @@
       <module name="my-bank-app (2)" target="21" />
       <module name="my-bank-front-app" target="21" />
       <module name="notification-service" target="21" />
-      <module name="notifications-service" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

@@ -1,4 +1,4 @@
-package com.mybank.frontend.client.dto;
+package com.mybank.frontend.dto.client;
 
 import java.time.LocalDate;
 

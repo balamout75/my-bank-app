@@ -3,8 +3,10 @@ package com.mybank.frontend.service;
 import com.mybank.frontend.client.AccountsClient;
 import com.mybank.frontend.client.CashClient;
 import com.mybank.frontend.client.TransferClient;
+import com.mybank.frontend.dto.client.AccountUpdateRequest;
 import com.mybank.frontend.mapper.DashboardMapper;
 import com.mybank.frontend.viewmodel.FrontendDTO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -27,7 +29,7 @@ public class DashboardService {
         String token = extractToken(authentication);
 
         // 1) пользователь
-        var meDto = accountsClient.me(token);
+        var meDto = accountsClient.getMe(token);
 
         // 2) список аккаунтов (получатели)
         var allDtos = accountsClient.getAll(token);
@@ -86,5 +88,17 @@ public class DashboardService {
 
         System.out.println("Successfully extracted ID token for user: {}" + authentication.getName());
         return tokenValue;
+    }
+
+    public void updateAccount(OAuth2AuthenticationToken authentication, FrontendDTO.AccountUpdateForm form) {
+        String token = extractToken(authentication);
+        if (form == null) throw new IllegalArgumentException("AccountUpdateForm is null");
+
+        var req = new AccountUpdateRequest(
+                form.getFirstName(),
+                form.getLastName(),
+                form.getDateOfBirth()
+        );
+        accountsClient.updateMe(req, token);
     }
 }

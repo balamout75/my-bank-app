@@ -1,6 +1,7 @@
 
 package com.mybank.frontend.client;
 
+import com.mybank.frontend.dto.client.AccountUpdateRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;

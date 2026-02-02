@@ -19,6 +19,16 @@ spring:
     liquibase-schema: public
   security:
     oauth2:
+      client:
+        registration:
+          accounts-service:
+            client-id: accounts-service
+            client-secret: Ycm7AwLxKchJ76kaRwDaG0RyHsp1T2rK
+            authorization-grant-type: client_credentials
+            scope: profile
+        provider:
+          accounts-service:
+            token-uri: http://localhost:8080/realms/mybank/protocol/openid-connect/token
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8080/realms/mybank

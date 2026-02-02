@@ -51,7 +51,8 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Имя</label>
                         <input type="text" class="form-control"
-                               th:field="*{firstName}"
+                               id="firstName" name="firstName"
+                               th:value="${page.accountUpdateForm.firstName}"
                                th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid' : ''">
                         <div class="invalid-feedback" th:errors="*{firstName}"></div>
                     </div>
@@ -59,7 +60,8 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Фамилия</label>
                         <input type="text" class="form-control"
-                               th:field="*{lastName}"
+                               id="lastName" name="lastName"
+                               th:value="${page.accountUpdateForm.lastName}"
                                th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid' : ''">
                         <div class="invalid-feedback" th:errors="*{lastName}"></div>
                     </div>
@@ -69,7 +71,11 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Дата рождения</label>
                         <input type="date" class="form-control"
-                               th:field="*{dateOfBirth}"
+                               id="dateOfBirth"
+                               name="dateOfBirth"
+                               th:value="${page.accountUpdateForm.dateOfBirth != null
+                                         ? #temporals.format(page.accountUpdateForm.dateOfBirth, 'yyyy-MM-dd')
+                                         : ''}"
                                th:classappend="${#fields.hasErrors('dateOfBirth')} ? 'is-invalid' : ''">
                         <div class="invalid-feedback" th:errors="*{dateOfBirth}"></div>
                     </div>

@@ -45,12 +45,12 @@ public class AccountsService {
         repo.save(u);
 
         // MVP: синхронно пишем уведомление (позже заменим на outbox/очередь)
-        notificationsClient.send(new NotificationRequest(
-                "ACCOUNT_UPDATED",
-                username,
-                "Account profile updated",
-                Map.of("firstName", req.firstName(), "lastName", req.lastName())
-        ));
+        //notificationsClient.send(new NotificationRequest(
+        //        "ACCOUNT_UPDATED",
+        //        username,
+        //        "Account profile updated",
+        //        Map.of("firstName", req.firstName(), "lastName", req.lastName())
+        //));
     }
 
     @Transactional(readOnly = true)

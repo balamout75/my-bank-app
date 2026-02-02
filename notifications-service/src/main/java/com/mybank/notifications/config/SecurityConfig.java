@@ -1,4 +1,4 @@
-package com.mybank.accounts.config;
+package com.mybank.notifications.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +24,7 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/notifications/**").hasRole("notification.write")
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt ->
@@ -43,9 +44,9 @@ public class SecurityConfig {
                     .map(m -> (Collection<String>) m.get("roles"))
                     .ifPresent(roles::addAll);
 
-            // Client roles (если нужно)
+            // Client roles
             Optional.ofNullable((Map<String, Object>) token.getClaim("resource_access"))
-                    .map(m -> (Map<String, Object>) m.get("accounts-service"))
+                    .map(m -> (Map<String, Object>) m.get("notification-service"))
                     .map(m -> (Collection<String>) m.get("roles"))
                     .ifPresent(roles::addAll);
 
