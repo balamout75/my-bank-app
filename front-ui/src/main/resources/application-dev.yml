@@ -1,0 +1,6 @@
+logging:
+  level:
+    root: INFO              # базовый уровень
+    com.mybank.frontend: DEBUG
+    io.github.resilience4j: DEBUG           # видеть retry/CB события
+    org.springframework.web.client: DEBUG   # полезно видеть RestClient ошибки

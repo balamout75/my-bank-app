@@ -1,22 +1,22 @@
 package com.mybank.accounts.client.notifications;
 
 import com.mybank.accounts.client.notifications.dto.NotificationRequest;
-import com.mybank.accounts.config.NotificationsRestClient;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 @Component
 public class NotificationsClient {
 
-    private final RestClient client;
+    private final RestClient notificationsRestClient;
 
-    public NotificationsClient(NotificationsRestClient notificationsRestClient) {
-        this.client = notificationsRestClient.client();
+    public NotificationsClient(@Qualifier("notificationsRestClient") RestClient notificationsRestClient) {
+        this.notificationsRestClient = notificationsRestClient;
     }
 
     public void send(NotificationRequest req) {
         // Важно: межсервисное общение напрямую, через Service Discovery
-        client.post()
+        notificationsRestClient.post()
                 .uri("/notifications")
                 .body(req)
                 .retrieve()

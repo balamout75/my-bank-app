@@ -21,6 +21,7 @@
         <module>gateway-service</module>
         <module>accounts-service</module>
         <module>notifications-service</module>
+        <module>cash-service</module>
     </modules>
 
     <properties>
@@ -33,11 +34,12 @@
 
         <!-- Версии Spring -->
         <spring-boot.version>4.0.2</spring-boot.version>
-        <spring-cloud.version>2025.1.0</spring-cloud.version>
+        <spring-cloud.version>2025.1.1</spring-cloud.version>
 
         <!-- Версии других библиотек -->
         <lombok.version>1.18.42</lombok.version>
         <testcontainers.version>2.0.3</testcontainers.version>
+        <com.github.ben-manes.caffeine.version>3.2.3</com.github.ben-manes.caffeine.version>
     </properties>
 
     <!-- Управление зависимостями для всех модулей -->

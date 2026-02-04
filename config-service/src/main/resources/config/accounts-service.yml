@@ -22,17 +22,17 @@ spring:
       client:
         registration:
           accounts-service:
+            provider: accounts-service
             client-id: accounts-service
             client-secret: Ycm7AwLxKchJ76kaRwDaG0RyHsp1T2rK
             authorization-grant-type: client_credentials
-            scope: profile
         provider:
           accounts-service:
-            token-uri: http://localhost:8080/realms/mybank/protocol/openid-connect/token
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/mybank}
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080/realms/mybank
-  
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/mybank}
+
   jpa:
     hibernate:
       ddl-auto: validate
@@ -40,6 +40,53 @@ spring:
     properties:
       hibernate:
         default_schema: accounts
+
+resilience4j:
+  # RETRY конфигурация
+  retry:
+    retry-aspect-order: 2
+    instances:
+      notifications-service:
+        max-attempts: 2
+        wait-duration: 300ms
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+          - java.io.IOException
+        ignore-exceptions:
+          - io.github.resilience4j.circuitbreaker.CallNotPermittedException
+          - org.springframework.web.client.HttpClientErrorException$BadRequest
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+          - org.springframework.web.client.HttpClientErrorException$Forbidden
+          - org.springframework.web.client.HttpClientErrorException$Unauthorized
+
+  # CIRCUIT BREAKER конфигурация
+  circuitbreaker:
+    circuitbreaker-aspect-order: 1
+    instances:
+      notifications-service:
+        ignore-exceptions:
+          - com.mybank.cash.exception.ServiceUnavailableException
+        record-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - java.io.IOException
+          - java.net.SocketTimeoutException
+        register-health-indicator: true
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 5
+        minimum-number-of-calls: 3
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 15s
+        permitted-number-of-calls-in-half-open-state: 2
+        automatic-transition-from-open-to-half-open-enabled: true
+
+  # TIMEOUT конфигурация (опционально)
+  timelimiter:
+    instances:
+      notifications-service:
+        timeout-duration: 3s
 
 # Eureka Client
 eureka:
@@ -49,12 +96,18 @@ eureka:
     service-url:
       defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
 
-# Actuator
+# Actuator для мониторинга Resilience4j
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health, info, circuitbreakers, retries, metrics
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
 
 # Логирование
 logging:

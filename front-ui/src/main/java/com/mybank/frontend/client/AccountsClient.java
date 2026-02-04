@@ -1,7 +1,10 @@
 package com.mybank.frontend.client;
 
+import com.mybank.frontend.client.dto.AccountMeResponse;
+import com.mybank.frontend.client.dto.AccountSummaryResponse;
 import com.mybank.frontend.dto.client.AccountUpdateRequest;
-import com.mybank.frontend.dto.client.AccountDto;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -14,22 +17,27 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AccountsClient {
 
+    private static final String ACCOUNTS_READ = "accounts-read";
     private final RestClient restClient; // настроен baseUrl = gateway
 
-    public List<AccountDto> getAll(String accessToken) {
+    @Retry(name = ACCOUNTS_READ)
+    @CircuitBreaker(name = ACCOUNTS_READ)
+    public List<AccountSummaryResponse> getAll(String accessToken) {
         return restClient.get()
                 .uri("/api/accounts/all")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .retrieve()
-                .body(new org.springframework.core.ParameterizedTypeReference<List<AccountDto>>() {});
+                .body(new org.springframework.core.ParameterizedTypeReference<List<AccountSummaryResponse>>() {});
     }
 
-    public AccountDto getMe(String accessToken) {
+    @Retry(name = ACCOUNTS_READ)
+    @CircuitBreaker(name = ACCOUNTS_READ)
+    public AccountMeResponse getMe(String accessToken) {
         return restClient.get()
                 .uri("/api/accounts/me")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .retrieve()
-                .body(AccountDto.class);
+                .body(AccountMeResponse.class);
     }
 
     public void updateMe(AccountUpdateRequest req, String accessToken) {

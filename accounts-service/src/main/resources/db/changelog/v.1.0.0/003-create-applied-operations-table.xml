@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+
+    <changeSet id="01-applied-operations" author="Ivan Vasilyev">
+        <preConditions>
+            <not>
+                <tableExists tableName="applied_operations"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="applied_operations">
+            <column name="operation_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="applied_operations_pkey"/>
+            </column>
+            <column name="username" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="applied_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addDefaultValue tableName="applied_operations"
+                         columnName="applied_at"
+                         defaultValueComputed="CURRENT_TIMESTAMP"/>
+
+        <createIndex tableName="applied_operations" indexName="idx_applied_ops_username">
+            <column name="username"/>
+        </createIndex>
+        <rollback>
+            <dropTable tableName="applied_operations"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

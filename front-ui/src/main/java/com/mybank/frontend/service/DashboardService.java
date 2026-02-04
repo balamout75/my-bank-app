@@ -3,17 +3,26 @@ package com.mybank.frontend.service;
 import com.mybank.frontend.client.AccountsClient;
 import com.mybank.frontend.client.CashClient;
 import com.mybank.frontend.client.TransferClient;
+import com.mybank.frontend.client.dto.AccountMeResponse;
+import com.mybank.frontend.client.dto.AccountSummaryResponse;
 import com.mybank.frontend.dto.client.AccountUpdateRequest;
+import com.mybank.frontend.dto.client.CashOperationRequest;
+import com.mybank.frontend.dto.client.OperationType;
 import com.mybank.frontend.mapper.DashboardMapper;
 import com.mybank.frontend.viewmodel.FrontendDTO;
-import jakarta.validation.Valid;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 @RequiredArgsConstructor
@@ -24,44 +33,48 @@ public class DashboardService {
     private final TransferClient transferClient;
     private final DashboardMapper mapper;
     private final OAuth2AuthorizedClientService clientService;
+    private static final Logger log = LoggerFactory.getLogger(DashboardService.class);
 
     public FrontendDTO.MainPageModel buildPage(OAuth2AuthenticationToken authentication) {
         String token = extractToken(authentication);
 
-        // 1) пользователь
-        var meDto = accountsClient.getMe(token);
+        AccountMeResponse meDto = null;
+        List<AccountSummaryResponse> allDtos = List.of();
 
-        // 2) список аккаунтов (получатели)
-        var allDtos = accountsClient.getAll(token);
+        String errorMessage = null;
+        String successMessage = null;
 
-        // 3) ViewModel
-        var accountInfo = mapper.toAccountInfo(meDto);
-        List<FrontendDTO.AccountSummary> summaries =
-                mapper.toSummaries(allDtos, accountInfo.getUsername());
+        try {
+            meDto = accountsClient.getMe(token);
+        } catch (Exception e) {
+            errorMessage = accountsUiMessage(e);
+            log.warn("accounts getMe failed: {}", e.toString());
+        }
 
-        return FrontendDTO.MainPageModel.builder()
-                .account(accountInfo)
-                .availableAccounts(summaries)
+        if (meDto != null) {
+            try {
+                allDtos = accountsClient.getAll(token);
+            } catch (Exception e) {
+                if (errorMessage == null) {
+                    errorMessage = accountsUiMessage(e);
+                    log.warn("accounts getAll failed: {}", e.toString());
+                }
+            }
+        }
 
-                // формы (важно: не null)
-                .accountUpdateForm(mapper.defaultUpdateForm(accountInfo))
-                .cashOperationForm(new FrontendDTO.CashOperationForm())
-                .transferForm(new FrontendDTO.TransferForm())
-
-                // сообщения пока пустые (потом сделаем через RedirectAttributes / Flash)
-                .successMessage(null)
-                .errorMessage(null)
-                .build();
+        return mapper.toPageModel(meDto, allDtos, successMessage, errorMessage);
     }
 
     public void deposit(OAuth2AuthenticationToken auth, FrontendDTO.CashOperationForm form) {
         String token = extractToken(auth);
-        cashClient.deposit(token, null);
+        Long opId = cashClient.getOperationKey(token).operationId();
+        cashClient.operate(token, new CashOperationRequest(opId, OperationType.DEPOSIT, form.getAmount()));
     }
 
     public void withdraw(OAuth2AuthenticationToken auth, FrontendDTO.CashOperationForm form) {
         String token = extractToken(auth);
-        cashClient.withdraw(token, null);
+        Long opId = cashClient.getOperationKey(token).operationId();
+        cashClient.operate(token, new CashOperationRequest(opId, OperationType.WITHDRAW, form.getAmount()));
     }
 
     public void transfer(OAuth2AuthenticationToken auth, FrontendDTO.TransferForm form) {
@@ -70,24 +83,16 @@ public class DashboardService {
     }
 
     private String extractToken(OAuth2AuthenticationToken authentication) {
-        if (authentication == null) {
-            throw new IllegalStateException("Authentication is null");
-        }
-        // Получаем principal (пользователя)
-        Object principal = authentication.getPrincipal();
-        if (!(principal instanceof OidcUser)) {
-            throw new IllegalStateException("Principal is not an OidcUser. Type: " +
-                    (principal != null ? principal.getClass().getName() : "null"));
-        }
-        OidcUser oidcUser = (OidcUser) principal;
-        // Получаем ID Token (это JWT от Keycloak)
-        String tokenValue = oidcUser.getIdToken().getTokenValue();
-        if (tokenValue == null || tokenValue.isEmpty()) {
-            throw new IllegalStateException("ID Token is null or empty for user: " + authentication.getName());
+        var client = clientService.loadAuthorizedClient(
+                authentication.getAuthorizedClientRegistrationId(),
+                authentication.getName()
+        );
+
+        if (client == null || client.getAccessToken() == null) {
+            throw new IllegalStateException("Access token not found");
         }
 
-        System.out.println("Successfully extracted ID token for user: {}" + authentication.getName());
-        return tokenValue;
+        return client.getAccessToken().getTokenValue();
     }
 
     public void updateAccount(OAuth2AuthenticationToken authentication, FrontendDTO.AccountUpdateForm form) {
@@ -101,4 +106,37 @@ public class DashboardService {
         );
         accountsClient.updateMe(req, token);
     }
+
+    private String accountsUiMessage(Throwable e) {
+
+        // 1) Circuit breaker открыт
+        if (e instanceof CallNotPermittedException) {
+            return "Сервис аккаунтов временно перегружен, повторите позже.";
+        }
+
+        // 2) Сетевые проблемы (чаще всего RestClient заворачивает их в ResourceAccessException)
+        if (e instanceof ResourceAccessException rae) {
+            Throwable c = rae.getCause();
+
+            if (c instanceof ConnectException) {
+                return "Сервис аккаунтов недоступен (нет соединения).";
+            }
+            if (c instanceof SocketTimeoutException) {
+                return "Сервис аккаунтов не отвечает (таймаут).";
+            }
+            return "Ошибка связи с сервисом аккаунтов.";
+        }
+
+        // 3) Ответ сервера с кодом (5xx/4xx)
+        if (e instanceof HttpStatusCodeException hsce) {
+            int code = hsce.getStatusCode().value();
+            if (code >= 500) return "Сервис аккаунтов временно недоступен (ошибка сервера).";
+            if (code == 401 || code == 403) return "Нет доступа к сервису аккаунтов (требуется авторизация).";
+            return "Ошибка при обращении к сервису аккаунтов (HTTP " + code + ").";
+        }
+
+        // 4) На всякий
+        return "Сервис аккаунтов временно недоступен.";
+    }
+
 }

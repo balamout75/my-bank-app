@@ -1,13 +1,11 @@
 package com.mybank.accounts.service;
 
-import com.mybank.accounts.dto.*;
 import com.mybank.accounts.client.notifications.NotificationsClient;
-import com.mybank.accounts.client.notifications.dto.NotificationRequest;
 import com.mybank.accounts.dto.AccountMeResponse;
 import com.mybank.accounts.dto.AccountSummaryResponse;
 import com.mybank.accounts.dto.AccountUpdateRequest;
 import com.mybank.accounts.model.UserAccount;
-import com.mybank.accounts.repository.UserAccountRepository;
+import com.mybank.accounts.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class AccountsService {
 
-    private final UserAccountRepository repo;
+    private final AccountRepository repo;
     private final NotificationsClient notificationsClient;
 
     @Transactional(readOnly = true)

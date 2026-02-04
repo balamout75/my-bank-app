@@ -36,8 +36,7 @@ public class MainController {
         if (successMessage != null && !successMessage.isBlank()) page.setSuccessMessage(successMessage);
         if (errorMessage != null && !errorMessage.isBlank()) page.setErrorMessage(errorMessage);
 
-        model.addAttribute("page", page);
-        return "main";
+        return renderMain(model, page);
     }
 
     @PostMapping("/account/update")
@@ -48,25 +47,86 @@ public class MainController {
             RedirectAttributes redirectAttributes,
             Model model
     ) {
-
-        // Если валидация не прошла — возвращаем ту же страницу БЕЗ редиректа
+        FrontendDTO.MainPageModel page = dashboardService.buildPage(authentication);
+        if (!guardAccountsOrRedirect(page, redirectAttributes)) return "redirect:/";
         if (bindingResult.hasErrors()) {
-            FrontendDTO.MainPageModel page = dashboardService.buildPage(authentication);
             page.setAccountUpdateForm(form);
-            model.addAttribute("page", page);
-            log.error("bindingResult.hasErrors(): {}", bindingResult.getAllErrors());
-            return "main";
+            return renderMain(model, page);
         }
-
         try {
             dashboardService.updateAccount(authentication, form);
             redirectAttributes.addFlashAttribute("successMessage", "Данные аккаунта успешно обновлены");
         } catch (Exception ex) {
-            log.error("ошибка обновления");
+            log.error("ошибка обновления", ex);
             redirectAttributes.addFlashAttribute("errorMessage", "Ошибка при обновлении аккаунта");
         }
-
         return "redirect:/";
     }
+
+    @PostMapping("/cash/deposit")
+    public String deposit(
+            OAuth2AuthenticationToken authentication,
+            @Valid @ModelAttribute("cashOperationForm") FrontendDTO.CashOperationForm form,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes,
+            Model model
+    ) {
+        FrontendDTO.MainPageModel page = dashboardService.buildPage(authentication);
+        if (!guardAccountsOrRedirect(page, redirectAttributes)) return "redirect:/";
+        if (bindingResult.hasErrors()) {
+            page.setCashOperationForm(form);
+            return renderMain(model, page);
+        }
+        try {
+            dashboardService.deposit(authentication, form);
+            redirectAttributes.addFlashAttribute("successMessage", "Счет успешно пополнен");
+        } catch (Exception ex) {
+            log.error("ошибка пополнения", ex);
+            redirectAttributes.addFlashAttribute("errorMessage", "Ошибка при пополнении счета");
+        }
+        return "redirect:/";
+    }
+
+    @PostMapping("/cash/withdraw")
+    public String withdraw(
+            OAuth2AuthenticationToken authentication,
+            @Valid @ModelAttribute("cashOperationForm") FrontendDTO.CashOperationForm form,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes,
+            Model model
+    ) {
+        FrontendDTO.MainPageModel page = dashboardService.buildPage(authentication);
+        if (!guardAccountsOrRedirect(page, redirectAttributes)) return "redirect:/";
+        if (bindingResult.hasErrors()) {
+            page.setCashOperationForm(form);
+            return renderMain(model, page);
+        }
+        try {
+            dashboardService.withdraw(authentication, form);
+            redirectAttributes.addFlashAttribute("successMessage", "Деньги успешно сняты");
+        } catch (Exception ex) {
+            log.error("ошибка снятия", ex);
+            redirectAttributes.addFlashAttribute("errorMessage", "Ошибка при снятии денег");
+        }
+        return "redirect:/";
+    }
+
+    private String renderMain(Model model, FrontendDTO.MainPageModel page) {
+        model.addAttribute("page", page);
+        model.addAttribute("accountUpdateForm", page.getAccountUpdateForm());
+        model.addAttribute("cashOperationForm", page.getCashOperationForm());
+        model.addAttribute("transferForm", page.getTransferForm());
+        return "main";
+    }
+
+    private boolean guardAccountsOrRedirect(FrontendDTO.MainPageModel page, RedirectAttributes ra) {
+        if (!page.isAccountsAvailable()) {
+            ra.addFlashAttribute("errorMessage", "Сервис аккаунтов временно недоступен");
+            return false;
+        }
+        return true;
+    }
+
+
 
 }

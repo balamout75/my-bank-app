@@ -1,6 +1,7 @@
 package com.mybank.frontend.mapper;
 
-import com.mybank.frontend.dto.client.AccountDto;
+import com.mybank.frontend.client.dto.AccountMeResponse;
+import com.mybank.frontend.client.dto.AccountSummaryResponse;
 import com.mybank.frontend.viewmodel.FrontendDTO;
 import org.springframework.stereotype.Component;
 
@@ -15,34 +16,37 @@ import java.util.Objects;
 public class DashboardMapper {
 
     public FrontendDTO.MainPageModel toPageModel(
-            AccountDto me,
-            List<AccountDto> allAccounts,
+            AccountMeResponse me,
+            List<AccountSummaryResponse> allAccounts,
             String successMessage,
             String errorMessage
     ) {
         var accountVm = toAccountInfo(me);
 
         var available = toSummaries(allAccounts, accountVm.getUsername());
+        boolean accountsAvailable = (me != null);
 
         return FrontendDTO.MainPageModel.builder()
                 .account(accountVm)
-                .availableAccounts(available)
-
+                .availableAccounts(accountsAvailable ? available : List.of())
+                .accountsAvailable(accountsAvailable)
                 // формы: чтобы th:object всегда был не null
                 .accountUpdateForm(defaultUpdateForm(accountVm))
                 .cashOperationForm(new FrontendDTO.CashOperationForm())
                 .transferForm(new FrontendDTO.TransferForm())
-
                 .successMessage(successMessage)
                 .errorMessage(errorMessage)
                 .build();
     }
 
-    public FrontendDTO.AccountInfo toAccountInfo(AccountDto dto) {
+    public FrontendDTO.AccountInfo toAccountInfo(AccountMeResponse dto) {
         if (dto == null) {
             // можно бросать исключение — но для фронта часто удобнее пустой объект
             return FrontendDTO.AccountInfo.builder()
-                    .balance(BigDecimal.ZERO)
+                    .username("—")
+                    .firstName("—")
+                    .lastName("")
+                    .balance(null)
                     .build();
         }
 
@@ -54,22 +58,22 @@ public class DashboardMapper {
                 .firstName(dto.firstName())
                 .lastName(dto.lastName())
                 .dateOfBirth(dob)
-                .balance(BigDecimal.valueOf(dto.balance()))
+                .balance(dto.balance() == null ? null : BigDecimal.valueOf(dto.balance()))
                 .age(age)
                 .build();
     }
 
-    public List<FrontendDTO.AccountSummary> toSummaries(List<AccountDto> all, String excludeUsername) {
+    public List<FrontendDTO.AccountSummary> toSummaries(List<AccountSummaryResponse> all, String excludeUsername) {
         if (all == null) return List.of();
 
         return all.stream()
                 .filter(Objects::nonNull)
                 .filter(a -> a.username() != null)
                 .filter(a -> excludeUsername == null || !a.username().equalsIgnoreCase(excludeUsername))
-                .sorted(Comparator.comparing(AccountDto::username, String.CASE_INSENSITIVE_ORDER))
+                .sorted(Comparator.comparing(AccountSummaryResponse::username, String.CASE_INSENSITIVE_ORDER))
                 .map(a -> new FrontendDTO.AccountSummary(
-                        a.username(),
-                        buildFullName(a.firstName(), a.lastName())
+                        a.username(), a.fullName()
+
                 ))
                 .toList();
     }

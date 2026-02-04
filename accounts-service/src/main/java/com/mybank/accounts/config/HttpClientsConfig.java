@@ -5,31 +5,50 @@ import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.oauth2.client.*;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.web.client.RestClient;
+import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
 
 @Configuration
 public class HttpClientsConfig {
 
     @Bean
+    public OAuth2AuthorizedClientManager authorizedClientManager(
+            ClientRegistrationRepository registrations,
+            OAuth2AuthorizedClientService clientService
+    ) {
+        OAuth2AuthorizedClientProvider provider = OAuth2AuthorizedClientProviderBuilder.builder()
+                .clientCredentials()
+                .build();
+
+        var manager = new AuthorizedClientServiceOAuth2AuthorizedClientManager(registrations, clientService);
+        manager.setAuthorizedClientProvider(provider);
+        return manager;
+    }
+
+    @Bean
     @Primary
     public RestClient.Builder restClientBuilder() {
-        // Обычный builder (для http:// и инфраструктурных вещей)
         return RestClient.builder();
     }
 
-    @Bean
+    @Bean("loadBalancedRestClientBuilder")
     @LoadBalanced
     public RestClient.Builder loadBalancedRestClientBuilder() {
-        // LB builder (только для lb://service-id)
         return RestClient.builder();
     }
 
-    @Bean
-    public NotificationsRestClient notificationsRestClient(
-            @Qualifier("loadBalancedRestClientBuilder") RestClient.Builder lbBuilder
+    @Bean("notificationsRestClient")
+    public RestClient notificationsRestClient(
+            @Qualifier("loadBalancedRestClientBuilder") RestClient.Builder lb,
+            OAuth2AuthorizedClientManager manager
     ) {
-        RestClient client = lbBuilder.baseUrl("lb://notifications-service").build();
-        return new NotificationsRestClient(client);
+        return lb.baseUrl("lb://notifications-service")
+                .requestInterceptor(new OAuth2ClientCredentialsInterceptor(manager, "accounts-service"))
+                .build();
     }
-
 }

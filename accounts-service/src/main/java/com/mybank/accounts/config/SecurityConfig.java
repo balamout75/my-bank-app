@@ -1,5 +1,6 @@
 package com.mybank.accounts.config;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -24,6 +25,10 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/accounts/me").hasAuthority("ROLE_accounts.read")
+                        .requestMatchers(HttpMethod.PUT, "/accounts/me").hasAuthority("ROLE_accounts.write")
+                        .requestMatchers(HttpMethod.GET, "/accounts/all").hasAuthority("ROLE_accounts.read")
+                        .requestMatchers(HttpMethod.POST, "/accounts/balance").hasAuthority("ROLE_accounts.write")
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt ->
@@ -35,23 +40,43 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(token -> {
-            List<String> roles = new ArrayList<>();
+        converter.setJwtGrantedAuthoritiesConverter(jwt -> {
+            Set<String> roles = new HashSet<>();
 
-            // Realm roles
-            Optional.ofNullable((Map<String, Object>) token.getClaim("realm_access"))
-                    .map(m -> (Collection<String>) m.get("roles"))
-                    .ifPresent(roles::addAll);
+            // 1) realm roles
+            Map<String, Object> realmAccess = jwt.getClaim("realm_access");
+            if (realmAccess != null) {
+                Object rr = realmAccess.get("roles");
+                if (rr instanceof Collection<?> col) {
+                    col.stream()
+                            .filter(String.class::isInstance)
+                            .map(String.class::cast)
+                            .peek(role -> System.out.println("realm_role: " + role))
+                            .forEach(roles::add);
+                }
+            }
 
-            // Client roles (если нужно)
-            Optional.ofNullable((Map<String, Object>) token.getClaim("resource_access"))
-                    .map(m -> (Map<String, Object>) m.get("accounts-service"))
-                    .map(m -> (Collection<String>) m.get("roles"))
-                    .ifPresent(roles::addAll);
+            // 2) client roles для accounts-service
+            Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
+            if (resourceAccess != null) {
+                Object client = resourceAccess.get("accounts-service"); // clientId в Keycloak
+                if (client instanceof Map<?, ?> clientMap) {
+                    Object cr = clientMap.get("roles");
+                    if (cr instanceof Collection<?> col) {
+                        col.stream()
+                                .filter(String.class::isInstance)
+                                .map(String.class::cast)
+                                .peek(role -> System.out.println("client_role: " + role))
+                                .forEach(roles::add);
+                    }
+                }
+            }
 
             return roles.stream()
-                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                    .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
+                    .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
+
         });
         return converter;
     }

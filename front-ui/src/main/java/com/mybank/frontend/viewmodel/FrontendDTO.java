@@ -108,6 +108,9 @@ public class FrontendDTO {
         @Builder.Default
         private TransferForm transferForm = new TransferForm();
 
+        @Builder.Default
+        private boolean accountsAvailable = true;
+
         private String errorMessage;
         private String successMessage;
     }
