@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <changeSet id="01-create-notifications-table" author="Ivan Vasilyev">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists schemaName="notifications" tableName="notifications"/>
+            </not>
+        </preConditions>
+        <!-- Основная таблица уведомлений -->
+        <createTable schemaName="notifications" tableName="notifications">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="notifications_pkey"/>
+            </column>
+            <column name="operation_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="message" type="TEXT"/>
+            <column name="meta" type="jsonb"/>
+            <column name="status" type="VARCHAR(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint schemaName="notifications" tableName="notifications"
+                             columnNames="operation_id"
+                             constraintName="uq_notifications_operation_id"/>
+        <rollback>
+            <dropTable schemaName="notifications" tableName="notifications"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

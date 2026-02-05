@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <changeSet id="add-tag-1.0.0" author="Ivan Vasilyev">
+        <tagDatabase tag="v.1.0.0"/>
+    </changeSet>
+
+    <changeSet id="000-create-notifications-schema" author="Ivan Vasilyev">
+    <preConditions onFail="MARK_RAN">
+        <not>
+            <schemaExists schemaName="notifications"/>
+        </not>
+    </preConditions>
+    <createSchema schemaName="notifications"/>
+</changeSet>
+    <include file="db/changelog/v.1.0.0/001-create-notifications-table.xml"/>
+    <include file="db/changelog/v.1.0.0/002-create-outbox-table.xml"/>
+
+</databaseChangeLog>

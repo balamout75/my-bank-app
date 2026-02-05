@@ -127,7 +127,7 @@ public class CashService {
             operation.setCompletedAt(LocalDateTime.now());
             operationRepository.save(operation);
 
-            sendNotification(operation.getUsername(), operation.getAmount(), operation.getType());
+            sendNotification(operation.getOperationId(), operation.getUsername(), operation.getAmount(), operation.getType());
 
             log.info("✅ Operation SUCCESS: {}", operation.getOperationId());
 
@@ -143,9 +143,10 @@ public class CashService {
     }
 
 
-    private void sendNotification(String username, BigDecimal amount, OperationType type) {
+    private void sendNotification(Long operationId, String username, BigDecimal amount, OperationType type) {
         try {
             notificationsClient.send(new NotificationRequest(
+                    operationId,
                     "CASH_" + type.name(),
                     username,
                     type.name().toLowerCase() + " completed",

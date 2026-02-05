@@ -1,0 +1,20 @@
+server:
+  port: 0
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/mybank?currentSchema=notification}
+    username: ${DB_USER:mybank}
+    password: ${DB_PASSWORD:mybank_password}
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    default-schema: notification
+    liquibase-schema: public
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/mybank
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
