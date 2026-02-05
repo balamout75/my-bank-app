@@ -1,4 +1,4 @@
-package com.mybank.cash.config;
+package com.mybank.frontend.config;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;

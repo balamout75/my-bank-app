@@ -12,6 +12,7 @@ import com.mybank.frontend.mapper.DashboardMapper;
 import com.mybank.frontend.viewmodel.FrontendDTO;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -89,7 +90,7 @@ public class DashboardService {
         );
 
         if (client == null || client.getAccessToken() == null) {
-            throw new IllegalStateException("Access token not found");
+            throw new AuthenticationCredentialsNotFoundException("Access token not found");
         }
 
         return client.getAccessToken().getTokenValue();

@@ -33,6 +33,7 @@ resilience4j:
           - java.io.IOException
           - java.net.ConnectException
           - java.net.SocketTimeoutException
+          - org.springframework.web.client.HttpServerErrorException
         ignore-exceptions:
           - io.github.resilience4j.circuitbreaker.CallNotPermittedException
 
@@ -45,12 +46,13 @@ resilience4j:
           - java.io.IOException
           - java.net.ConnectException
           - java.net.SocketTimeoutException
+          - org.springframework.web.client.HttpServerErrorException
         ignore-exceptions:
           - io.github.resilience4j.circuitbreaker.CallNotPermittedException
 
       business-service-write:
         max-attempts: 3
-        wait-duration: 0ms
+        wait-duration: 200ms
         retry-exceptions:
           - org.springframework.web.client.ResourceAccessException
           - java.io.IOException
