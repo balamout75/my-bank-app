@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+    <changeSet id="add-tag-1.0.0" author="Ivan Vasilyev">
+        <tagDatabase tag="v.1.0.0"/>
+    </changeSet>
+
+    <changeSet id="000-create-cash-schema" author="Ivan Vasilyev">
+        <sql>CREATE SCHEMA IF NOT EXISTS cash;</sql>
+    </changeSet>
+
+    <include file="v.1.0.0/001-create-cash-operations-table.xml" relativeToChangelogFile="true"/>
+</databaseChangeLog>
