@@ -1,5 +1,6 @@
 package com.mybank.frontend.controller;
 
+import com.mybank.frontend.dto.client.CashOperationType;
 import com.mybank.frontend.exception.InsufficientFundsClientException;
 import com.mybank.frontend.service.DashboardService;
 import com.mybank.frontend.viewmodel.FrontendDTO;
@@ -79,7 +80,7 @@ public class MainController {
             return renderMain(model, page);
         }
         try {
-            dashboardService.deposit(authentication, form);
+            dashboardService.operate(authentication, form, CashOperationType.DEPOSIT);
             redirectAttributes.addFlashAttribute("successMessage", "Счет успешно пополнен");
         } catch (Exception ex) {
             log.error("ошибка пополнения", ex);
@@ -103,13 +104,39 @@ public class MainController {
             return renderMain(model, page);
         }
         try {
-            dashboardService.withdraw(authentication, form);
+            dashboardService.operate(authentication, form, CashOperationType.WITHDRAW);
             redirectAttributes.addFlashAttribute("successMessage", "Деньги успешно сняты");
         } catch (InsufficientFundsClientException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         } catch (Exception ex) {
             log.error("ошибка снятия", ex);
             redirectAttributes.addFlashAttribute("errorMessage", "Ошибка при снятии денег");
+        }
+        return "redirect:/";
+    }
+
+    @PostMapping("/cash/transfer")
+    public String transfer(
+            OAuth2AuthenticationToken authentication,
+            @Valid @ModelAttribute("cashOperationForm") FrontendDTO.TransferForm  form,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes,
+            Model model
+    ) {
+        FrontendDTO.MainPageModel page = dashboardService.buildPage(authentication);
+        if (!guardAccountsOrRedirect(page, redirectAttributes)) return "redirect:/";
+        if (bindingResult.hasErrors()) {
+            page.setTransferForm(form);
+            return renderMain(model, page);
+        }
+        try {
+            dashboardService.transfer(authentication, form);
+            redirectAttributes.addFlashAttribute("successMessage", "Средства успешно переведены");
+        } catch (InsufficientFundsClientException ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        } catch (Exception ex) {
+            log.error("ошибка перевода", ex);
+            redirectAttributes.addFlashAttribute("errorMessage", "Ошибка переводе средств");
         }
         return "redirect:/";
     }

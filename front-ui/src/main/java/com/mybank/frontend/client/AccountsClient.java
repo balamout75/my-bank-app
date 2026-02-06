@@ -1,8 +1,7 @@
 package com.mybank.frontend.client;
 
-import com.mybank.frontend.client.dto.AccountMeResponse;
-import com.mybank.frontend.client.dto.AccountSummaryResponse;
-import com.mybank.frontend.client.dto.UpdateResult;
+import com.mybank.frontend.dto.client.AccountMeResponse;
+import com.mybank.frontend.dto.client.AccountSummaryResponse;
 import com.mybank.frontend.dto.client.AccountUpdateRequest;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
@@ -11,7 +10,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import org.springframework.http.HttpStatus;
 
 import java.util.List;
 

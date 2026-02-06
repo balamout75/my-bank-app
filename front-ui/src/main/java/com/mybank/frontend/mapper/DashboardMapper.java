@@ -1,11 +1,10 @@
 package com.mybank.frontend.mapper;
 
-import com.mybank.frontend.client.dto.AccountMeResponse;
-import com.mybank.frontend.client.dto.AccountSummaryResponse;
+import com.mybank.frontend.dto.client.AccountMeResponse;
+import com.mybank.frontend.dto.client.AccountSummaryResponse;
 import com.mybank.frontend.viewmodel.FrontendDTO;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Comparator;

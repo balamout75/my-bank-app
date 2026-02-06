@@ -3,12 +3,8 @@ package com.mybank.frontend.service;
 import com.mybank.frontend.client.AccountsClient;
 import com.mybank.frontend.client.CashClient;
 import com.mybank.frontend.client.TransferClient;
-import com.mybank.frontend.client.dto.AccountMeResponse;
-import com.mybank.frontend.client.dto.AccountSummaryResponse;
-import com.mybank.frontend.dto.client.AccountUpdateRequest;
-import com.mybank.frontend.dto.client.CashOperationRequest;
+import com.mybank.frontend.dto.client.*;
 
-import com.mybank.frontend.dto.client.CashOperationType;
 import com.mybank.frontend.mapper.DashboardMapper;
 import com.mybank.frontend.viewmodel.FrontendDTO;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
@@ -67,25 +63,16 @@ public class DashboardService {
         return mapper.toPageModel(meDto, allDtos, successMessage, errorMessage);
     }
 
-    public void deposit(OAuth2AuthenticationToken auth, FrontendDTO.CashOperationForm form) {
+    public void operate(OAuth2AuthenticationToken auth, FrontendDTO.CashOperationForm form, CashOperationType cashOperationType) {
         String token = extractToken(auth);
         Long opId = cashClient.getOperationKey(token).operationId();
-        try {
-            cashClient.operate(token, new CashOperationRequest(opId, CashOperationType.DEPOSIT, form.getAmount()));
-        } catch (HttpStatusCodeException e) {
-
-        }
-    }
-
-    public void withdraw(OAuth2AuthenticationToken auth, FrontendDTO.CashOperationForm form) {
-        String token = extractToken(auth);
-        Long opId = cashClient.getOperationKey(token).operationId();
-        cashClient.operate(token, new CashOperationRequest(opId, CashOperationType.WITHDRAW, form.getAmount()));
+        cashClient.operate(token, new CashOperationRequest(opId, cashOperationType, form.getAmount()));
     }
 
     public void transfer(OAuth2AuthenticationToken auth, FrontendDTO.TransferForm form) {
         String token = extractToken(auth);
-        transferClient.transfer(token, null);
+        Long opId = transferClient.getOperationKey(token).operationId();
+        transferClient.transfer(token, new TransferOperationRequest(opId, form.getToUsername(), form.getAmount()));
     }
 
     private String extractToken(OAuth2AuthenticationToken authentication) {
