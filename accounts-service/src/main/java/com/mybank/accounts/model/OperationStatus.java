@@ -1,4 +1,4 @@
-package com.mybank.cash.dto;
+package com.mybank.accounts.model;
 
 public enum OperationStatus {
     RESERVED,

@@ -38,6 +38,15 @@ public class OutboxProcessor {
     @Value("${outbox.lock-timeout-seconds:300}")
     private long lockTimeoutSeconds;
 
+    @Value("${outbox.retry.base-delay-ms:60000}")
+    private long baseDelayMs;
+
+    @Value("${outbox.retry.max-delay-ms:60000}")
+    private long maxDelayMs;
+
+    @Value("${outbox.retry.max-attempts:5}")
+    private int maxAttempts;
+
     private final String instanceId = UUID.randomUUID().toString();
 
     @Scheduled(fixedDelayString = "${outbox.poll.fixed-delay-ms:1000}")
@@ -80,21 +89,22 @@ public class OutboxProcessor {
             } catch (Exception ex) {
                 int attempts = e.getAttempts() + 1;
                 e.setAttempts(attempts);
-                e.setStatus(OutboxStatus.RETRY);
                 e.setLastError(ex.getClass().getSimpleName() + ": " + ex.getMessage());
                 e.setNextAttemptAt(backoff(attempts));
-
-                // Для учебки помечаем FAILED после 5 попыток
-                if (attempts >= 5) {
-                    e.setStatus(OutboxStatus.RETRY);
+                if (attempts >= maxAttempts) {
+                    e.setStatus(OutboxStatus.DEAD);
                     notificationRepository.findById(e.getAggregateId()).ifPresent(n -> {
                         n.setStatus(NotificationStatus.FAILED);
                         notificationRepository.save(n);
                     });
+                    log.error("🚀💥 DEAD Outbox publish failed | eventId={} opId={} attempts={} lastError={}",
+                            e.getId(), e.getOperationId(), attempts, e.getLastError());
+                } else {
+                    e.setStatus(OutboxStatus.RETRY);
+                    e.setNextAttemptAt(backoff(attempts));
+                    log.warn("🚀⚠️ RETRY Outbox publish failed | eventId={} opId={} attempt={} next={} error={}",
+                            e.getId(), e.getOperationId(), attempts, e.getNextAttemptAt(), e.getLastError());
                 }
-
-                log.warn("Outbox publish failed: eventId={} opId={} attempt={} error={}",
-                        e.getId(), e.getOperationId(), attempts, e.getLastError());
             } finally {
                 e.setLockedAt(null);
                 e.setLockedBy(null);
@@ -106,8 +116,8 @@ public class OutboxProcessor {
     }
 
     private LocalDateTime backoff(int attempts) {
-        // простой экспоненциальный backoff: 1s,2s,4s,8s... но не более 60s
-        long seconds = Math.min(60L, 1L << Math.min(attempts, 6));
-        return LocalDateTime.now().plusSeconds(seconds);
+        long factor = 1L << Math.min(attempts - 1, 10); // ограничим степень
+        long delay = Math.min(maxDelayMs, baseDelayMs * factor);
+        return LocalDateTime.now().plusNanos(delay * 1_000_000);
     }
 }

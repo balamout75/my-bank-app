@@ -4,5 +4,6 @@ public enum OutboxStatus {
     NEW,
     IN_PROGRESS,
     RETRY,
-    PUBLISHED
+    PUBLISHED,
+    DEAD
 }

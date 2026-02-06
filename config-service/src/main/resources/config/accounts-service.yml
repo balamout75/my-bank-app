@@ -40,6 +40,12 @@ spring:
     properties:
       hibernate:
         default_schema: accounts
+application:
+  outbox:
+    fixed-delay-ms: 5000
+    order:
+      limit: 10
+    max-attempts: 5
 
 resilience4j:
   # RETRY конфигурация
@@ -67,8 +73,6 @@ resilience4j:
     circuitbreaker-aspect-order: 1
     instances:
       notifications-service:
-        ignore-exceptions:
-          - com.mybank.cash.exception.ServiceUnavailableException
         record-exceptions:
           - org.springframework.web.client.ResourceAccessException
           - java.io.IOException

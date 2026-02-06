@@ -2,18 +2,33 @@ server:
   port: 0
 spring:
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/mybank?currentSchema=notification}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/mybank?currentSchema=notifications}
     username: ${DB_USER:mybank}
     password: ${DB_PASSWORD:mybank_password}
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
-    default-schema: notification
+    default-schema: notifications
     liquibase-schema: public
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: notifications
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8080/realms/mybank
+outbox:
+  poll:
+    fixed-delay-ms: 1000
+    batch-size: 50
+  retry:
+    base-delay-ms: 5000
+    max-delay-ms: 6000
+    max-attempts: 10
+  lock-timeout-seconds: 300
 eureka:
   client:
     service-url:

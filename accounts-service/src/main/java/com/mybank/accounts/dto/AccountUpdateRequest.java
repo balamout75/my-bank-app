@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Past;
 import java.time.LocalDate;
 
 public record AccountUpdateRequest(
+        Long operationId,
         @NotBlank String firstName,
         @NotBlank String lastName,
         @NotNull @Past LocalDate dateOfBirth

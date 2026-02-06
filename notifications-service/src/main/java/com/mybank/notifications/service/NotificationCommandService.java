@@ -55,8 +55,8 @@ public class NotificationCommandService {
             e.setNextAttemptAt(LocalDateTime.now());
             e.setCreatedAt(LocalDateTime.now());
             outboxEventRepository.save(e);
-
             return n;
+
         } catch (DataIntegrityViolationException ex) {
             // duplicate operationId -> возвращаем существующую запись (идемпотентность)
             return notificationRepository.findByOperationId(req.operationId())

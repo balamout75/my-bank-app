@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class AppliedOperationsRepository {
+public class ServiceOperationsRepository {
     private final JdbcTemplate jdbc;
     /** @return true если вставили (операция новая), false если уже была */
     public boolean insertIfAbsent(long operationId, String username) {

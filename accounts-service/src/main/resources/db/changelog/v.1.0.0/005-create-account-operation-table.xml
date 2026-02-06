@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <changeSet id="010-create-account-operation" author="Ivan Vasilyev">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists schemaName="accounts" tableName="account_operation"/>
+            </not>
+        </preConditions>
+
+        <createTable schemaName="accounts" tableName="account_operation">
+            <column name="operation_id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payload" type="jsonb">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="attempts" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="error" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql>
+            ALTER TABLE accounts.account_operation
+                ADD CONSTRAINT chk_account_operation_status
+                    CHECK (status IN ('RECEIVED', 'UPDATED', 'NOTIFIED', 'FAILED'));
+        </sql>
+
+        <createIndex schemaName="accounts" tableName="account_operation" indexName="idx_ao_username">
+            <column name="username"/>
+        </createIndex>
+
+        <createIndex schemaName="accounts" tableName="account_operation" indexName="idx_ao_status">
+            <column name="status"/>
+        </createIndex>
+
+        <rollback>
+            <dropTable schemaName="accounts" tableName="account_operation"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

@@ -2,6 +2,7 @@ package com.mybank.notifications.controller;
 
 import com.mybank.notifications.dto.NotificationRequest;
 import com.mybank.notifications.service.NotificationCommandService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,11 +21,10 @@ public class NotificationsController {
 
     @PostMapping
     @PreAuthorize("hasRole('notification.write')")
-    public ResponseEntity<Void> notify(@RequestBody NotificationRequest req) {
+    public ResponseEntity<Void> notify(@Valid @RequestBody NotificationRequest req) {
         var n = commandService.createAndEnqueue(req);
-        log.info("NOTIFY accepted opId={} type={} user={} notificationId={}",
-                req.operationId(), req.type(), req.username(), n.getId());
-        return ResponseEntity.noContent().build();
+        log.info("NOTIFY accepted opId={} type={} user={} notificationId={}",req.operationId(), req.type(), req.username(), n.getId());
+        return ResponseEntity.accepted().build();
     }
 }
 	

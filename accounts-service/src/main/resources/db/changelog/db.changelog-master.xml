@@ -16,5 +16,7 @@
 
     <include file="v.1.0.0/001-create-users-table.xml" relativeToChangelogFile="true"/>
     <include file="v.1.0.0/002-seed-users.xml"     relativeToChangelogFile="true"/>
-    <include file="v.1.0.0/003-create-applied-operations-table.xml" relativeToChangelogFile="true"/>
+    <include file="v.1.0.0/03-service-operations-table.xml" relativeToChangelogFile="true"/>
+    <include file="v.1.0.0/004-create-notification-operation-seq.xml" relativeToChangelogFile="true"/>
+    <include file="v.1.0.0/005-create-account-operation-table.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

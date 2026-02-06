@@ -5,9 +5,11 @@ import com.mybank.frontend.client.CashClient;
 import com.mybank.frontend.client.TransferClient;
 import com.mybank.frontend.client.dto.AccountMeResponse;
 import com.mybank.frontend.client.dto.AccountSummaryResponse;
+import com.mybank.frontend.client.dto.UpdateResult;
 import com.mybank.frontend.dto.client.AccountUpdateRequest;
 import com.mybank.frontend.dto.client.CashOperationRequest;
 import com.mybank.frontend.dto.client.OperationType;
+
 import com.mybank.frontend.mapper.DashboardMapper;
 import com.mybank.frontend.viewmodel.FrontendDTO;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;

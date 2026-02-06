@@ -2,7 +2,7 @@ package com.mybank.accounts.service;
 
 import com.mybank.accounts.dto.BalanceUpdateRequest;
 import com.mybank.accounts.repository.AccountRepository;
-import com.mybank.accounts.repository.AppliedOperationsRepository;
+import com.mybank.accounts.repository.ServiceOperationsRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CashService {
 
     private static final Logger log = LoggerFactory.getLogger(CashService.class);
-    private final AppliedOperationsRepository appliedRepo;
+    private final ServiceOperationsRepository appliedRepo;
     private final AccountRepository accountRepository; // твой репо для аккаунта
 
     @Transactional

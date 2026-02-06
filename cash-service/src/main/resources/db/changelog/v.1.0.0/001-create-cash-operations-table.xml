@@ -53,6 +53,17 @@
             <column name="error_message" type="TEXT">
                 <constraints nullable="true"/>
             </column>
+
+            <column name="notification_attempts" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="notification_error" type="TEXT"/>
+
+            <column name="notification_attempts_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+
         </createTable>
 
         <addDefaultValue tableName="cash_operations"
@@ -63,7 +74,7 @@
         <sql>
             ALTER TABLE cash_operations
                 ADD CONSTRAINT chk_status
-                    CHECK (status IN ('RESERVED','IN_PROGRESS','SUCCESS','FAILED'));
+                    CHECK (status IN ('RECEIVED', 'IN_PROGRESS', 'UPDATED', 'NOTIFIED', 'UNNOTIFIED', 'FAILED'));
 
             -- type может быть NULL в RESERVED
             ALTER TABLE cash_operations

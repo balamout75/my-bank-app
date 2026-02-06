@@ -60,46 +60,19 @@ public class CashService {
         var existingOpt = operationRepository.findById(operationId);
         if (existingOpt.isPresent()) {
             CashOperation op = existingOpt.get();
-
             // username всегда должен совпадать
             if (!op.getUsername().equals(username)) {
                 throw new InvalidOperationKeyException("OperationId принадлежит другому пользователю: " + operationId);
             }
-
-            // если RESERVED — разрешаем "дозаполнить"
             if (op.getStatus() == OperationStatus.RESERVED) {
-
-                if (op.getType() == null) {
-                    op.setType(request.operationType());
-                } else if (op.getType() != request.operationType()) {
-                    throw new InvalidOperationKeyException("OperationId уже использован с другим type: " + operationId);
-                }
-
-                if (op.getAmount() == null) {
-                    op.setAmount(request.amount());
-                } else if (op.getAmount().compareTo(request.amount()) != 0) {
-                    throw new InvalidOperationKeyException("OperationId уже использован с другой суммой: " + operationId);
-                }
-
-                // теперь можно продолжать выполнение
+                op.setType(request.operationType());
+                op.setAmount(request.amount());
                 processOperation(op);
                 return;
             }
-
-            // не RESERVED — параметры обязаны совпасть
-            if (op.getType() != request.operationType()
-                    || op.getAmount().compareTo(request.amount()) != 0) {
-                throw new InvalidOperationKeyException("OperationId уже использован с другими параметрами: " + operationId);
-            }
-
-            if (op.getStatus() == OperationStatus.SUCCESS) return;
             if (op.getStatus() == OperationStatus.IN_PROGRESS) {
                 throw new InvalidOperationKeyException("Операция уже выполняется: " + operationId);
             }
-
-            // FAILED -> разрешаем повтор
-            processOperation(op);
-            return;
         }
 
 

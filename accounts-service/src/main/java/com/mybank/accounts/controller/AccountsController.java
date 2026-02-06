@@ -1,9 +1,6 @@
 package com.mybank.accounts.controller;
 
-import com.mybank.accounts.dto.AccountMeResponse;
-import com.mybank.accounts.dto.AccountSummaryResponse;
-import com.mybank.accounts.dto.AccountUpdateRequest;
-import com.mybank.accounts.dto.BalanceUpdateRequest;
+import com.mybank.accounts.dto.*;
 import com.mybank.accounts.service.AccountsService;
 import com.mybank.accounts.service.CashService;
 import jakarta.validation.Valid;
@@ -14,6 +11,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/accounts")  // ← Убрали /api
@@ -30,9 +28,8 @@ public class AccountsController {
     }
 
     @PutMapping("/me")
-    public ResponseEntity<Void> updateMe(
-            @AuthenticationPrincipal Jwt jwt,
-            @Valid @RequestBody AccountUpdateRequest req) {
+    public ResponseEntity<Void> updateMe(@AuthenticationPrincipal Jwt jwt,
+                                      @Valid @RequestBody AccountUpdateRequest req) {
         String username = extractUsername(jwt);
         accountsService.updateMe(username, req);
         return ResponseEntity.noContent().build();
