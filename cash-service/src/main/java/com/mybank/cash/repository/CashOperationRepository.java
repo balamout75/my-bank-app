@@ -1,6 +1,9 @@
 package com.mybank.cash.repository;
 
+import com.mybank.cash.dto.OperationStatus;
 import com.mybank.cash.model.CashOperation;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,4 +18,6 @@ public interface CashOperationRepository extends JpaRepository<CashOperation, Lo
     // Получить следующее значение sequence
     @Query(value = "SELECT nextval('cash_operation_sequence')", nativeQuery = true)
     Long getNextOperationId();
+
+    Page <CashOperation> findByStatus(OperationStatus operationStatus, Pageable pageable);
 }

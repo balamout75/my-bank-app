@@ -32,11 +32,9 @@ public class AccountsService {
 
     private static AccountMeResponse toMeResponse(UserAccount u) {
         return AccountMeResponse.builder()
-                .id(u.getId())
                 .username(u.getUserName())
                 .firstName(u.getFirstName())
                 .lastName(u.getLastName())
-                .email(u.getEmail())
                 .dateOfBirth(u.getDateOfBirth())
                 .balance(u.getBalance())
                 .build();

@@ -4,16 +4,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(InsufficientFundsException.class)
+    public ProblemDetail handleInsufficientFunds(InsufficientFundsException e) {
+        log.warn("Insufficient funds: {}", e.getMessage());
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
+        problem.setTitle("Insufficient Funds");
+        problem.setProperty("currentBalance", e.getCurrentBalance());
+        problem.setProperty("requestedAmount", e.getRequestedAmount());
+        return problem;
+    }
 
     @ExceptionHandler(ServiceUnavailableException.class)
     public ResponseEntity<Map<String, Object>> handleServiceUnavailable(ServiceUnavailableException e) {

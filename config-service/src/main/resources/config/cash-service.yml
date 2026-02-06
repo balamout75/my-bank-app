@@ -27,6 +27,13 @@ spring:
         jwt:
           issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/mybank}
 
+application:
+  outbox:
+    fixed-delay-ms: 5000
+    order:
+      limit: 10
+    max-attempts: 5
+
 resilience4j:
   # RETRY конфигурация
   retry:

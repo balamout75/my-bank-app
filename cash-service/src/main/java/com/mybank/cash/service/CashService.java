@@ -11,9 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +33,8 @@ public class CashService {
                 .operationId(operationId)
                 .status(OperationStatus.RESERVED)
                 .createdAt(LocalDateTime.now())
+                .notificationAttempts(0)
+                .notificationAttemptsAt(LocalDateTime.now())
                 .build();
         operationRepository.save(op);
         return new OperationKeyResponse(operationId);
@@ -65,18 +65,12 @@ public class CashService {
                 throw new InvalidOperationKeyException("OperationId принадлежит другому пользователю: " + operationId);
             }
             if (op.getStatus() == OperationStatus.RESERVED) {
-                op.setType(request.operationType());
+                op.setType(request.cashOperationType());
                 op.setAmount(request.amount());
                 processOperation(op);
                 return;
             }
-            if (op.getStatus() == OperationStatus.IN_PROGRESS) {
-                throw new InvalidOperationKeyException("Операция уже выполняется: " + operationId);
-            }
         }
-
-
-        // ⚠ Если записи нет — значит ключ не резервировался
         throw new InvalidOperationKeyException("Operation key не зарезервирован: " + operationId);
     }
 
@@ -95,38 +89,17 @@ public class CashService {
                     operation.getType(),
                     operation.getOperationId()
             ));
-
-            operation.setStatus(OperationStatus.SUCCESS);
+            operation.setStatus(OperationStatus.UPDATED);
             operation.setCompletedAt(LocalDateTime.now());
             operationRepository.save(operation);
-
-            sendNotification(operation.getOperationId(), operation.getUsername(), operation.getAmount(), operation.getType());
-
             log.info("✅ Operation SUCCESS: {}", operation.getOperationId());
-
         } catch (Exception e) {
             operation.setStatus(OperationStatus.FAILED);
             operation.setCompletedAt(LocalDateTime.now());
             operation.setErrorMessage(e.getMessage());
             operationRepository.save(operation);
-
             log.error("❌ Operation FAILED: id={}, error={}", operation.getOperationId(), e.getMessage(), e);
             throw e;
-        }
-    }
-
-
-    private void sendNotification(Long operationId, String username, BigDecimal amount, OperationType type) {
-        try {
-            notificationsClient.send(new NotificationRequest(
-                    operationId,
-                    "CASH_" + type.name(),
-                    username,
-                    type.name().toLowerCase() + " completed",
-                    Map.of("amount", amount)
-            ));
-        } catch (Exception e) {
-            log.warn("⚠️ Failed to send notification: {}", e.getMessage());
         }
     }
 }

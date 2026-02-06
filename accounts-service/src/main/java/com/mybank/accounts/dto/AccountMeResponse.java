@@ -7,11 +7,9 @@ import java.time.LocalDate;
 
 @Builder
 public record AccountMeResponse(
-        Long id,
         String username,
         String firstName,
         String lastName,
-        String email,
         LocalDate dateOfBirth,
         BigDecimal balance
 ) {}

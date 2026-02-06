@@ -5,11 +5,10 @@ import com.mybank.frontend.client.CashClient;
 import com.mybank.frontend.client.TransferClient;
 import com.mybank.frontend.client.dto.AccountMeResponse;
 import com.mybank.frontend.client.dto.AccountSummaryResponse;
-import com.mybank.frontend.client.dto.UpdateResult;
 import com.mybank.frontend.dto.client.AccountUpdateRequest;
 import com.mybank.frontend.dto.client.CashOperationRequest;
-import com.mybank.frontend.dto.client.OperationType;
 
+import com.mybank.frontend.dto.client.CashOperationType;
 import com.mybank.frontend.mapper.DashboardMapper;
 import com.mybank.frontend.viewmodel.FrontendDTO;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
@@ -71,13 +70,17 @@ public class DashboardService {
     public void deposit(OAuth2AuthenticationToken auth, FrontendDTO.CashOperationForm form) {
         String token = extractToken(auth);
         Long opId = cashClient.getOperationKey(token).operationId();
-        cashClient.operate(token, new CashOperationRequest(opId, OperationType.DEPOSIT, form.getAmount()));
+        try {
+            cashClient.operate(token, new CashOperationRequest(opId, CashOperationType.DEPOSIT, form.getAmount()));
+        } catch (HttpStatusCodeException e) {
+
+        }
     }
 
     public void withdraw(OAuth2AuthenticationToken auth, FrontendDTO.CashOperationForm form) {
         String token = extractToken(auth);
         Long opId = cashClient.getOperationKey(token).operationId();
-        cashClient.operate(token, new CashOperationRequest(opId, OperationType.WITHDRAW, form.getAmount()));
+        cashClient.operate(token, new CashOperationRequest(opId, CashOperationType.WITHDRAW, form.getAmount()));
     }
 
     public void transfer(OAuth2AuthenticationToken auth, FrontendDTO.TransferForm form) {

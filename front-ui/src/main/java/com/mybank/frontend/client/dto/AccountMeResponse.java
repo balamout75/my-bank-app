@@ -1,5 +1,6 @@
 package com.mybank.frontend.client.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record AccountMeResponse(
@@ -7,5 +8,5 @@ public record AccountMeResponse(
         String firstName,
         String lastName,
         LocalDate dateOfBirth,
-        Integer balance
+        BigDecimal balance
 ) {}

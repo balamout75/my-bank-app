@@ -58,7 +58,7 @@ public class DashboardMapper {
                 .firstName(dto.firstName())
                 .lastName(dto.lastName())
                 .dateOfBirth(dob)
-                .balance(dto.balance() == null ? null : BigDecimal.valueOf(dto.balance()))
+                .balance(dto.balance() == null ? null : dto.balance())
                 .age(age)
                 .build();
     }

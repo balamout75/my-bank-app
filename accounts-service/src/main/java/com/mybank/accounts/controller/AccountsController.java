@@ -43,37 +43,41 @@ public class AccountsController {
 
     @PostMapping("/balance")
     public ResponseEntity<Void> balance(
+            @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody BalanceUpdateRequest req
-            // можно также принять Jwt jwt и проверять роли: ROLE_cash-service или scope
     ) {
-        cashService.applyBalance(req);
+        String clientId = extractClientId(jwt);
+        cashService.applyBalance(req, clientId);
         return ResponseEntity.noContent().build();
     }
 
 
-    /**
-     * Извлекает username из JWT токена Keycloak
-     */
     private String extractUsername(Jwt jwt) {
         // 1. preferred_username (стандартный claim Keycloak)
         String username = jwt.getClaimAsString("preferred_username");
         if (username != null && !username.isEmpty()) {
             return username;
         }
-
-        // 2. name
         username = jwt.getClaimAsString("name");
         if (username != null && !username.isEmpty()) {
             return username;
         }
-
-        // 3. email
         username = jwt.getClaimAsString("email");
         if (username != null && !username.isEmpty()) {
             return username;
         }
+        return jwt.getSubject();
+    }
 
-        // 4. Fallback на sub (UUID)
+    private String extractClientId(Jwt jwt) {
+        String clientId = jwt.getClaimAsString("azp");
+        if (clientId != null && !clientId.isEmpty()) {
+            return clientId;
+        }
+        clientId = jwt.getClaimAsString("client_id");
+        if (clientId != null && !clientId.isEmpty()) {
+            return clientId;
+        }
         return jwt.getSubject();
     }
 }

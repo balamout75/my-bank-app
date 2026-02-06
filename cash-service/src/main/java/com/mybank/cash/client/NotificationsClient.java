@@ -1,5 +1,6 @@
 package com.mybank.cash.client;
 
+
 import com.mybank.cash.dto.NotificationRequest;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
@@ -23,9 +24,9 @@ public class NotificationsClient {
 
     @CircuitBreaker(name = SERVICE_NAME, fallbackMethod = "sendFallback")
     @Retry(name = SERVICE_NAME)
-    public void send(NotificationRequest request) {
-        log.debug("Отправка уведомления: type={}, username={}", 
-                request.type(), request.username());
+    public boolean send(NotificationRequest request) {
+        log.debug("🚀 cash→notifications: type={} username={} opId={}",
+                request.type(), request.username(), request.operationId());
 
         notificationsRestClient.post()
                 .uri("/notifications")
@@ -33,18 +34,13 @@ public class NotificationsClient {
                 .retrieve()
                 .toBodilessEntity();
 
-        log.info("Уведомление успешно отправлено: type={}", request.type());
+        log.info("🚀✅ notifications accepted: opId={} type={}", request.operationId(), request.type());
+        return true;
     }
 
-    /**
-     * Fallback метод — просто логируем, не бросаем исключение.
-     * Уведомления не критичны для основной операции.
-     */
-    private void sendFallback(NotificationRequest request, Exception e) {
-        log.warn("notifications-service недоступен. Уведомление не отправлено: type={}, username={}, error={}",
-                request.type(), request.username(), e.getMessage());
-        
-        // Не бросаем исключение — уведомления не критичны
-        // TODO: можно сохранить в очередь для повторной отправки позже
+    private boolean sendFallback(NotificationRequest request, Exception e) {
+        log.warn("🚀⚠️ notifications unavailable: opId={} type={} user={} error={}",
+                request.operationId(), request.type(), request.username(), e.getMessage());
+        return false;
     }
 }

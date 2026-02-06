@@ -58,8 +58,10 @@ resilience4j:
           - java.io.IOException
           - java.net.ConnectException
           - java.net.SocketTimeoutException
+          - org.springframework.web.client.HttpServerErrorException  # 5xx
         ignore-exceptions:
           - io.github.resilience4j.circuitbreaker.CallNotPermittedException
+          - org.springframework.web.client.HttpClientErrorException  # все 4xx
 
   circuitbreaker:
     circuitbreaker-aspect-order: 1
@@ -91,7 +93,12 @@ resilience4j:
         wait-duration-in-open-state: 10s
         permitted-number-of-calls-in-half-open-state: 2
         automatic-transition-from-open-to-half-open-enabled: true
-
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException  # 4xx не открывает circuit
+        record-exceptions:
+          - org.springframework.web.client.HttpServerErrorException  # 5xx открывает circuit
+          - org.springframework.web.client.ResourceAccessException
+          - java.io.IOException
 
 gateway:
   url: http://localhost:8090

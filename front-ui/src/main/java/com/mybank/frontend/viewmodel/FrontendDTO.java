@@ -20,11 +20,9 @@ public class FrontendDTO {
     @AllArgsConstructor
     @Builder
     public static class AccountInfo {
-        private Long id;
         private String username;
         private String firstName;
         private String lastName;
-        private String email;
         private LocalDate dateOfBirth;
         private BigDecimal balance;
         private Integer age;

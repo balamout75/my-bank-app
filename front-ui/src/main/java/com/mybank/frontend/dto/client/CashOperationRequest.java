@@ -4,6 +4,6 @@ import java.math.BigDecimal;
 
 public record CashOperationRequest(
         Long operationId,
-        OperationType operationType,
+        CashOperationType cashOperationType,
         BigDecimal amount
 ) {}

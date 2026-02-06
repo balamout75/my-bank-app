@@ -8,7 +8,7 @@ public record CashOperationRequest(
         @NotNull(message = "Operation ID обязателен")
         Long operationId,
         @NotNull(message = "Тип операции обязателен")
-        OperationType operationType,
+        CashOperationType cashOperationType,
         @NotNull(message = "Сумма обязательна")
         @DecimalMin(value = "0.01", message = "Сумма должна быть больше 0")
         BigDecimal amount

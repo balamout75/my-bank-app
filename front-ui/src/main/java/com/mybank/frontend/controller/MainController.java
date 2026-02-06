@@ -1,5 +1,6 @@
 package com.mybank.frontend.controller;
 
+import com.mybank.frontend.exception.InsufficientFundsClientException;
 import com.mybank.frontend.service.DashboardService;
 import com.mybank.frontend.viewmodel.FrontendDTO;
 import jakarta.validation.Valid;
@@ -104,6 +105,8 @@ public class MainController {
         try {
             dashboardService.withdraw(authentication, form);
             redirectAttributes.addFlashAttribute("successMessage", "Деньги успешно сняты");
+        } catch (InsufficientFundsClientException ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         } catch (Exception ex) {
             log.error("ошибка снятия", ex);
             redirectAttributes.addFlashAttribute("errorMessage", "Ошибка при снятии денег");

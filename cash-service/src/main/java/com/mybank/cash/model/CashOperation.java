@@ -1,7 +1,7 @@
 package com.mybank.cash.model;
 
 import com.mybank.cash.dto.OperationStatus;
-import com.mybank.cash.dto.OperationType;
+import com.mybank.cash.dto.CashOperationType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,21 +18,23 @@ import java.time.LocalDateTime;
 public class CashOperation {
 
     @Id
-    @Column(name = "id", length = 36)
-    private Long operationId;  // UUID — сам по себе PK и idempotency key
+    @Column(name = "operation_id", nullable = false)
+    private Long operationId;
 
-    @Column(nullable = false)
+    @Column(name = "username", nullable = false, length = 255)
     private String username;
 
-    @Column(nullable = false, precision = 19, scale = 2)
+    // RESERVED допускает NULL
+    @Column(name = "amount", precision = 19, scale = 2, nullable = true)
     private BigDecimal amount;
 
+    // RESERVED допускает NULL
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private OperationType type;
+    @Column(name = "type", length = 20, nullable = true)
+    private CashOperationType type;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(name = "status", nullable = false, length = 20)
     private OperationStatus status;
 
     @Column(name = "created_at", nullable = false)
@@ -41,16 +43,28 @@ public class CashOperation {
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
-    @Column(name = "error_message")
+    @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
+
+    @Column(name = "notification_attempts", nullable = false)
+    private int notificationAttempts;
+
+    @Column(name = "notification_error", columnDefinition = "TEXT")
+    private String notificationError;
+
+    @Column(name = "notification_attempts_at", nullable = false)
+    private LocalDateTime notificationAttemptsAt;
 
     @PrePersist
     public void prePersist() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-        if (status == null) {
-            status = OperationStatus.RESERVED;
-        }
+        LocalDateTime now = LocalDateTime.now();
+        createdAt = now;
+        status = OperationStatus.RESERVED;
+        notificationAttemptsAt = now;
+        notificationAttempts = 0;
+    }
+
+    public void touch() {
+        this.notificationAttemptsAt = LocalDateTime.now();
     }
 }

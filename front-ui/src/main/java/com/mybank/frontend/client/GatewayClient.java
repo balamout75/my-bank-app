@@ -27,66 +27,6 @@ public class GatewayClient {
                 .build();
     }
 
-    public AccountMeResponse getMe(OAuth2AuthenticationToken authentication) {
-        OAuth2AuthorizedClient client =
-                clientService.loadAuthorizedClient(authentication.getAuthorizedClientRegistrationId(),
-                        authentication.getName());
-
-        String token = client.getAccessToken().getTokenValue();
-        return rest.get()
-                .uri("/api/accounts/me")
-                .header("Authorization", "Bearer " + token)
-                .retrieve()
-                .body(AccountMeResponse.class);
-    }
-
-    public void updateMe(AccountUpdateRequest req, OAuth2AuthenticationToken authentication) {
-        OAuth2AuthorizedClient client =
-                clientService.loadAuthorizedClient(authentication.getAuthorizedClientRegistrationId(),
-                        authentication.getName());
-
-        String token = client.getAccessToken().getTokenValue();
-        rest.put()
-                .uri("/api/accounts/me")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(req)
-                .header("Authorization", "Bearer " + token)
-                .retrieve()
-                .toBodilessEntity();
-    }
-
-    public List<AccountSummaryResponse> getAllAccounts(OAuth2AuthenticationToken authentication) {
-        OAuth2AuthorizedClient client =
-                clientService.loadAuthorizedClient(authentication.getAuthorizedClientRegistrationId(),
-                        authentication.getName());
-
-        String token = client.getAccessToken().getTokenValue();
-        AccountSummaryResponse[] arr = rest.get()
-                .uri("/api/accounts/all")
-                .header("Authorization", "Bearer " + token)
-                .retrieve()
-                .body(AccountSummaryResponse[].class);
-        return arr == null ? List.of() : List.of(arr);
-    }
-
-    public void deposit(int amount) {
-        rest.post()
-                .uri("/api/cash/deposit")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Map.of("amount", amount))
-                .retrieve()
-                .toBodilessEntity();
-    }
-
-    public void withdraw(int amount) {
-        rest.post()
-                .uri("/api/cash/withdraw")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Map.of("amount", amount))
-                .retrieve()
-                .toBodilessEntity();
-    }
-
     public void transfer(String toUsername, int amount) {
         rest.post()
                 .uri("/api/transfer")

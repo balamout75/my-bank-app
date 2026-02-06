@@ -1,5 +1,5 @@
 package com.mybank.cash.dto;
 
-public enum OperationType {
+public enum CashOperationType {
     DEPOSIT, WITHDRAW
 }
