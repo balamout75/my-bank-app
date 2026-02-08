@@ -4,6 +4,6 @@ import java.math.BigDecimal;
 
 public record TransferOperationRequest(
         Long operationId,
-        String username,
+        String recipient,
         BigDecimal amount
 ) {}

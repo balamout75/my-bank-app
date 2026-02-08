@@ -11,9 +11,9 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>cash-service</artifactId>
-    <name>Cash Service</name>
-    <description>Cash operations service for Bank Application</description>
+    <artifactId>transfer-service</artifactId>
+    <name>Transfer Service</name>
+    <description>Transfer operations service for Bank Application</description>
 
     <dependencies>
         <!-- Spring Boot Web -->

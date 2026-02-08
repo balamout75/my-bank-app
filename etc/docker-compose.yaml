@@ -1,45 +1,242 @@
-version: '28.5.2'
+version: "3.9"
 
-# имена и описания контейнеров, которые должны быть развёрнуты
 services:
-  # описание контейнера db
-  db:
-    container_name: yp-database-M2-S5
-    # образ, из которого должен быть запущен контейнер
-    image: postgres:18.1
-    restart: always
-    # переменные окружения
-    environment:
-      - POSTGRES_USER=practicum_user
-      - POSTGRES_PASSWORD=mysecretpassword
-    # volume и связанная с ним директория в контейнере
-    volumes:
-      - db-data:/var/lib/postgresql/18/docker
-
-  app:
-    container_name: app
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: app
-    restart: on-failure
-    environment:
-      - POSTGRES_USER=practicum_user
-      - POSTGRES_PASSWORD=mysecretpassword
-      - DB_HOST=db
-      - DB_PORT=5432
-    depends_on:
-      - db
-
+  # Общая инфраструктура
   gw:
-    container_name: gw
     image: nginx:latest
+    container_name: yp-mybank-nginx
     ports:
       - "80:80"
     volumes:
       - ./proxy/nginx-practicum-proxy.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
-      - app
+      - front-ui
+      - keycloak
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: yp-mybank-ngrok
+    command: >
+      http
+      --domain=pseudovelar-fumeless-sung.ngrok-free.dev
+      gw:80
+    environment:
+      NGROK_AUTHTOKEN: 37U6pkF802my2QMVX9Bts01W7Ol_4BZH2YKJQXRhXwRMRU7mc
+    depends_on:
+      - gw
+  
+  postgres:
+    image: postgres:18.1
+    container_name: yp-bank-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: mybank
+      POSTGRES_USER: mybank
+      POSTGRES_PASSWORD: mybank_password
+    volumes:
+      - db-data:/var/lib/postgresql/18/docker
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mybank -d mybank"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.2
+    container_name: yp-bank-keycloak
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY: edge
+      KC_PROXY_HEADERS: xforwarded
+    volumes:
+      - ./keycloak/realm-mybank.json:/opt/keycloak/data/import/realm-mybank.json:ro
+    healthcheck:
+      test: ["CMD-SHELL", "echo > /dev/tcp/localhost/8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  # ==================== SPRING CLOUD INFRA ====================
+
+  discovery-service:
+    container_name: yp-mybank-discovery
+    build:
+      context: ./discovery-service
+      dockerfile: Dockerfile
+    image: mybank/yp-mybank-discovery
+    restart: on-failure
+    environment:
+      EUREKA_INSTANCE_HOSTNAME: discovery-service
+      SERVER_PORT: "8761"
+      SPRING_PROFILES_ACTIVE: docker
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8761/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  config-service:
+    container_name: yp-mybank-config
+    build:
+      context: ./config-service
+      dockerfile: Dockerfile
+    image: mybank/yp-mybank-config
+    restart: on-failure
+    environment:
+      SPRING_PROFILES_ACTIVE: native
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8888/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  gateway-service:
+    container_name: yp-mybank-gateway
+    build:
+      context: ./gateway-service
+      dockerfile: Dockerfile
+    image: mybank/yp-mybank-gateway
+    restart: on-failure
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-service:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      config-service:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+
+  front-ui:
+    container_name: yp-mybank-frontend
+    build:
+      context: ./front-ui
+      dockerfile: Dockerfile
+    image: mybank/yp-mybank-frontend
+    restart: on-failure
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-service:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      GATEWAY_URL: http://gateway-service:8090
+      KEYCLOAK_ISSUER_URI: https://pseudovelar-fumeless-sung.ngrok-free.dev/realms/mybank
+    ports:
+      - "8081:8081"
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      config-service:
+        condition: service_healthy
+      gateway-service:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
+
+  accounts-service:
+    container_name: yp-mybank-accounts
+    build:
+      context: ./accounts-service
+      dockerfile: Dockerfile
+    image: mybank/yp-mybank-accounts
+    restart: on-failure
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-service:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      DB_URL: jdbc:postgresql://postgres:5432/mybank?currentSchema=accounts
+      DB_USER: mybank
+      DB_PASSWORD: mybank_password
+      KEYCLOAK_ISSUER_URI: https://pseudovelar-fumeless-sung.ngrok-free.dev/realms/mybank
+    depends_on:
+      config-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+
+  cash-service:
+    container_name: yp-mybank-cash
+    build:
+      context: ./cash-service
+      dockerfile: Dockerfile
+    image: mybank/yp-mybank-cash
+    restart: on-failure
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-service:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      DB_URL: jdbc:postgresql://postgres:5432/mybank?currentSchema=cash
+      DB_USER: mybank
+      DB_PASSWORD: mybank_password
+      KEYCLOAK_ISSUER_URI: https://pseudovelar-fumeless-sung.ngrok-free.dev/realms/mybank
+    depends_on:
+      config-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+
+  transfer-service:
+    container_name: yp-mybank-transfer
+    build:
+      context: ./transfer-service
+      dockerfile: Dockerfile
+    image: mybank/yp-mybank-transfer
+    restart: on-failure
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-service:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      DB_URL: jdbc:postgresql://postgres:5432/mybank?currentSchema=transfer
+      DB_USER: mybank
+      DB_PASSWORD: mybank_password
+      KEYCLOAK_ISSUER_URI: https://pseudovelar-fumeless-sung.ngrok-free.dev/realms/mybank
+    depends_on:
+      config-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+
+  notifications-service:
+    container_name: yp-mybank-notifications
+    build:
+      context: ./notifications-service
+      dockerfile: Dockerfile
+    image: mybank/yp-mybank-notifications
+    restart: on-failure
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-service:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      DB_URL: jdbc:postgresql://postgres:5432/mybank?currentSchema=notifications
+      DB_USER: mybank
+      DB_PASSWORD: mybank_password
+      KEYCLOAK_ISSUER_URI: https://pseudovelar-fumeless-sung.ngrok-free.dev/realms/mybank
+    depends_on:
+      config-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+
+
 
 volumes:
   db-data:
+  keycloak-data:

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <changeSet id="create-transfer-operation-sequence" author="Ivan Vasilyev">
+        <preConditions onFail="MARK_RAN">
+            <not><sequenceExists schemaName="transfer" sequenceName="transfer_operation_sequence"/></not>
+        </preConditions>
+        <createSequence schemaName="transfer" sequenceName="transfer_operation_sequence" startValue="1" incrementBy="1"/>
+        <rollback>
+            <dropSequence schemaName="transfer" sequenceName="transfer_operation_sequence"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="create-transfer-operations-table" author="Ivan Vasilyev">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists schemaName="transfer" tableName="transfer_operations"/></not>
+        </preConditions>
+
+        <createTable schemaName="transfer" tableName="transfer_operations">
+            <column name="operation_id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="transfer_operations_pkey"/>
+            </column>
+
+            <column name="username" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="recipient" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- RESERVED допускает пустые amount/type -->
+            <column name="amount" type="NUMERIC(19,2)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="completed_at" type="TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="error_message" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="notification_attempts" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="notification_error" type="TEXT"/>
+
+            <column name="notification_attempts_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <!-- CHECK constraints (Postgres) -->
+        <sql>
+            ALTER TABLE transfer.transfer_operations
+                ADD CONSTRAINT chk_status
+                    CHECK (status IN ('RESERVED','RECEIVED', 'IN_PROGRESS', 'UPDATED', 'NOTIFIED', 'UNNOTIFIED', 'FAILED'));
+
+            -- при любом статусе, кроме RESERVED, amount/type обязаны быть заполнены
+            ALTER TABLE transfer.transfer_operations
+                ADD CONSTRAINT chk_required_fields_when_not_reserved
+                    CHECK (status = 'RESERVED' OR (amount IS NOT NULL));
+        </sql>
+
+        <rollback>
+            <dropTable schemaName="transfer" tableName="transfer_operations"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Индексы -->
+    <changeSet id="index-transfer-username" author="Ivan Vasilyev">
+        <preConditions onFail="MARK_RAN">
+            <not><indexExists schemaName="transfer" indexName="idx_transfer_username"/></not>
+        </preConditions>
+        <createIndex schemaName="transfer" tableName="transfer_operations" indexName="idx_transfer_username">
+            <column name="username"/>
+        </createIndex>
+        <rollback>
+            <dropIndex schemaName="transfer" indexName="idx_transfer_username" tableName="transfer_operations"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="03-index-transfer-status" author="Ivan Vasilyev">
+        <preConditions onFail="MARK_RAN">
+            <not><indexExists schemaName="transfer" indexName="idx_transfer_ops_status"/></not>
+        </preConditions>
+        <createIndex schemaName="transfer" tableName="transfer_operations" indexName="idx_transfer_ops_status">
+            <column name="status"/>
+        </createIndex>
+        <rollback>
+            <dropIndex schemaName="transfer" indexName="idx_transfer_ops_status" tableName="transfer_operations"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="04-transfer-created" author="Ivan Vasilyev">
+        <preConditions onFail="MARK_RAN">
+            <not><indexExists schemaName="transfer" indexName="idx_transfer_created"/></not>
+        </preConditions>
+        <sql>
+            CREATE INDEX IF NOT EXISTS idx_transfer_created
+                ON transfer.transfer_operations (created_at DESC);
+        </sql>
+        <rollback>
+            <dropIndex schemaName="transfer" indexName="idx_transfer_created" tableName="transfer_operations"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

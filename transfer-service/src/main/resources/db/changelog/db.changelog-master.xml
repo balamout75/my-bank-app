@@ -10,9 +10,9 @@
         <tagDatabase tag="v.1.0.0"/>
     </changeSet>
 
-    <changeSet id="000-create-cash-schema" author="Ivan Vasilyev">
-        <sql>CREATE SCHEMA IF NOT EXISTS cash;</sql>
+    <changeSet id="000-create-transfer-schema" author="Ivan Vasilyev">
+        <sql>CREATE SCHEMA IF NOT EXISTS transfer;</sql>
     </changeSet>
 
-    <include file="v.1.0.0/001-create-cash-operations-table.xml" relativeToChangelogFile="true"/>
+    <include file="v.1.0.0/001-create-transfer-operations-table.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -72,6 +72,7 @@ public class DashboardService {
     public void transfer(OAuth2AuthenticationToken auth, FrontendDTO.TransferForm form) {
         String token = extractToken(auth);
         Long opId = transferClient.getOperationKey(token).operationId();
+        System.out.println("Stage 2");
         transferClient.transfer(token, new TransferOperationRequest(opId, form.getToUsername(), form.getAmount()));
     }
 

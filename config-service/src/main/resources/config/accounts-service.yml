@@ -24,7 +24,7 @@ spring:
           accounts-service:
             provider: accounts-service
             client-id: accounts-service
-            client-secret: Ycm7AwLxKchJ76kaRwDaG0RyHsp1T2rK
+            client-secret: ${OAUTH2_CLIENT_SECRET:Ycm7AwLxKchJ76kaRwDaG0RyHsp1T2rK}
             authorization-grant-type: client_credentials
         provider:
           accounts-service:

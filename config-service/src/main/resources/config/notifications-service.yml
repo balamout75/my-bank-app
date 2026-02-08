@@ -19,7 +19,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080/realms/mybank
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/mybank}
 outbox:
   poll:
     fixed-delay-ms: 1000

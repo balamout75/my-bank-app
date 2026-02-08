@@ -3,6 +3,7 @@ package com.mybank.accounts.controller;
 import com.mybank.accounts.dto.*;
 import com.mybank.accounts.service.AccountsService;
 import com.mybank.accounts.service.CashService;
+import com.mybank.accounts.service.TransferService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,15 +12,15 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/accounts")  // ← Убрали /api
 @RequiredArgsConstructor
 public class AccountsController {
 
-    private final CashService cashService;
     private final AccountsService accountsService;
+    private final CashService cashService;
+    private final TransferService transferService;
 
     @GetMapping("/me")
     public AccountMeResponse me(@AuthenticationPrincipal Jwt jwt) {
@@ -48,6 +49,16 @@ public class AccountsController {
     ) {
         String clientId = extractClientId(jwt);
         cashService.applyBalance(req, clientId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/transfer")
+    public ResponseEntity<Void> transfer(
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody TransferConsumeRequest req
+    ) {
+        String clientId = extractClientId(jwt);
+        transferService.transfer(req, clientId);
         return ResponseEntity.noContent().build();
     }
 

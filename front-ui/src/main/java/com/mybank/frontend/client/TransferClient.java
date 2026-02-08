@@ -30,6 +30,7 @@ public class TransferClient {
     @Retry(name = SERVICE_READ)
     @CircuitBreaker(name = SERVICE_READ)
     public OperationKeyResponse getOperationKey(String accessToken) {
+        System.out.println("Stage 2.5");
         return restClient.get()
                 .uri("/api/transfer/operation-key")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
@@ -40,6 +41,7 @@ public class TransferClient {
     @Retry(name = SERVICE_WRITE)
     @CircuitBreaker(name = SERVICE_WRITE)
     public void transfer(String accessToken, TransferOperationRequest dto) {
+        System.out.println("Stage 3");
         restClient.post()
                 .uri("/api/transfer/transfer")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)

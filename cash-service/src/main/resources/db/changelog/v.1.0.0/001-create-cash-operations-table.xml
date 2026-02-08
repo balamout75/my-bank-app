@@ -7,20 +7,20 @@
 
     <changeSet id="create-cash-operation-sequence" author="Ivan Vasilyev">
         <preConditions>
-            <not><sequenceExists sequenceName="cash_operation_sequence"/></not>
+            <not><sequenceExists schemaName="cash" sequenceName="cash_operation_sequence"/></not>
         </preConditions>
-        <createSequence sequenceName="cash_operation_sequence" startValue="1" incrementBy="1"/>
+        <createSequence schemaName="cash" sequenceName="cash_operation_sequence" startValue="1" incrementBy="1"/>
         <rollback>
-            <dropSequence sequenceName="cash_operation_sequence"/>
+            <dropSequence schemaName="cash" sequenceName="cash_operation_sequence"/>
         </rollback>
     </changeSet>
 
     <changeSet id="create-cash-operations-table" author="Ivan Vasilyev">
         <preConditions>
-            <not><tableExists tableName="cash_operations"/></not>
+            <not><tableExists schemaName="cash" tableName="cash_operations"/></not>
         </preConditions>
 
-        <createTable tableName="cash_operations">
+        <createTable schemaName="cash" tableName="cash_operations">
             <column name="operation_id" type="BIGINT">
                 <constraints primaryKey="true" nullable="false" primaryKeyName="cash_operations_pkey"/>
             </column>
@@ -42,7 +42,7 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="created_at" type="TIMESTAMP">
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="NOW()">
                 <constraints nullable="false"/>
             </column>
 
@@ -66,23 +66,19 @@
 
         </createTable>
 
-        <addDefaultValue tableName="cash_operations"
-                         columnName="created_at"
-                         defaultValueComputed="CURRENT_TIMESTAMP"/>
-
         <!-- CHECK constraints (Postgres) -->
         <sql>
-            ALTER TABLE cash_operations
+            ALTER TABLE cash.cash_operations
                 ADD CONSTRAINT chk_status
                     CHECK (status IN ('RESERVED','RECEIVED', 'IN_PROGRESS', 'UPDATED', 'NOTIFIED', 'UNNOTIFIED', 'FAILED'));
 
             -- type может быть NULL в RESERVED
-            ALTER TABLE cash_operations
+            ALTER TABLE cash.cash_operations
                 ADD CONSTRAINT chk_type
                     CHECK (type IS NULL OR type IN ('DEPOSIT','WITHDRAW'));
 
             -- при любом статусе, кроме RESERVED, amount/type обязаны быть заполнены
-            ALTER TABLE cash_operations
+            ALTER TABLE cash.cash_operations
                 ADD CONSTRAINT chk_required_fields_when_not_reserved
                     CHECK (
                         status = 'RESERVED'
@@ -91,45 +87,45 @@
         </sql>
 
         <rollback>
-            <dropTable tableName="cash_operations"/>
+            <dropTable schemaName="cash" tableName="cash_operations"/>
         </rollback>
     </changeSet>
 
     <!-- Индексы -->
     <changeSet id="index-cash-ops-username" author="Ivan Vasilyev">
         <preConditions>
-            <not><indexExists indexName="idx_cash_ops_username"/></not>
+            <not><indexExists schemaName="cash" indexName="idx_cash_ops_username"/></not>
         </preConditions>
-        <createIndex tableName="cash_operations" indexName="idx_cash_ops_username">
+        <createIndex schemaName="cash" tableName="cash_operations" indexName="idx_cash_ops_username">
             <column name="username"/>
         </createIndex>
         <rollback>
-            <dropIndex indexName="idx_cash_ops_username" tableName="cash_operations"/>
+            <dropIndex schemaName="cash" indexName="idx_cash_ops_username" tableName="cash_operations"/>
         </rollback>
     </changeSet>
 
     <changeSet id="index-cash-ops-status" author="Ivan Vasilyev">
         <preConditions onFail="MARK_RAN">
-            <not><indexExists indexName="idx_cash_ops_status"/></not>
+            <not><indexExists schemaName="cash" indexName="idx_cash_ops_status"/></not>
         </preConditions>
-        <createIndex tableName="cash_operations" indexName="idx_cash_ops_status">
+        <createIndex schemaName="cash" tableName="cash_operations" indexName="idx_cash_ops_status">
             <column name="status"/>
         </createIndex>
         <rollback>
-            <dropIndex indexName="idx_cash_ops_status" tableName="cash_operations"/>
+            <dropIndex schemaName="cash" indexName="idx_cash_ops_status" tableName="cash_operations"/>
         </rollback>
     </changeSet>
 
-    <changeSet id="20260204-04-index-cash-ops-created" author="Ivan Vasilyev">
+    <changeSet id="04-index-cash-ops-created" author="Ivan Vasilyev">
         <preConditions onFail="MARK_RAN">
-            <not><indexExists indexName="idx_cash_ops_created"/></not>
+            <not><indexExists schemaName="cash" indexName="idx_cash_ops_created"/></not>
         </preConditions>
         <sql>
             CREATE INDEX IF NOT EXISTS idx_cash_ops_created
                 ON cash_operations (created_at DESC);
         </sql>
         <rollback>
-            <dropIndex indexName="idx_cash_ops_created" tableName="cash_operations"/>
+            <dropIndex schemaName="cash" indexName="idx_cash_ops_created" tableName="cash_operations"/>
         </rollback>
     </changeSet>
 

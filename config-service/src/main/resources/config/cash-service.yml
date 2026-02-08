@@ -12,13 +12,12 @@ spring:
     liquibase-schema: public
   security:
     oauth2:
-      # 1) cash-service как OAuth2 CLIENT (client_credentials) для вызовов accounts/notifications
       client:
         registration:
           cash-service:
             provider: cash-service
             client-id: cash-service
-            client-secret: GJj0e0li8KrcaHb9S20ze8SDo8lO1zIL
+            client-secret: ${OAUTH2_CLIENT_SECRET:GJj0e0li8KrcaHb9S20ze8SDo8lO1zIL}
             authorization-grant-type: client_credentials
         provider:
           cash-service:
@@ -35,7 +34,6 @@ application:
     max-attempts: 5
 
 resilience4j:
-  # RETRY конфигурация
   retry:
     retry-aspect-order: 2
     instances:
@@ -45,15 +43,13 @@ resilience4j:
         exponential-backoff-multiplier: 2
         retry-exceptions:
           - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
           - java.net.ConnectException
           - java.net.SocketTimeoutException
           - java.io.IOException
         ignore-exceptions:
           - io.github.resilience4j.circuitbreaker.CallNotPermittedException
-          - org.springframework.web.client.HttpClientErrorException$BadRequest
-          - org.springframework.web.client.HttpClientErrorException$NotFound
-          - org.springframework.web.client.HttpClientErrorException$Forbidden
-          - org.springframework.web.client.HttpClientErrorException$Unauthorized
+          - org.springframework.web.client.HttpClientErrorException
 
       notifications-service:
         max-attempts: 2
@@ -61,27 +57,18 @@ resilience4j:
         exponential-backoff-multiplier: 2
         retry-exceptions:
           - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
           - java.net.ConnectException
           - java.net.SocketTimeoutException
           - java.io.IOException
         ignore-exceptions:
           - io.github.resilience4j.circuitbreaker.CallNotPermittedException
-          - org.springframework.web.client.HttpClientErrorException$BadRequest
-          - org.springframework.web.client.HttpClientErrorException$NotFound
-          - org.springframework.web.client.HttpClientErrorException$Forbidden
-          - org.springframework.web.client.HttpClientErrorException$Unauthorized
+          - org.springframework.web.client.HttpClientErrorException
 
-  # CIRCUIT BREAKER конфигурация
   circuitbreaker:
     circuitbreaker-aspect-order: 1
     instances:
       accounts-service:
-        ignore-exceptions:
-          - com.mybank.cash.exception.ServiceUnavailableException
-        record-exceptions:
-          - org.springframework.web.client.ResourceAccessException
-          - java.io.IOException
-          - java.net.SocketTimeoutException
         register-health-indicator: true
         sliding-window-type: COUNT_BASED
         sliding-window-size: 10
@@ -90,14 +77,15 @@ resilience4j:
         wait-duration-in-open-state: 30s
         permitted-number-of-calls-in-half-open-state: 3
         automatic-transition-from-open-to-half-open-enabled: true
-
-      notifications-service:
         ignore-exceptions:
-          - com.mybank.cash.exception.ServiceUnavailableException
+          - org.springframework.web.client.HttpClientErrorException
         record-exceptions:
           - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
           - java.io.IOException
           - java.net.SocketTimeoutException
+
+      notifications-service:
         register-health-indicator: true
         sliding-window-type: COUNT_BASED
         sliding-window-size: 5
@@ -106,8 +94,14 @@ resilience4j:
         wait-duration-in-open-state: 15s
         permitted-number-of-calls-in-half-open-state: 2
         automatic-transition-from-open-to-half-open-enabled: true
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException
+        record-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+          - java.io.IOException
+          - java.net.SocketTimeoutException
 
-  # TIMEOUT конфигурация (опционально)
   timelimiter:
     instances:
       accounts-service:
@@ -115,7 +109,6 @@ resilience4j:
       notifications-service:
         timeout-duration: 3s
 
-# Actuator для мониторинга Resilience4j
 management:
   endpoints:
     web:

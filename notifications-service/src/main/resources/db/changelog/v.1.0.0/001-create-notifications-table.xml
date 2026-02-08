@@ -13,31 +13,47 @@
         </preConditions>
         <!-- Основная таблица уведомлений -->
         <createTable schemaName="notifications" tableName="notifications">
-            <column name="id" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false" primaryKeyName="notifications_pkey"/>
-            </column>
             <column name="operation_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="type" type="VARCHAR(64)">
+            <column name="service" type="VARCHAR(128)">
                 <constraints nullable="false"/>
             </column>
             <column name="username" type="VARCHAR(128)">
                 <constraints nullable="false"/>
             </column>
-            <column name="message" type="TEXT"/>
-            <column name="meta" type="jsonb"/>
+            <column name="payload" type="jsonb">
+                <constraints nullable="false"/>
+            </column>
             <column name="status" type="VARCHAR(32)">
                 <constraints nullable="false"/>
             </column>
-            <column name="created_at" type="TIMESTAMP">
+            <column name="attempts" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="error" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="NOW()">
                 <constraints nullable="false"/>
             </column>
         </createTable>
 
-        <addUniqueConstraint schemaName="notifications" tableName="notifications"
-                             columnNames="operation_id"
-                             constraintName="uq_notifications_operation_id"/>
+        <addPrimaryKey schemaName="notifications" tableName="notifications" columnNames="service, operation_id" constraintName="service_operations_pkey"/>
+        <sql>
+            ALTER TABLE notifications
+                ADD CONSTRAINT chk_status
+                    CHECK (status IN ('RESERVED','RECEIVED', 'IN_PROGRESS', 'UPDATED', 'NOTIFIED', 'UNNOTIFIED', 'FAILED'));
+        </sql>
+        <createIndex schemaName="notifications" tableName="notifications" indexName="idx_n_username">
+            <column name="username"/>
+        </createIndex>
+
+        <createIndex schemaName="notifications" tableName="notifications" indexName="idx_n_status">
+            <column name="status"/>
+        </createIndex>
+
         <rollback>
             <dropTable schemaName="notifications" tableName="notifications"/>
         </rollback>

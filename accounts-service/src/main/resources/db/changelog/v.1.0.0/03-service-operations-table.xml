@@ -15,7 +15,7 @@
 
         <createTable  schemaName="accounts" tableName="service_operations">
             <column name="operation_id" type="BIGINT">
-                <constraints nullable="false" primaryKey="true" primaryKeyName="service_operations_pkey"/>
+                <constraints nullable="false"/>
             </column>
             <column name="service" type="VARCHAR(128)">
                 <constraints nullable="false"/>
@@ -28,11 +28,20 @@
             </column>
         </createTable>
 
-        <createIndex tableName="service_operations" indexName="idx_applied_ops_username">
+        <addPrimaryKey schemaName="accounts" tableName="service_operations" columnNames="service, operation_id" constraintName="service_operations_pkey"/>
+
+        <createIndex schemaName="accounts" tableName="service_operations" indexName="idx_srv_ops_username">
             <column name="username"/>
         </createIndex>
+
+        <!-- если часто ищешь по service+username -->
+        <createIndex schemaName="accounts" tableName="service_operations" indexName="idx_srv_ops_service_username">
+            <column name="service"/>
+            <column name="username"/>
+        </createIndex>
+
         <rollback>
-            <dropTable tableName="service_operations"/>
+            <dropTable schemaName="accounts" tableName="service_operations"/>
         </rollback>
     </changeSet>
 </databaseChangeLog>

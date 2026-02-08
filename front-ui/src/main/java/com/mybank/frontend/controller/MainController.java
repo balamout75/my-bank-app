@@ -130,6 +130,7 @@ public class MainController {
             return renderMain(model, page);
         }
         try {
+            System.out.println("Stage 1");
             dashboardService.transfer(authentication, form);
             redirectAttributes.addFlashAttribute("successMessage", "Средства успешно переведены");
         } catch (InsufficientFundsClientException ex) {

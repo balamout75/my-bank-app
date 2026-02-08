@@ -1,10 +1,7 @@
 package com.mybank.notifications.service;
 
 import com.mybank.notifications.dto.NotificationRequest;
-import com.mybank.notifications.model.Notification;
-import com.mybank.notifications.model.NotificationStatus;
-import com.mybank.notifications.model.OutboxEvent;
-import com.mybank.notifications.model.OutboxStatus;
+import com.mybank.notifications.model.*;
 import com.mybank.notifications.repository.NotificationRepository;
 import com.mybank.notifications.repository.OutboxEventRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,29 +29,14 @@ public class NotificationCommandService {
      * - notification + outbox записываются в одной транзакции
      */
     @Transactional
-    public Notification createAndEnqueue(NotificationRequest req) {
+    public Notification createAndEnqueue(NotificationRequest req, String clientId) {
         try {
             Notification n = new Notification();
-            n.setOperationId(req.operationId());
-            n.setType(req.type());
+            n.setId(new NotificationId(clientId, req.operationId()));
             n.setUsername(req.username());
-            n.setMessage(req.message());
-            n.setMeta(req.meta());
-            n.setStatus(NotificationStatus.ACCEPTED);
-            n.setCreatedAt(LocalDateTime.now());
+            n.setStatus(OperationStatus.RECEIVED);
+            n.setPayload(req.meta());
             n = notificationRepository.save(n);
-
-            OutboxEvent e = new OutboxEvent();
-            e.setOperationId(req.operationId());
-            e.setAggregateType(AGGREGATE_TYPE);
-            e.setAggregateId(n.getId());
-            e.setEventType(EVENT_TYPE_SEND);
-            e.setPayload(buildPayload(n));
-            e.setStatus(OutboxStatus.NEW);
-            e.setAttempts(0);
-            e.setNextAttemptAt(LocalDateTime.now());
-            e.setCreatedAt(LocalDateTime.now());
-            outboxEventRepository.save(e);
             return n;
 
         } catch (DataIntegrityViolationException ex) {
@@ -64,14 +46,4 @@ public class NotificationCommandService {
         }
     }
 
-    private Map<String, Object> buildPayload(Notification n) {
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("notificationId", n.getId());
-        payload.put("operationId", n.getOperationId());
-        payload.put("type", n.getType());
-        payload.put("username", n.getUsername());
-        payload.put("message", n.getMessage());
-        payload.put("meta", n.getMeta() == null ? Map.of() : n.getMeta());
-        return payload;
-    }
 }

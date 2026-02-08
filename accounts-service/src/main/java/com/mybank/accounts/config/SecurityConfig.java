@@ -29,6 +29,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/accounts/me").hasAuthority("ROLE_accounts.write")
                         .requestMatchers(HttpMethod.GET, "/accounts/all").hasAuthority("ROLE_accounts.read")
                         .requestMatchers(HttpMethod.POST, "/accounts/balance").hasAuthority("ROLE_balance.write")
+                        .requestMatchers(HttpMethod.POST, "/accounts/transfer").hasAuthority("ROLE_balance.transfer")
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt ->

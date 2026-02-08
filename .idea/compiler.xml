@@ -14,6 +14,7 @@
         <module name="accounts-service" />
         <module name="discovery-service" />
         <module name="notifications-service" />
+        <module name="transfer-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

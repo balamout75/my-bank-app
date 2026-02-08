@@ -5,5 +5,4 @@ spring:
   application:
     name: notifications-service
   config:
-    import: "optional:configserver:http://localhost:8888"
-
+    import: "${SPRING_CONFIG_IMPORT:optional:configserver:http://localhost:8888}"

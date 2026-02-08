@@ -10,36 +10,49 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @Entity
-@Table(schema = "notifications", name = "notifications",
-        uniqueConstraints = @UniqueConstraint(name = "uq_notifications_operation_id", columnNames = "operation_id"))
+@Table(schema = "notifications", name = "notifications")
 @Getter
 @Setter
 public class Notification {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "operation_id", nullable = false)
-    private Long operationId;
-
-    @Column(name = "type", nullable = false, length = 64)
-    private String type;
+    @EmbeddedId
+    private NotificationId id;
 
     @Column(name = "username", nullable = false, length = 128)
     private String username;
 
-    @Column(name = "message", columnDefinition = "text")
-    private String message;
-
+    // JSON payload уведомления
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "meta", columnDefinition = "jsonb")
-    private Map<String, Object> meta;
+    @Column(name = "payload", columnDefinition = "jsonb", nullable = false)
+    private Map<String, Object> payload;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 32)
-    private NotificationStatus status;
+    private OperationStatus status;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "attempts", nullable = false)
+    private Integer attempts = 0;
+
+    @Column(name = "error", columnDefinition = "text")
+    private String error;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    // --- lifecycle hooks ---
+    @PrePersist
+    public void onCreate() {
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+        this.attempts = 0;
+        this.error = null;
+    }
+
+    public void touch() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

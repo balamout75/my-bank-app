@@ -19,7 +19,7 @@ spring:
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
         provider:
           keycloak:
-            issuer-uri: ${KC_ISSUER:http://localhost:8080/realms/mybank}
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/mybank}
 resilience4j:
   retry:
     retry-aspect-order: 2

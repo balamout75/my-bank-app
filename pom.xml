@@ -22,6 +22,7 @@
         <module>accounts-service</module>
         <module>notifications-service</module>
         <module>cash-service</module>
+        <module>transfer-service</module>
     </modules>
 
     <properties>

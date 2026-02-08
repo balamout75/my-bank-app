@@ -22,7 +22,7 @@ public class ServiceOperationsRepository {
         int updated = jdbc.update("""
             INSERT INTO service_operations(operation_id, username, service)
             VALUES (?, ?, ?)
-            ON CONFLICT (operation_id) DO NOTHING
+            ON CONFLICT (service, operation_id) DO NOTHING
         """, operationId, username, clientId);
         return updated == 1;
     }
