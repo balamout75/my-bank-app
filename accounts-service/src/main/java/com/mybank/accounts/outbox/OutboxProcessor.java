@@ -5,7 +5,6 @@ import com.mybank.accounts.dto.NotificationRequest;
 import com.mybank.accounts.model.AccountOperation;
 import com.mybank.accounts.model.OperationStatus;
 import com.mybank.accounts.repository.AccountOperationRepository;
-import com.mybank.accounts.repository.AccountRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +25,7 @@ public class OutboxProcessor {
     @Value("${application.outbox.max-attempts:5}")
     private int maxAttempts;
 
-    public OutboxProcessor(AccountRepository accountRepository, AccountOperationRepository accountOperationRepository, NotificationsClient notificationsClient) {
+    public OutboxProcessor(AccountOperationRepository accountOperationRepository, NotificationsClient notificationsClient) {
         this.accountOperationRepository = accountOperationRepository;
         this.notificationsClient = notificationsClient;
     }
@@ -41,26 +40,24 @@ public class OutboxProcessor {
     }
 
     public void sendNotification(AccountOperation op) {
-        Map<String, Object> payload = op.getPayload() != null ? op.getPayload() : Map.of();
+        Map<String, Object> payload = op.getPayload() != null ? op.getPayload() :Map.of();
         boolean sent = notificationsClient.send(new NotificationRequest(
                 op.getOperationId(),
-                "ACCOUNT_UPDATED",
                 op.getUsername(),
-                "Account profile updated",
                 payload
         ));
 
         if (sent) {
             op.setStatus(OperationStatus.NOTIFIED);
-            log.info("🚀✅ NOTIFIED opId={} user={}", op.getOperationId(), op.getUsername());
+            log.info("🚀✅ NOTIFIED opId={} user={} payload={}", op.getOperationId(), op.getUsername(), op.getPayload());
         } else {
             if (op.getAttempts() < maxAttempts) {
-                log.warn("🚀⚠️ RETRY opId={} user={} attempt={}", op.getOperationId(), op.getUsername(), op.getAttempts());
+                log.warn("🚀⚠️ RETRY opId={} user={} attempt={} payload={}", op.getOperationId(), op.getUsername(), op.getAttempts(), op.getPayload());
                 op.setAttempts(op.getAttempts() + 1);
                 op.setError("notifications-service unavailable; will retry later");
 
             } else {
-                log.error("🚀💥 NOTIFICATION FAILED opId={} user={} attempts={}", op.getOperationId(), op.getUsername(), op.getAttempts());
+                log.error("🚀💥 NOTIFICATION FAILED opId={} user={} attempts={} payload={}", op.getOperationId(), op.getUsername(), op.getAttempts(), op.getPayload());
                 op.setStatus(OperationStatus.UNNOTIFIED);
                 op.setError("notifications-service unavailable");
             }

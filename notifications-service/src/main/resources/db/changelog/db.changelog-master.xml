@@ -13,6 +13,5 @@
         <sql>CREATE SCHEMA IF NOT EXISTS notifications;</sql>
     </changeSet>
     <include file="db/changelog/v.1.0.0/001-create-notifications-table.xml"/>
-    <include file="db/changelog/v.1.0.0/002-create-outbox-table.xml"/>
 
 </databaseChangeLog>

@@ -25,8 +25,8 @@ public class NotificationsClient {
     @CircuitBreaker(name = SERVICE_NAME, fallbackMethod = "sendFallback")
     @Retry(name = SERVICE_NAME)
     public boolean send(NotificationRequest request) {
-        log.debug("🚀 cash→notifications: type={} username={} opId={}",
-                request.type(), request.username(), request.operationId());
+        log.debug("🚀 cash→notifications: opId={} username={} payload={}",
+                request.operationId(), request.username(), request.payload());
 
         notificationsRestClient.post()
                 .uri("/notifications")
@@ -34,13 +34,14 @@ public class NotificationsClient {
                 .retrieve()
                 .toBodilessEntity();
 
-        log.info("🚀✅ notifications accepted: opId={} type={}", request.operationId(), request.type());
+        log.info("🚀✅ notifications accepted: opId={} username={} payload={}",
+                request.operationId(), request.username(), request.payload());
         return true;
     }
 
     private boolean sendFallback(NotificationRequest request, Exception e) {
-        log.warn("🚀⚠️ notifications unavailable: opId={} type={} user={} error={}",
-                request.operationId(), request.type(), request.username(), e.getMessage());
+        log.warn("🚀⚠️ notifications unavailable: opId={} username={} payload={}",
+                request.operationId(), request.username(), request.payload());
         return false;
     }
 }

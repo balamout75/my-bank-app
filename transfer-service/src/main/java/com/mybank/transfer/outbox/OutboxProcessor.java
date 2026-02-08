@@ -40,25 +40,26 @@ public class OutboxProcessor {
     }
 
     public void sendNotification(TransferOperation op) {
+        Map<String, Object> payload = Map.of("operation", "TRANSFER",
+                "recipient", op.getRecipient(),
+                "amount", op.getAmount());
         boolean sent = notificationsClient.send(new NotificationRequest(
                 op.getOperationId(),
-                "TRANSFER",
                 op.getUsername(),
-                "TRANSFER completed",
-                Map.of("recipient", op.getRecipient(),"amount", op.getAmount())
+                payload
         ));
 
         if (sent) {
             op.setStatus(OperationStatus.NOTIFIED);
-            log.info("🚀✅ NOTIFIED opId={} user={}", op.getOperationId(), op.getUsername());
+            log.info("🚀✅ NOTIFIED opId={} user={} payload={}", op.getOperationId(), op.getUsername(), payload);
         } else {
             if (op.getNotificationAttempts() < maxAttempts) {
-                log.warn("🚀⚠️ RETRY opId={} user={} attempt={}", op.getOperationId(), op.getUsername(), op.getNotificationAttempts());
+                log.warn("🚀⚠️ RETRY opId={} user={} attempt={} payload={}", op.getOperationId(), op.getUsername(), op.getNotificationAttempts(), payload);
                 op.setNotificationAttempts(op.getNotificationAttempts() + 1);
                 op.setNotificationError("notifications-service unavailable; will retry later");
 
             } else {
-                log.error("🚀💥 NOTIFICATION FAILED opId={} user={} attempts={}", op.getOperationId(), op.getUsername(), op.getNotificationAttempts());
+                log.error("🚀💥 NOTIFICATION FAILED opId={} user={} attempts={} payload={}", op.getOperationId(), op.getUsername(), op.getNotificationAttempts(), payload);
                 op.setStatus(OperationStatus.UNNOTIFIED);
                 op.setNotificationError("notifications-service unavailable");
             }

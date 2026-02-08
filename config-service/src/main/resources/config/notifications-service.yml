@@ -20,15 +20,12 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/mybank}
-outbox:
-  poll:
-    fixed-delay-ms: 1000
-    batch-size: 50
-  retry:
-    base-delay-ms: 5000
-    max-delay-ms: 6000
-    max-attempts: 10
-  lock-timeout-seconds: 300
+application:
+  outbox:
+    fixed-delay-ms: 5000
+    order:
+      limit: 10
+    max-attempts: 5
 eureka:
   client:
     service-url:

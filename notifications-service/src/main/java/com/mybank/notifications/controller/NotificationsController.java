@@ -1,7 +1,7 @@
 package com.mybank.notifications.controller;
 
 import com.mybank.notifications.dto.NotificationRequest;
-import com.mybank.notifications.service.NotificationCommandService;
+import com.mybank.notifications.service.NotificationService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class NotificationsController {
 
-    private final NotificationCommandService commandService;
+    private final NotificationService commandService;
 
-    public NotificationsController(NotificationCommandService commandService) {
+    public NotificationsController(NotificationService commandService) {
         this.commandService = commandService;
     }
 
@@ -26,8 +26,13 @@ public class NotificationsController {
     public ResponseEntity<Void> notify(@Valid @RequestBody NotificationRequest req,
                                        @AuthenticationPrincipal Jwt jwt) {
         String clientId = extractClientId(jwt);
-        var n = commandService.createAndEnqueue(req, clientId);
-        log.info("NOTIFY accepted opId={} type={} user={} notificationId={}",req.operationId(), req.type(), req.username(), n.getId());
+        if (commandService.createAndEnqueue(req, clientId)) {
+            log.info("NOTIFY accepted: operationId={}, username={}, service={}",
+                    req.operationId(), req.username(), clientId);
+        } else {
+            log.info("NOTIFY skipped (duplicate): operationId={}, username={}, service={}",
+                    req.operationId(), req.username(), clientId);
+        }
         return ResponseEntity.accepted().build();
     }
 
