@@ -1,5 +1,7 @@
 package com.mybank.cash.controller;
 
+import org.springframework.security.oauth2.jwt.Jwt;
+
 import com.mybank.cash.dto.CashOperationRequest;
 import com.mybank.cash.dto.OperationKeyResponse;
 import com.mybank.cash.model.CashOperation;
@@ -8,7 +10,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

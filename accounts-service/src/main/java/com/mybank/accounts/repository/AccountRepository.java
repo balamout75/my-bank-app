@@ -10,7 +10,4 @@ import java.util.Optional;
 public interface AccountRepository extends JpaRepository<UserAccount, Long> {
     Optional<UserAccount> findByUserName(String username);
     List<UserAccount> findAllByUserNameNot(String username);
-
-    interface AccountOperationRepository extends JpaRepository<AccountOperation, Long> {
-    }
 }

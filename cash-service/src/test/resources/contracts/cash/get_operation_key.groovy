@@ -2,6 +2,8 @@ package contracts.cash
 
 import org.springframework.cloud.contract.spec.Contract
 
+import static org.springframework.cloud.contract.spec.internal.MediaTypes.APPLICATION_JSON
+
 Contract.make {
     description("Generate idempotency key for cash operation")
     request {
@@ -10,12 +12,14 @@ Contract.make {
     }
     response {
         status OK()
-        headers { contentType(applicationJson()) }
+        headers {
+            contentType(APPLICATION_JSON)
+        }
         body(
-                operationId: value(
-                        producer: 1L,
-                        consumer: anyNumber()
-                )
+                operationId: $(consumer(anyNumber()), producer(1L))
         )
+        bodyMatchers {
+            jsonPath('$.operationId', byType)
+        }
     }
 }

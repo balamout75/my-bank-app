@@ -24,7 +24,7 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/deposit", "/withdraw").hasAuthority("ROLE_cash.write")
+                        .requestMatchers("/cash/operate","/cash/operation-key").hasAuthority("ROLE_cash.write")
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt ->
