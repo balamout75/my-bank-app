@@ -30,6 +30,8 @@ buildNumber.properties
 build/
 
 # IDE - IntelliJ IDEA
+idea/
+.idea
 .idea/
 *.iml
 *.iws
