@@ -18,8 +18,5 @@ Contract.make {
         body(
                 operationId: $(consumer(anyNumber()), producer(1L))
         )
-        bodyMatchers {
-            jsonPath('$.operationId', byType)
-        }
     }
 }
