@@ -1,4 +1,4 @@
-package com.mybank.accounts.contract;
+package com.mybank.cash.contract;
 
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
@@ -15,4 +15,5 @@ public abstract class ContractTestBase {
     ClientRegistrationRepository clientRegistrationRepository;
     @MockitoBean
     OAuth2AuthorizedClientService oAuth2AuthorizedClientService;
+
 }

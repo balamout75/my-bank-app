@@ -59,8 +59,8 @@ public class CashService {
     // ==================== PRIVATE ====================
 
     private void executeOperation(String username, CashOperationRequest request) {
-        Long operationId = request.operationId();
 
+        Long operationId = request.operationId();
         var existingOpt = operationRepository.findById(operationId);
         if (existingOpt.isPresent()) {
             CashOperation op = existingOpt.get();
