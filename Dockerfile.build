@@ -1,0 +1,35 @@
+﻿# syntax=docker/dockerfile:1.7
+
+FROM maven:3.9-eclipse-temurin-21-alpine AS builder
+WORKDIR /workspace
+
+ARG MODULE
+
+# 1️⃣ Копируем только pom'ы (слой зависимостей)
+COPY pom.xml ./
+COPY */pom.xml ./
+
+# 2️⃣ Кэш Maven зависимостей (BuildKit volume, не образ!)
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn -B -DskipTests -pl ${MODULE} -am dependency:go-offline
+# 3️⃣ Исходники
+COPY . .
+
+# 4️⃣ Сборка (использует тот же кэш)
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn -B -DskipTests -pl ${MODULE} -am clean package
+
+# ================= RUNTIME =================
+
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+
+RUN apk add --no-cache curl \
+ && addgroup -S spring && adduser -S spring -G spring
+
+USER spring:spring
+
+ARG MODULE
+COPY --from=builder /workspace/${MODULE}/target/*.jar /app/app.jar
+
+ENTRYPOINT ["java","-jar","/app/app.jar"]
