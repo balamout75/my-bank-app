@@ -353,14 +353,14 @@ Cash Service выступает как типовой microservice chassis: REST
 
 ---
 
-## 🧪 Unit тесты (Cash Service)
+## 🧪 Unit тесты (Cash Service, Transfer Service)
 Проверяется изолированная логика:
 - создание операции
 - изменение статуса операции
 - вызовы AccountsClient и NotificationsClient
 - обработка ошибок
 
-Моки: CashOperationRepository, AccountsClient, NotificationsClient.
+Моки: CashOperationRepository, AccountsClient, NotificationsClient, а также их клоны из Transfer Service.
 
 ---
 
