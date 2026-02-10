@@ -62,9 +62,11 @@ public abstract class ContractTestBase {
         // по умолчанию все contract-запросы идут с сервисным jwt
         RestAssuredMockMvc.postProcessors(
                 jwt().jwt(j -> j
-                        .claim("client_id", "cash-service")
-                        .claim("clientRoles", "balance.write")
-                ).authorities(new SimpleGrantedAuthority("ROLE_balance.write"))
+                        .claim("client_id", "some-service")
+                        .claim("clientRoles", java.util.List.of("balance.write", "balance.transfer"))
+                ).authorities(new SimpleGrantedAuthority("ROLE_balance.write"),
+                              new SimpleGrantedAuthority("ROLE_balance.transfer")
+                )
         );
 
         doNothing().when(cashService).applyBalance(any(BalanceUpdateRequest.class), anyString());

@@ -25,6 +25,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/cash/operate","/cash/operation-key").hasAuthority("ROLE_cash.write")
+                        .requestMatchers("/cash/operation").hasAuthority("ROLE_cash.read")
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt ->

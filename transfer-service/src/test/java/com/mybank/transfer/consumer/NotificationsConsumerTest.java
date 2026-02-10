@@ -1,4 +1,4 @@
-package com.mybank.cash.consumer;
+package com.mybank.transfer.consumer;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -7,10 +7,10 @@ import org.springframework.cloud.contract.stubrunner.StubFinder;
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
 import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestClient;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Map;
 
@@ -47,7 +47,8 @@ class NotificationsConsumerTest {
                 "operationId", 12345,
                 "username", "alice",
                 "payload", Map.of(
-                        "operation", "BALANCE_UPDATED",
+                        "operation", "TRANSFER",
+                        "recipient", "bob",
                         "amount", "100.00"
                 )
         );
