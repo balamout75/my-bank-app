@@ -25,6 +25,9 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 
+# BuildKit
+.buildx-cache/
+
 # Gradle (на всякий случай)
 .gradle/
 build/
