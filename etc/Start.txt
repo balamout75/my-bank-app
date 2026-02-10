@@ -1,6 +1,7 @@
 ﻿postgress
 
 docker run --name yp-database --rm --env-file postgres.env -p 5432:5432 -v module_three_postgres_data:/var/lib/postgresql postgres:18.1
+docker run --name yp-database --rm --env-file postgres.env -p 5432:5432 postgres:18.1
 docker run --name redis-server -it --rm -p 6379:6379 redis/redis-stack-server:latest
 
 docker exec -it redis-server redis-cli

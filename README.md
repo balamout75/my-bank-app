@@ -57,19 +57,19 @@
 
 # 🐳 Docker-стенд
 
-Поднимаются контейнеры:
+Поднимаются контейнеры (в порядке последовательности поднятия):
 
 ```
-frontend
+postgres
+keycloak
+eureka
+config-server
+gateway
+notifications-service
 accounts-service
 cash-service
 transfer-service
-notifications-service
-gateway
-config-server
-eureka
-postgres
-keycloak
+frontend
 nginx
 ngrok
 ```
@@ -134,7 +134,7 @@ ngrok
 
 ---
 
-# ⚙ Сборка Docker-образов (ОБЯЗАТЕЛЬНЫЙ ШАГ)
+# ⚙ Сборка Docker-образов (ОБЯЗАТЕЛЬНЫЙ ШАГ ДЛЯ ВАРИАНТА 1)
 
 Проект использует **Docker BuildKit + multi-stage сборку**, поэтому:
 
@@ -147,23 +147,96 @@ ngrok
 docker buildx bake --load -f docker-bake.hcl
 ```
 
-Собрать только один сервис:
-
-```bash
-docker buildx bake --load -f docker-bake.hcl cash-service
-```
-
-После выполнения команды все образы уже находятся локально в Docker.
-
 ---
 
-# 🚀 Запуск проекта
+# 🚀 ВАРИАНТ 1. Запуск проекта (через Docker Compose)
 
 ```bash
 docker compose --env-file docker-compose.env up -d
 ```
 
-⚠️ Флаг `--build` **НЕ используется**, потому что сборка теперь выполняется через `buildx bake`.
+Приложение будет доступно:
+
+```
+http://localhost:8081
+```
+
+---
+
+# 🚀 ВАРИАНТ 2. Запуск проекта ВРУЧНУЮ (без общей docker-compose сети)
+
+Используется для разработки и отладки отдельных сервисов.
+
+## 1️⃣ База данных. В директории etc выполнить команду
+
+```bash
+docker run --name yp-database --rm --env-file postgres.env -p 5432:5432 postgres:18.1
+```
+
+## 2️⃣ Keycloak. В директории KeycloakContainer выполнить команду
+
+```bash
+docker compose up -d --build
+```
+
+---
+
+## 3️⃣ Далее запускать сервисы локально из IDE в порядке:
+
+1. **Discovery-service**
+2. **Config-service**
+3. **Gateway-service**
+
+Дальнейший порядок не важен:
+
+- Notifications-service
+- Accounts-service
+- Cash-service
+- Transfer-service
+- Front-ui
+
+---
+
+📌 **Примечание**
+
+- Контейнеры **nginx** и **ngrok** при локальном запуске сервисов **не требуются**
+- Доступ к приложению остаётся:
+
+```
+http://localhost:8081
+```
+
+---
+
+# 🔐 SSO (Keycloak)
+
+Проект использует **Single Sign-On через Keycloak**.
+
+### Страница входа
+При открытии:
+
+```
+http://localhost:8081
+```
+
+пользователь автоматически перенаправляется на страницу логина Keycloak.
+
+### После входа
+
+Keycloak выдаёт JWT токен, который используется:
+
+- Gateway
+- Accounts Service
+- Cash Service
+- Transfer Service
+- Notifications Service
+
+### Типы токенов
+
+| Кто | Какой токен |
+|-----|------------|
+| Пользователь | Authorization Code Flow |
+| Сервис ↔ сервис | Client Credentials Flow |
 
 ---
 
@@ -175,6 +248,28 @@ docker compose --env-file docker-compose.env up -d
 | Кэш зависимостей Maven | через BuildKit cache mount |
 | Финальный образ | лёгкий JRE runtime |
 | Локальный Maven | **не требуется** |
+
+---
+
+# 🧹 ВАЖНО: .gitignore
+
+```
+.buildx-cache/
+.buildx-cache/blobs/
+.buildx-cache/index.json
+.buildx-cache/ingest/
+```
+
+---
+
+# 🏗 Стек
+
+- Spring Boot Microservices
+- Spring Cloud (Gateway, Config, Eureka)
+- Keycloak (SSO)
+- PostgreSQL
+- Docker + BuildKit
+- Nginx + ngrok
 
 ---
 
