@@ -1,0 +1,32 @@
+server:
+  port: 0
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/mybank?currentSchema=notifications}
+    username: ${DB_USER:mybank}
+    password: ${DB_PASSWORD:mybank_password}
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    default-schema: notifications
+    liquibase-schema: public
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: notifications
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/mybank}
+application:
+  outbox:
+    fixed-delay-ms: 5000
+    order:
+      limit: 10
+    max-attempts: 5
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

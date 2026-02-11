@@ -1,0 +1,5 @@
+﻿**/target
+**/.idea
+**/.git
+**/.buildx-cache
+**/node_modules

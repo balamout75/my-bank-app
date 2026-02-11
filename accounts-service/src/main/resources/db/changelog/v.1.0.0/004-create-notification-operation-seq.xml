@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <changeSet id="003-create-notification-operation-seq" author="Ivan Vasilyev">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sequenceExists schemaName="accounts" sequenceName="notification_operation_seq"/>
+            </not>
+        </preConditions>
+
+        <createSequence schemaName="accounts"
+                        sequenceName="notification_operation_seq"
+                        startValue="1"
+                        incrementBy="1"/>
+
+        <rollback>
+            <dropSequence schemaName="accounts" sequenceName="notification_operation_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

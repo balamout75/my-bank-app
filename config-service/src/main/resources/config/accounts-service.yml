@@ -1,0 +1,122 @@
+# Конфигурация для Accounts Service
+# Файл: accounts-service.yml
+# 
+# Config Server будет отдавать эту конфигурацию
+# когда accounts-service запросит свои настройки
+#
+# URL: http://localhost:8888/accounts-service/default
+
+server:
+  port: 0
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/mybank?currentSchema=accounts}
+    username: ${DB_USER:mybank}
+    password: ${DB_PASSWORD:mybank_password}
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    default-schema: accounts
+    liquibase-schema: public
+  security:
+    oauth2:
+      client:
+        registration:
+          accounts-service:
+            provider: accounts-service
+            client-id: accounts-service
+            client-secret: ${OAUTH2_CLIENT_SECRET:Ycm7AwLxKchJ76kaRwDaG0RyHsp1T2rK}
+            authorization-grant-type: client_credentials
+        provider:
+          accounts-service:
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/mybank}
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/mybank}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        default_schema: accounts
+application:
+  outbox:
+    fixed-delay-ms: 5000
+    order:
+      limit: 10
+    max-attempts: 5
+
+resilience4j:
+  # RETRY конфигурация
+  retry:
+    retry-aspect-order: 2
+    instances:
+      notifications-service:
+        max-attempts: 2
+        wait-duration: 300ms
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+          - java.io.IOException
+        ignore-exceptions:
+          - io.github.resilience4j.circuitbreaker.CallNotPermittedException
+          - org.springframework.web.client.HttpClientErrorException$BadRequest
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+          - org.springframework.web.client.HttpClientErrorException$Forbidden
+          - org.springframework.web.client.HttpClientErrorException$Unauthorized
+
+  # CIRCUIT BREAKER конфигурация
+  circuitbreaker:
+    circuitbreaker-aspect-order: 1
+    instances:
+      notifications-service:
+        record-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - java.io.IOException
+          - java.net.SocketTimeoutException
+        register-health-indicator: true
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 5
+        minimum-number-of-calls: 3
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 15s
+        permitted-number-of-calls-in-half-open-state: 2
+        automatic-transition-from-open-to-half-open-enabled: true
+
+  # TIMEOUT конфигурация (опционально)
+  timelimiter:
+    instances:
+      notifications-service:
+        timeout-duration: 3s
+
+# Eureka Client
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+
+# Actuator для мониторинга Resilience4j
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, circuitbreakers, retries, metrics
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
+
+# Логирование
+logging:
+  level:
+    com.mybank.accounts: DEBUG
+
+
+

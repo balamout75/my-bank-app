@@ -1,0 +1,44 @@
+﻿,
+
+  "clientScopeMappings": {
+    "accounts-service": [
+      {
+        "client": "front-ui",
+        "roles": ["accounts.read", "accounts.write"]
+      },
+      {
+        "client": "cash-service",
+        "roles": ["balance.write"]
+      },
+      {
+        "client": "transfer-service",
+        "roles": ["balance.transfer"]
+      }
+    ],
+    "cash-service": [
+      {
+        "client": "front-ui",
+        "roles": ["cash.read", "cash.write"]
+      }
+    ],
+    "transfer-service": [
+      {
+        "client": "front-ui",
+        "roles": ["transfer.read", "transfer.write"]
+      }
+    ],
+    "notification-service": [
+      {
+        "client": "accounts-service",
+        "roles": ["notification.write"]
+      },
+      {
+        "client": "cash-service",
+        "roles": ["notification.write"]
+      },
+      {
+        "client": "transfer-service",
+        "roles": ["notification.write"]
+      }
+    ]
+  }

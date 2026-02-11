@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <changeSet id="01-create-notifications-table" author="Ivan Vasilyev">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists schemaName="notifications" tableName="notifications"/>
+            </not>
+        </preConditions>
+        <!-- Основная таблица уведомлений -->
+        <createTable schemaName="notifications" tableName="notifications">
+            <column name="operation_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="service" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payload" type="jsonb">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="attempts" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="error" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey schemaName="notifications" tableName="notifications" columnNames="service, operation_id" constraintName="service_operations_pkey"/>
+        <sql>
+            ALTER TABLE notifications
+                ADD CONSTRAINT chk_status
+                    CHECK (status IN ('RESERVED','RECEIVED', 'IN_PROGRESS', 'UPDATED', 'NOTIFIED', 'UNNOTIFIED', 'FAILED'));
+        </sql>
+        <createIndex schemaName="notifications" tableName="notifications" indexName="idx_n_username">
+            <column name="username"/>
+        </createIndex>
+
+        <createIndex schemaName="notifications" tableName="notifications" indexName="idx_n_status">
+            <column name="status"/>
+        </createIndex>
+
+        <rollback>
+            <dropTable schemaName="notifications" tableName="notifications"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

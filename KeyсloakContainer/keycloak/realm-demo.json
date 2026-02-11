@@ -1,0 +1,68 @@
+﻿{
+  "realm": "demo-realm",
+  "enabled": true,
+  
+  "users": [
+    {
+      "username": "ivan",
+      "email": "balamout@gmail.com",
+      "firstName": "Ivan",
+      "lastName": "Vasilev",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "ivan" }],
+      "realmRoles": ["Client"]
+    },
+    {
+      "username": "petr",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "petr" }],
+      "realmRoles": ["Manager"]
+    },
+    {
+      "username": "sergey",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "sergey" }],
+      "realmRoles": ["Client"]
+    },
+    {
+      "username": "service-account-backend-service",
+      "enabled": true,
+      "serviceAccountClientId": "backend-service",
+      "realmRoles": [
+	"SERVICE"
+      ]
+}
+  ],
+  
+  "roles": {
+    "realm": [
+      { "name": "Admin" },
+      { "name": "Manager" },
+      { "name": "Client" },
+      { "name": "SERVICE" }
+    ]
+  },
+  
+  "clients": [
+    {
+      "clientId": "frontend-service",
+      "enabled": true,
+      "secret": "4rAug3q5tM2QMb418UWgK0V9gPwFZrnL",
+      "redirectUris": ["http://localhost:8081/*", "https://pseudovelar-fumeless-sung.ngrok-free.dev/login/oauth2/code/keycloak-client"],
+      "webOrigins": ["http://localhost:8081","https://pseudovelar-fumeless-sung.ngrok-free.dev"],
+      "standardFlowEnabled": true,
+      "serviceAccountsEnabled": true,
+      "publicClient": false
+    },
+    {
+      "clientId": "backend-service",
+      "enabled": true,
+      "secret": "ePkuwWwNYTBa5zq0scy8S8qTJEm9T0id",
+      "redirectUris": ["/*"],
+      "webOrigins": ["/*"],
+      "standardFlowEnabled": true,
+      "serviceAccountsEnabled": true,
+      "publicClient": false
+    }
+  ]
+}

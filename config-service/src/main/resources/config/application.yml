@@ -1,0 +1,27 @@
+# Общие настройки для всех микросервисов (Spring Cloud Config)
+# Раздаётся как: /application/{profile}
+
+spring:
+  jackson:
+    serialization:
+      INDENT_OUTPUT: true
+    deserialization:
+      FAIL_ON_UNKNOWN_PROPERTIES: false
+    datatype:
+      datetime:
+        WRITE_DATES_AS_TIMESTAMPS: false
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+management:
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

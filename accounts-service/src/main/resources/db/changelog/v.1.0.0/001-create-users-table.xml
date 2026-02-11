@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <changeSet id="create_users_sequence" author="Ivan Vasilyev">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sequenceExists schemaName="accounts" sequenceName="users_sequence"/>
+            </not>
+        </preConditions>
+
+        <createSequence schemaName="accounts"
+                        sequenceName="users_sequence"
+                        incrementBy="1"/>
+
+        <rollback>
+            <dropSequence schemaName="accounts" sequenceName="users_sequence"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="create_users_table" author="Ivan Vasilyev">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists schemaName="accounts" tableName="users"/>
+            </not>
+        </preConditions>
+
+        <createTable schemaName="accounts" tableName="users">
+            <column name="id" type="BIGINT"
+                    defaultValueComputed="nextval('accounts.users_sequence')">
+                <constraints nullable="false"
+                             primaryKey="true"
+                             primaryKeyName="users_pkey"/>
+            </column>
+            <column name="user_name" type="VARCHAR(128)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="first_name" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(256)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="date_of_birth" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="balance" type="NUMERIC(19,2)" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <rollback>
+            <dropTable schemaName="accounts" tableName="users"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

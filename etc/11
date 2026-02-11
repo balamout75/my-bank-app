@@ -1,0 +1,38 @@
+﻿Frontend-service (UI + Thymeleaf). Backend-service (API / бизнес-логика)
+
+Keycloak как Identity Provider (IdP)
+И разные способы аутентификации для пользователя и для сервисов.
+🧑‍💻 Фронтенд-сервер (frontend-service)
+✅ Используемый метод
+OAuth 2.0 Authorization Code Flow (с OpenID Connect)
+📌 Точное название:
+OAuth 2.0 Authorization Code Grant + OpenID Connect
+🔍 Как это выглядит технически
+
+Пользователь открывает frontend
+
+Frontend редиректит в Keycloak
+
+Пользователь логинится
+
+Keycloak возвращает authorization code
+
+Frontend:
+
+меняет code на tokens (id_token, access_token)
+
+создаёт HTTP Session
+
+хранит SecurityContext (через cookie SESSION)
+
+В коде:
+
+OAuth2AuthenticationToken
+
+OidcUser
+
+id_token используется для информации о пользователе
+
+📌 В Spring:
+
+.oauth2Login()
