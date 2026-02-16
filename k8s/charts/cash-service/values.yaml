@@ -1,0 +1,23 @@
+image:
+  repository: mybank/yp-mybank-cash
+  tag: latest
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+service:
+  port: 8080
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+keycloak:
+  clientSecret: "GJj0e0li8KrcaHb9S20ze8SDo8lO1zIL"
+
+db:
+  schema: cash

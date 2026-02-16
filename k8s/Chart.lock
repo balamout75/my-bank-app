@@ -1,0 +1,27 @@
+dependencies:
+- name: postgresql
+  repository: ""
+  version: 1.0.0
+- name: keycloak
+  repository: ""
+  version: 1.0.0
+- name: gateway-service
+  repository: ""
+  version: 1.0.0
+- name: front-ui
+  repository: ""
+  version: 1.0.0
+- name: accounts-service
+  repository: ""
+  version: 1.0.0
+- name: cash-service
+  repository: ""
+  version: 1.0.0
+- name: transfer-service
+  repository: ""
+  version: 1.0.0
+- name: notifications-service
+  repository: ""
+  version: 1.0.0
+digest: sha256:d7327621f7e77c65cfb9c9be47b32bc5ef3e286356d1d2746f703212803d7bb4
+generated: "2026-02-15T23:46:29.149196+08:00"

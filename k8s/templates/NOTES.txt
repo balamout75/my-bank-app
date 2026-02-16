@@ -1,0 +1,24 @@
+============================================================
+  MyBank успешно развёрнут в Kubernetes!
+============================================================
+
+1. Добавьте в /etc/hosts:
+   127.0.0.1  {{ .Values.global.appHost }}  {{ .Values.global.keycloakHost }}
+
+2. Убедитесь, что Ingress-контроллер установлен:
+   kubectl get pods -n ingress-nginx
+
+   Если нет — установите:
+   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0/deploy/static/provider/cloud/deploy.yaml
+
+3. Дождитесь готовности всех подов:
+   kubectl get pods -w
+
+4. Откройте приложение:
+   Фронт:    http://{{ .Values.global.appHost }}
+   Keycloak: http://{{ .Values.global.keycloakHost }}
+   (admin / admin)
+
+5. Тестовые пользователи:
+   alice / alice123
+   bob   / bob123

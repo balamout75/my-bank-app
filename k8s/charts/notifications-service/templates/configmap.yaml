@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-notifications-service
+  labels:
+    app: notifications-service
+    app.kubernetes.io/name: notifications-service
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  application.yml: |
+    server:
+      port: 8080
+
+    spring:
+      datasource:
+        url: ${DB_URL}
+        username: ${DB_USER}
+        password: ${DB_PASSWORD}
+      liquibase:
+        change-log: classpath:db/changelog/db.changelog-master.xml
+        default-schema: {{ .Values.db.schema }}
+        liquibase-schema: public
+      jpa:
+        hibernate:
+          ddl-auto: validate
+        properties:
+          hibernate:
+            default_schema: {{ .Values.db.schema }}
+      security:
+        oauth2:
+          resourceserver:
+            jwt:
+              issuer-uri: http://{{ .Values.global.keycloakHost }}/realms/mybank
+
+    # Отключаем Eureka
+    eureka:
+      client:
+        enabled: false
+
+    application:
+      outbox:
+        fixed-delay-ms: 5000
+        order:
+          limit: 10
+        max-attempts: 5
+
+    logging:
+      level:
+        com.mybank.notifications: DEBUG

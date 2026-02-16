@@ -1,0 +1,110 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-accounts-service
+  labels:
+    app: accounts-service
+    app.kubernetes.io/name: accounts-service
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  application-k8s.yml: |
+    server:
+      port: 8080
+
+    spring:
+      datasource:
+        url: ${DB_URL}
+        username: ${DB_USER}
+        password: ${DB_PASSWORD}
+      liquibase:
+        change-log: classpath:db/changelog/db.changelog-master.xml
+        default-schema: {{ .Values.db.schema }}
+        liquibase-schema: public
+      security:
+        oauth2:
+          client:
+            registration:
+              accounts-service:
+                provider: accounts-service
+                client-id: accounts-service
+                client-secret: ${OAUTH2_CLIENT_SECRET}
+                authorization-grant-type: client_credentials
+            provider:
+              accounts-service:
+                # Внутренний URL Keycloak для получения токенов
+                issuer-uri: http://{{ .Values.global.keycloakHost }}/realms/mybank
+          resourceserver:
+            jwt:
+              # jwk-set-uri вместо issuer-uri — обход проблемы issuer mismatch
+              issuer-uri: http://{{ .Values.global.keycloakHost }}/realms/mybank  
+      jpa:
+        hibernate:
+          ddl-auto: validate
+        show-sql: false
+        properties:
+          hibernate:
+            default_schema: {{ .Values.db.schema }}
+
+    # Отключаем Eureka
+    eureka:
+      client:
+        enabled: false
+
+    application:
+      outbox:
+        fixed-delay-ms: 5000
+        order:
+          limit: 10
+        max-attempts: 5
+
+    resilience4j:
+      retry:
+        retry-aspect-order: 2
+        instances:
+          notifications-service:
+            max-attempts: 2
+            wait-duration: 300ms
+            exponential-backoff-multiplier: 2
+            retry-exceptions:
+              - org.springframework.web.client.ResourceAccessException
+              - java.net.ConnectException
+              - java.net.SocketTimeoutException
+              - java.io.IOException
+            ignore-exceptions:
+              - io.github.resilience4j.circuitbreaker.CallNotPermittedException
+              - org.springframework.web.client.HttpClientErrorException$BadRequest
+              - org.springframework.web.client.HttpClientErrorException$NotFound
+              - org.springframework.web.client.HttpClientErrorException$Forbidden
+              - org.springframework.web.client.HttpClientErrorException$Unauthorized
+      circuitbreaker:
+        circuitbreaker-aspect-order: 1
+        instances:
+          notifications-service:
+            record-exceptions:
+              - org.springframework.web.client.ResourceAccessException
+              - java.io.IOException
+              - java.net.SocketTimeoutException
+            register-health-indicator: true
+            sliding-window-type: COUNT_BASED
+            sliding-window-size: 5
+            minimum-number-of-calls: 3
+            failure-rate-threshold: 50
+            wait-duration-in-open-state: 15s
+            permitted-number-of-calls-in-half-open-state: 2
+            automatic-transition-from-open-to-half-open-enabled: true
+
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: health,info,circuitbreakers,retries,metrics
+      endpoint:
+        health:
+          show-details: always
+      health:
+        circuitbreakers:
+          enabled: true
+
+    logging:
+      level:
+        com.mybank.accounts: DEBUG
