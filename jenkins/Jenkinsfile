@@ -1,0 +1,63 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_REGISTRY = credentials('DOCKER_REGISTRY')
+        GHCR_TOKEN      = credentials('GHCR_TOKEN')
+        GITHUB_USERNAME = credentials('GITHUB_USERNAME')
+        DB_PASSWORD     = credentials('DB_PASSWORD')
+        CHART_DIR       = 'k8s'
+        RELEASE         = 'mybank'
+        NAMESPACE       = 'mybank'
+    }
+
+    stages {
+        stage('Login to GHCR') {
+            steps {
+                sh '''
+                    echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GITHUB_USERNAME}" --password-stdin
+                '''
+            }
+        }
+
+        stage('Build & Push Images') {
+            steps {
+                sh """
+                    REGISTRY=${DOCKER_REGISTRY} docker buildx bake --load -f docker-bake.hcl
+                    REGISTRY=${DOCKER_REGISTRY} docker buildx bake -f docker-bake.hcl --push
+                """
+            }
+        }
+
+        stage('Deploy to K8s') {
+            steps {
+                sh """
+                    helm dependency update ${CHART_DIR}
+                    helm upgrade --install ${RELEASE} ${CHART_DIR} \
+                        --namespace ${NAMESPACE} \
+                        --create-namespace \
+                        --set global.postgresql.password=${DB_PASSWORD} \
+                        --wait --timeout 5m
+                """
+            }
+        }
+
+        stage('Verify') {
+            steps {
+                sh "kubectl get pods -n ${NAMESPACE}"
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker logout ghcr.io || true'
+        }
+        success {
+            echo '✅ MyBank deployed successfully!'
+        }
+        failure {
+            echo '❌ Deployment failed!'
+        }
+    }
+}
