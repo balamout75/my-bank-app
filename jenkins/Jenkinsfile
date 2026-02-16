@@ -1,50 +1,158 @@
 pipeline {
     agent any
-
     environment {
         DOCKER_REGISTRY = credentials('DOCKER_REGISTRY')
-        GHCR_TOKEN      = credentials('GHCR_TOKEN')
-        GITHUB_USERNAME = credentials('GITHUB_USERNAME')
         DB_PASSWORD     = credentials('DB_PASSWORD')
+        GITHUB_USERNAME = credentials('GITHUB_USERNAME')
+        DB_NAME         = 'mybank'
+        DB_USER         = 'mybank'
+        IMAGE_TAG       = "${env.BUILD_NUMBER}"
         CHART_DIR       = 'k8s'
-        RELEASE         = 'mybank'
-        NAMESPACE       = 'mybank'
     }
-
     stages {
-        stage('Login to GHCR') {
-            steps {
-                sh '''
-                    echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GITHUB_USERNAME}" --password-stdin
-                '''
+        stage('Build & Unit Tests') {
+            parallel {
+                stage('Accounts Service') {
+                    steps {
+                        dir('accounts-service') {
+                            sh 'mvn clean test'
+                        }
+                    }
+                }
+                stage('Cash Service') {
+                    steps {
+                        dir('cash-service') {
+                            sh 'mvn clean test'
+                        }
+                    }
+                }
+                stage('Transfer Service') {
+                    steps {
+                        dir('transfer-service') {
+                            sh 'mvn clean test'
+                        }
+                    }
+                }
+                stage('Notifications Service') {
+                    steps {
+                        dir('notifications-service') {
+                            sh 'mvn clean test'
+                        }
+                    }
+                }
+                stage('Gateway Service') {
+                    steps {
+                        dir('gateway-service') {
+                            sh 'mvn clean test'
+                        }
+                    }
+                }
+                stage('Front UI') {
+                    steps {
+                        dir('front-ui') {
+                            sh 'mvn clean test'
+                        }
+                    }
+                }
             }
         }
 
-        stage('Build & Push Images') {
+        stage('Build Docker Images') {
             steps {
                 sh """
-                    REGISTRY=${DOCKER_REGISTRY} docker buildx bake --load -f docker-bake.hcl
-                    REGISTRY=${DOCKER_REGISTRY} docker buildx bake -f docker-bake.hcl --push
+                docker build -f Dockerfile.build --build-arg MODULE=accounts-service -t ${DOCKER_REGISTRY}/mybank-accounts:${IMAGE_TAG} .
+                docker build -f Dockerfile.build --build-arg MODULE=cash-service -t ${DOCKER_REGISTRY}/mybank-cash:${IMAGE_TAG} .
+                docker build -f Dockerfile.build --build-arg MODULE=transfer-service -t ${DOCKER_REGISTRY}/mybank-transfer:${IMAGE_TAG} .
+                docker build -f Dockerfile.build --build-arg MODULE=notifications-service -t ${DOCKER_REGISTRY}/mybank-notifications:${IMAGE_TAG} .
+                docker build -f Dockerfile.build --build-arg MODULE=gateway-service -t ${DOCKER_REGISTRY}/mybank-gateway:${IMAGE_TAG} .
+                docker build -f Dockerfile.build --build-arg MODULE=front-ui -t ${DOCKER_REGISTRY}/mybank-frontend:${IMAGE_TAG} .
                 """
             }
         }
 
-        stage('Deploy to K8s') {
+        stage('Push Docker Images') {
+            steps {
+                withCredentials([string(credentialsId: 'GHCR_TOKEN', variable: 'GHCR_TOKEN')]) {
+                    sh """
+                    echo \$GHCR_TOKEN | docker login ghcr.io -u ${GITHUB_USERNAME} --password-stdin
+                    docker push ${DOCKER_REGISTRY}/mybank-accounts:${IMAGE_TAG}
+                    docker push ${DOCKER_REGISTRY}/mybank-cash:${IMAGE_TAG}
+                    docker push ${DOCKER_REGISTRY}/mybank-transfer:${IMAGE_TAG}
+                    docker push ${DOCKER_REGISTRY}/mybank-notifications:${IMAGE_TAG}
+                    docker push ${DOCKER_REGISTRY}/mybank-gateway:${IMAGE_TAG}
+                    docker push ${DOCKER_REGISTRY}/mybank-frontend:${IMAGE_TAG}
+                    """
+                }
+            }
+        }
+
+        stage('Helm Deploy to TEST') {
             steps {
                 sh """
-                    helm dependency update ${CHART_DIR}
-                    helm upgrade --install ${RELEASE} ${CHART_DIR} \
-                        --namespace ${NAMESPACE} \
-                        --create-namespace \
-                        --set global.postgresql.password=${DB_PASSWORD} \
-                        --wait --timeout 5m
+                helm dependency update ${CHART_DIR}
+                helm upgrade --install mybank ${CHART_DIR} \
+                  --namespace test --create-namespace \
+                  --set global.postgresql.password=${DB_PASSWORD} \
+                  --set global.postgresql.database=${DB_NAME} \
+                  --set global.postgresql.username=${DB_USER} \
+                  --set accounts-service.image.repository=${DOCKER_REGISTRY}/mybank-accounts \
+                  --set accounts-service.image.tag=${IMAGE_TAG} \
+                  --set cash-service.image.repository=${DOCKER_REGISTRY}/mybank-cash \
+                  --set cash-service.image.tag=${IMAGE_TAG} \
+                  --set transfer-service.image.repository=${DOCKER_REGISTRY}/mybank-transfer \
+                  --set transfer-service.image.tag=${IMAGE_TAG} \
+                  --set notifications-service.image.repository=${DOCKER_REGISTRY}/mybank-notifications \
+                  --set notifications-service.image.tag=${IMAGE_TAG} \
+                  --set gateway-service.image.repository=${DOCKER_REGISTRY}/mybank-gateway \
+                  --set gateway-service.image.tag=${IMAGE_TAG} \
+                  --set front-ui.image.repository=${DOCKER_REGISTRY}/mybank-frontend \
+                  --set front-ui.image.tag=${IMAGE_TAG} \
+                  --wait --timeout 5m
                 """
             }
         }
 
-        stage('Verify') {
+        stage('Verify TEST') {
             steps {
-                sh "kubectl get pods -n ${NAMESPACE}"
+                sh 'kubectl get pods -n test'
+            }
+        }
+
+        stage('Manual Approval for PROD') {
+            steps {
+                input message: 'Deploy to PROD environment?', ok: 'Yes, deploy'
+            }
+        }
+
+        stage('Helm Deploy to PROD') {
+            steps {
+                sh """
+                helm dependency update ${CHART_DIR}
+                helm upgrade --install mybank ${CHART_DIR} \
+                  --namespace prod --create-namespace \
+                  --set global.postgresql.password=${DB_PASSWORD} \
+                  --set global.postgresql.database=${DB_NAME} \
+                  --set global.postgresql.username=${DB_USER} \
+                  --set accounts-service.image.repository=${DOCKER_REGISTRY}/mybank-accounts \
+                  --set accounts-service.image.tag=${IMAGE_TAG} \
+                  --set cash-service.image.repository=${DOCKER_REGISTRY}/mybank-cash \
+                  --set cash-service.image.tag=${IMAGE_TAG} \
+                  --set transfer-service.image.repository=${DOCKER_REGISTRY}/mybank-transfer \
+                  --set transfer-service.image.tag=${IMAGE_TAG} \
+                  --set notifications-service.image.repository=${DOCKER_REGISTRY}/mybank-notifications \
+                  --set notifications-service.image.tag=${IMAGE_TAG} \
+                  --set gateway-service.image.repository=${DOCKER_REGISTRY}/mybank-gateway \
+                  --set gateway-service.image.tag=${IMAGE_TAG} \
+                  --set front-ui.image.repository=${DOCKER_REGISTRY}/mybank-frontend \
+                  --set front-ui.image.tag=${IMAGE_TAG} \
+                  --wait --timeout 5m
+                """
+            }
+        }
+
+        stage('Verify PROD') {
+            steps {
+                sh 'kubectl get pods -n prod'
             }
         }
     }
