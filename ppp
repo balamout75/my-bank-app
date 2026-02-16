@@ -1,0 +1,840 @@
+[1A[1B[0G[?25l[+] Building 0.0s (0/1)                                    docker:desktop-linux
+ => [internal] load local bake definitions                                 0.0s
+[?25h[1A[1A[0G[?25l[+] Building 0.2s (1/1)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[?25h[1A[1A[1A[0G[?25l[+] Building 0.3s (1/1)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[?25h[1A[1A[1A[0G[?25l[+] Building 0.5s (1/1)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[?25h[1A[1A[1A[0G[?25l[+] Building 0.6s (1/1)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[?25h[1A[1A[1A[0G[?25l[+] Building 0.8s (1/1)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[?25h[1A[1A[1A[0G[?25l[+] Building 0.9s (1/1)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[?25h[1A[1A[1A[0G[?25l[+] Building 1.1s (1/1)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[?25h[1A[1A[1A[0G[?25l[+] Building 1.2s (1/1)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[?25h[1A[1A[1A[0G[?25l[+] Building 1.4s (1/1)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[?25h[1A[1A[1A[0G[?25l[+] Building 1.5s (1/1)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[?25h[1A[1A[1A[0G[?25l[+] Building 1.7s (1/1)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[?25h[1A[1A[1A[0G[?25l[+] Building 1.7s (1/2)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m => [accounts-service internal] load build definition from Dockerfile.bui  0.0s
+[?25h[1A[1A[1A[1A[0G[?25l[+] Building 1.9s (2/3)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[36m => [accounts-service internal] load build definition from Dockerfile.bui  0.0s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m => [cash-service] resolve image config for docker-image://docker.io/dock  0.2s
+[?25h[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 2.1s (2/3)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[36m => [accounts-service internal] load build definition from Dockerfile.bui  0.0s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m => [cash-service] resolve image config for docker-image://docker.io/dock  0.3s
+[?25h[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 2.2s (2/3)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[36m => [accounts-service internal] load build definition from Dockerfile.bui  0.0s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m => [cash-service] resolve image config for docker-image://docker.io/dock  0.5s
+[?25h[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 2.4s (2/3)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[36m => [accounts-service internal] load build definition from Dockerfile.bui  0.0s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m => [cash-service] resolve image config for docker-image://docker.io/dock  0.6s
+[?25h[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 2.5s (2/3)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[36m => [accounts-service internal] load build definition from Dockerfile.bui  0.0s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m => [cash-service] resolve image config for docker-image://docker.io/dock  0.8s
+[?25h[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 2.7s (2/3)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[36m => [accounts-service internal] load build definition from Dockerfile.bui  0.0s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m => [cash-service] resolve image config for docker-image://docker.io/dock  0.9s
+[?25h[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 2.8s (2/3)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[36m => [accounts-service internal] load build definition from Dockerfile.bui  0.0s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m => [gateway-service] resolve image config for docker-image://docker.io/d  1.0s
+[?25h[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 3.0s (4/4)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[36m => [accounts-service internal] load build definition from Dockerfile.bui  0.0s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [config-service] resolve image config for docker-image://docker.io/do  1.0s
+[0m[36m => CACHED [front-ui] docker-image://docker.io/docker/dockerfile:1.7@sha2  0.0s
+[0m[36m => => resolve docker.io/docker/dockerfile:1.7@sha256:a57df69d0ea827fb726  0.0s
+[0m[?25h[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 3.1s (4/4)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[36m => [accounts-service internal] load build definition from Dockerfile.bui  0.0s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [config-service] resolve image config for docker-image://docker.io/do  1.0s
+[0m[36m => CACHED [front-ui] docker-image://docker.io/docker/dockerfile:1.7@sha2  0.0s
+[0m[36m => => resolve docker.io/docker/dockerfile:1.7@sha256:a57df69d0ea827fb726  0.0s
+[0m[?25h[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 3.1s (4/5)                                    docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[36m => [accounts-service internal] load build definition from Dockerfile.bui  0.0s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [config-service] resolve image config for docker-image://docker.io/do  1.0s
+[0m[36m => CACHED [front-ui] docker-image://docker.io/docker/dockerfile:1.7@sha2  0.0s
+[0m[36m => => resolve docker.io/docker/dockerfile:1.7@sha256:a57df69d0ea827fb726  0.0s
+[0m[?25h[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 3.2s (7/14)                                   docker:desktop-linux
+ => [transfer-service internal] load build definition from Dockerfile.bui  0.1s
+[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m => [discovery-service internal] load build definition from Dockerfile.bu  0.1s
+ => [accounts-service internal] load build definition from Dockerfile.bui  0.1s
+ => [cash-service internal] load build definition from Dockerfile.build    0.1s
+ => [front-ui internal] load build definition from Dockerfile.build        0.1s
+ => [gateway-service internal] load metadata for docker.io/library/maven:  0.0s
+ => [gateway-service internal] load metadata for docker.io/library/eclips  0.0s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 3.3s (10/14)                                  docker:desktop-linux
+ => [accounts-service internal] load build definition from Dockerfile.bui  0.2s
+[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [cash-service internal] load build definition from Dockerfile.build    0.1s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m => [front-ui internal] load build definition from Dockerfile.build        0.2s
+[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m => [cash-service internal] load metadata for docker.io/library/maven:3.9  0.1s
+ => [cash-service internal] load metadata for docker.io/library/eclipse-t  0.1s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 3.5s (12/14)                                  docker:desktop-linux
+[36m => [accounts-service internal] load build definition from Dockerfile.bui  0.2s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [cash-service internal] load build definition from Dockerfile.build    0.1s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [front-ui internal] load build definition from Dockerfile.build        0.2s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m => [front-ui internal] load metadata for docker.io/library/maven:3.9-ecl  0.3s
+ => [front-ui internal] load metadata for docker.io/library/eclipse-temur  0.3s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 3.7s (12/14)                                  docker:desktop-linux
+[36m => [accounts-service internal] load build definition from Dockerfile.bui  0.2s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [cash-service internal] load build definition from Dockerfile.build    0.1s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [front-ui internal] load build definition from Dockerfile.build        0.2s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m => [front-ui internal] load metadata for docker.io/library/maven:3.9-ecl  0.5s
+ => [front-ui internal] load metadata for docker.io/library/eclipse-temur  0.5s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 3.8s (12/14)                                  docker:desktop-linux
+[36m => [accounts-service internal] load build definition from Dockerfile.bui  0.2s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [cash-service internal] load build definition from Dockerfile.build    0.1s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [front-ui internal] load build definition from Dockerfile.build        0.2s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m => [front-ui internal] load metadata for docker.io/library/maven:3.9-ecl  0.6s
+ => [front-ui internal] load metadata for docker.io/library/eclipse-temur  0.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 4.0s (12/14)                                  docker:desktop-linux
+[36m => [accounts-service internal] load build definition from Dockerfile.bui  0.2s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [cash-service internal] load build definition from Dockerfile.build    0.1s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [front-ui internal] load build definition from Dockerfile.build        0.2s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m => [front-ui internal] load metadata for docker.io/library/maven:3.9-ecl  0.8s
+ => [front-ui internal] load metadata for docker.io/library/eclipse-temur  0.8s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 4.1s (12/14)                                  docker:desktop-linux
+[36m => [accounts-service internal] load build definition from Dockerfile.bui  0.2s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [cash-service internal] load build definition from Dockerfile.build    0.1s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [front-ui internal] load build definition from Dockerfile.build        0.2s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m => [front-ui internal] load metadata for docker.io/library/maven:3.9-ecl  0.9s
+ => [front-ui internal] load metadata for docker.io/library/eclipse-temur  0.9s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 4.2s (12/14)                                  docker:desktop-linux
+[36m => [accounts-service internal] load build definition from Dockerfile.bui  0.2s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [cash-service internal] load build definition from Dockerfile.build    0.1s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [front-ui internal] load build definition from Dockerfile.build        0.2s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m => [front-ui internal] load metadata for docker.io/library/maven:3.9-ecl  1.0s
+ => [gateway-service internal] load metadata for docker.io/library/eclips  1.0s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 4.3s (17/22)                                  docker:desktop-linux
+ => [transfer-service internal] load .dockerignore                         0.1s
+ => [config-service internal] load .dockerignore                           0.1s
+ => [accounts-service internal] load .dockerignore                         0.1s
+[36m => => transferring context: 106B                                          0.0s
+[0m => [gateway-service internal] load .dockerignore                          0.1s
+ => [cash-service internal] load .dockerignore                             0.1s
+[36m => [front-ui internal] load .dockerignore                                 0.1s
+[0m[36m => => transferring context: 106B                                          0.0s
+[0m[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 4.4s (22/41)                                  docker:desktop-linux
+ => [transfer-service internal] load .dockerignore                         0.2s
+ => [config-service internal] load .dockerignore                           0.2s
+ => [notifications-service builder 1/7] FROM docker.io/library/maven:3.9-  0.1s
+ => => resolve docker.io/library/maven:3.9-eclipse-temurin-21-alpine@sha2  0.0s
+[36m => [discovery-service internal] load build context                        0.0s
+[0m => [notifications-service stage-1 1/4] FROM docker.io/library/eclipse-te  0.1s
+ => => resolve docker.io/library/eclipse-temurin:21-jre-alpine@sha256:6ad  0.0s
+[36m => [notifications-service internal] load build context                    0.0s
+[0m[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 4.5s (24/55)                                  docker:desktop-linux
+ => [transfer-service internal] load .dockerignore                         0.3s
+ => [config-service internal] load .dockerignore                           0.3s
+[36m => [front-ui builder 1/7] FROM docker.io/library/maven:3.9-eclipse-temur  0.1s
+[0m[36m => => resolve docker.io/library/maven:3.9-eclipse-temurin-21-alpine@sha2  0.1s
+[0m[36m => [discovery-service internal] load build context                        0.0s
+[0m[36m => [front-ui stage-1 1/4] FROM docker.io/library/eclipse-temurin:21-jre-  0.1s
+[0m[36m => => resolve docker.io/library/eclipse-temurin:21-jre-alpine@sha256:6ad  0.1s
+[0m[36m => [notifications-service internal] load build context                    0.0s
+[0m[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 4.6s (24/69)                                  docker:desktop-linux
+ => => transferring context: 32B                                           0.0s
+ => [front-ui internal] load build context                                 0.1s
+ => => transferring context: 32B                                           0.0s
+ => [accounts-service internal] load build context                         0.1s
+ => [gateway-service internal] load build context                          0.1s
+ => => transferring context: 32B                                           0.0s
+ => [cash-service internal] load build context                             0.1s
+ => => transferring context: 32B                                           0.0s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 4.7s (24/76)                                  docker:desktop-linux
+ => [notifications-service internal] load build context                    0.2s
+ => [front-ui internal] load build context                                 0.2s
+ => [accounts-service internal] load build context                         0.2s
+ => [gateway-service internal] load build context                          0.2s
+[36m => => transferring context: 58.63kB                                       0.1s
+[0m => [cash-service internal] load build context                             0.2s
+[36m => => transferring context: 58.63kB                                       0.1s
+[0m => [transfer-service internal] load build context                         0.0s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 4.8s (30/83)                                  docker:desktop-linux
+[36m => [gateway-service internal] load build context                          0.2s
+[0m[36m => => transferring context: 58.63kB                                       0.1s
+[0m[36m => [cash-service internal] load build context                             0.2s
+[0m[36m => => transferring context: 58.63kB                                       0.1s
+[0m => [transfer-service internal] load build context                         0.1s
+ => => transferring context: 32B                                           0.1s
+ => [config-service internal] load build context                           0.1s
+ => => transferring context:                                               0.0s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 4.9s (45/83)                                  docker:desktop-linux
+ => [discovery-service builder 5/7] RUN --mount=type=cache,target=/root/.  0.1s
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  0.1s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     0.1s
+[36m => CACHED [accounts-service builder 4/7] COPY */pom.xml ./                0.0s
+[0m => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  0.1s
+[36m => CACHED [gateway-service builder 3/7] COPY pom.xml ./                   0.0s
+[0m[36m => CACHED [gateway-service builder 4/7] COPY */pom.xml ./                 0.0s
+[0m => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  0.1s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 5.1s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  0.3s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     0.3s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  0.3s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  0.2s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  0.2s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   0.2s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 5.2s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  0.4s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     0.4s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  0.4s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  0.4s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  0.3s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   0.3s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 5.4s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  0.6s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     0.6s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  0.6s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  0.5s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  0.5s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   0.5s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 5.5s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  0.7s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     0.7s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  0.7s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  0.7s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  0.6s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   0.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 5.7s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  0.9s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     0.9s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  0.9s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  0.8s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  0.8s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   0.8s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 5.8s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  1.0s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     1.0s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  1.0s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  1.0s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  0.9s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   0.9s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 6.0s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  1.2s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     1.2s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  1.2s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  1.1s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  1.1s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   1.1s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 6.1s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  1.3s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     1.3s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  1.3s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  1.3s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  1.2s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   1.2s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 6.3s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  1.5s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     1.5s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  1.5s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  1.4s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  1.4s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   1.4s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 6.4s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  1.6s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     1.6s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  1.6s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  1.6s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  1.5s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   1.5s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 6.6s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  1.8s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     1.8s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  1.8s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  1.7s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  1.7s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   1.7s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 6.7s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  1.9s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     1.9s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  1.9s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  1.9s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  1.8s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   1.8s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 6.9s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  2.1s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     2.1s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  2.1s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  2.0s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  2.0s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   2.0s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 7.0s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  2.2s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     2.2s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  2.2s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  2.2s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  2.1s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   2.1s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 7.2s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  2.4s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     2.4s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  2.4s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  2.3s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  2.3s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   2.3s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 7.3s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  2.5s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     2.5s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  2.5s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  2.5s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  2.4s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   2.4s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 7.5s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  2.7s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     2.7s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  2.7s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  2.6s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  2.6s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   2.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 7.6s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  2.8s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     2.8s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  2.8s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  2.8s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  2.7s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   2.7s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 7.8s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  3.0s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     3.0s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  3.0s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  2.9s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  2.9s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   2.9s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 7.9s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  3.1s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     3.1s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  3.1s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  3.1s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  3.0s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   3.0s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 8.1s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  3.3s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     3.3s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  3.3s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  3.2s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  3.2s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   3.2s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 8.2s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  3.4s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     3.4s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  3.4s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  3.4s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  3.3s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   3.3s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 8.4s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  3.6s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     3.6s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  3.6s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  3.5s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  3.5s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   3.5s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 8.5s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  3.7s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     3.7s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  3.7s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  3.7s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  3.6s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   3.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 8.7s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  3.9s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     3.9s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  3.9s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  3.8s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  3.8s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   3.8s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 8.8s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  4.0s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     4.0s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  4.0s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  4.0s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  3.9s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   3.9s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 9.1s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  4.2s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     4.2s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  4.2s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  4.2s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  4.1s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   4.1s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 9.1s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  4.3s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     4.3s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  4.3s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  4.3s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  4.2s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   4.2s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 9.3s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  4.5s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     4.5s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  4.5s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  4.4s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  4.4s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   4.4s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 9.4s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  4.6s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     4.6s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  4.6s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  4.6s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  4.5s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   4.5s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 9.6s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  4.8s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     4.8s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  4.8s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  4.7s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  4.7s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   4.7s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 9.7s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  4.9s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     4.9s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  4.9s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  4.9s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  4.8s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   4.8s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 9.9s (49/83)                                  docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  5.1s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     5.1s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  5.1s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  5.0s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  5.0s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   5.0s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 10.0s (49/83)                                 docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  5.2s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     5.2s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  5.2s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  5.2s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  5.1s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   5.1s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 10.2s (49/83)                                 docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  5.4s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     5.4s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  5.4s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  5.3s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  5.3s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   5.3s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 10.3s (49/83)                                 docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  5.5s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     5.5s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  5.5s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  5.5s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  5.4s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   5.4s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 10.5s (49/83)                                 docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  5.7s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     5.7s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  5.7s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  5.6s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  5.6s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   5.6s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 10.6s (49/83)                                 docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  5.8s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     5.8s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  5.8s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  5.8s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  5.7s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   5.7s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 10.8s (49/83)                                 docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  6.0s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     6.0s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  6.0s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  5.9s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  5.9s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   5.9s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 10.9s (49/83)                                 docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  6.1s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     6.1s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  6.1s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  6.1s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  6.0s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   6.0s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 11.0s (49/83)                                 docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  6.2s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     6.2s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  6.1s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  6.1s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  6.1s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   6.1s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 11.1s (49/83)                                 docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  6.3s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     6.3s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  6.3s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  6.3s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  6.2s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   6.2s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 11.3s (49/83)                                 docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  6.5s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     6.4s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  6.4s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  6.4s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  6.3s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   6.3s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 11.4s (50/83)                                 docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  6.6s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     6.6s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  6.6s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  6.6s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  6.5s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   6.5s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 11.6s (50/83)                                 docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  6.8s
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     6.8s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  6.8s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  6.7s
+ => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  6.7s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   6.7s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 11.7s (51/83)                                 docker:desktop-linux
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     6.9s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  6.9s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  6.8s
+[36m => CACHED [transfer-service builder 4/7] COPY */pom.xml ./                0.0s
+[0m => [transfer-service builder 5/7] RUN --mount=type=cache,target=/root/.m  6.8s
+[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   6.8s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 11.8s (52/83)                                 docker:desktop-linux
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     7.0s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  7.0s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  7.0s
+[36m => CACHED [transfer-service builder 4/7] COPY */pom.xml ./                0.0s
+[0m[33m => CANCELED [transfer-service builder 5/7] RUN --mount=type=cache,target  6.9s
+[0m[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m => [config-service builder 5/7] RUN --mount=type=cache,target=/root/.m2   6.9s
+[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 11.9s (53/83)                                 docker:desktop-linux
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     7.1s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  7.1s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  7.1s
+[36m => CACHED [transfer-service builder 4/7] COPY */pom.xml ./                0.0s
+[0m[33m => CANCELED [transfer-service builder 5/7] RUN --mount=type=cache,target  6.9s
+[0m[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m[33m => CANCELED [config-service builder 5/7] RUN --mount=type=cache,target=/  7.0s
+[0m[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 12.1s (53/83)                                 docker:desktop-linux
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     7.3s
+ => [accounts-service builder 5/7] RUN --mount=type=cache,target=/root/.m  7.3s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  7.3s
+[36m => CACHED [transfer-service builder 4/7] COPY */pom.xml ./                0.0s
+[0m[33m => CANCELED [transfer-service builder 5/7] RUN --mount=type=cache,target  6.9s
+[0m[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m[33m => CANCELED [config-service builder 5/7] RUN --mount=type=cache,target=/  7.0s
+[0m[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 12.2s (54/83)                                 docker:desktop-linux
+ => [cash-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     7.4s
+ => [gateway-service builder 5/7] RUN --mount=type=cache,target=/root/.m2  7.4s
+[36m => CACHED [transfer-service builder 3/7] COPY pom.xml ./                  0.0s
+[0m[36m => CACHED [transfer-service builder 4/7] COPY */pom.xml ./                0.0s
+[0m[33m => CANCELED [transfer-service builder 5/7] RUN --mount=type=cache,target  6.9s
+[0m[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m[33m => CANCELED [config-service builder 5/7] RUN --mount=type=cache,target=/  7.0s
+[0m[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 12.4s (56/83)                                 docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  7.6s
+[33m => CANCELED [gateway-service builder 5/7] RUN --mount=type=cache,target=  7.5s
+[0m[36m => CACHED [transfer-service builder 3/7] COPY pom.xml ./                  0.0s
+[0m[36m => CACHED [transfer-service builder 4/7] COPY */pom.xml ./                0.0s
+[0m[33m => CANCELED [transfer-service builder 5/7] RUN --mount=type=cache,target  6.9s
+[0m[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m[33m => CANCELED [config-service builder 5/7] RUN --mount=type=cache,target=/  7.0s
+[0m[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 12.5s (56/83)                                 docker:desktop-linux
+ => [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.m2     mv  7.7s
+[33m => CANCELED [gateway-service builder 5/7] RUN --mount=type=cache,target=  7.5s
+[0m[36m => CACHED [transfer-service builder 3/7] COPY pom.xml ./                  0.0s
+[0m[36m => CACHED [transfer-service builder 4/7] COPY */pom.xml ./                0.0s
+[0m[33m => CANCELED [transfer-service builder 5/7] RUN --mount=type=cache,target  6.9s
+[0m[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m[33m => CANCELED [config-service builder 5/7] RUN --mount=type=cache,target=/  7.0s
+[0m[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 12.6s (57/83)                                 docker:desktop-linux
+[36m => CACHED [gateway-service builder 4/7] COPY */pom.xml ./                 0.0s
+[0m[33m => CANCELED [gateway-service builder 5/7] RUN --mount=type=cache,target=  7.5s
+[0m[36m => CACHED [transfer-service builder 3/7] COPY pom.xml ./                  0.0s
+[0m[36m => CACHED [transfer-service builder 4/7] COPY */pom.xml ./                0.0s
+[0m[33m => CANCELED [transfer-service builder 5/7] RUN --mount=type=cache,target  6.9s
+[0m[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m[33m => CANCELED [config-service builder 5/7] RUN --mount=type=cache,target=/  7.0s
+[0m[?25h[1A[1A[1A[1A[1A[1A[1A[1A[1A[0G[?25l[+] Building 12.6s (57/83)                                 docker:desktop-linux
+[36m => [internal] load local bake definitions                                 0.0s
+[0m[36m => => reading docker-bake.hcl 1.77kB / 1.77kB                             0.0s
+[0m[36m => [accounts-service internal] load build definition from Dockerfile.bui  0.0s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [config-service] resolve image config for docker-image://docker.io/do  1.0s
+[0m[36m => CACHED [front-ui] docker-image://docker.io/docker/dockerfile:1.7@sha2  0.0s
+[0m[36m => => resolve docker.io/docker/dockerfile:1.7@sha256:a57df69d0ea827fb726  0.0s
+[0m[36m => [notifications-service internal] load build definition from Dockerfil  0.1s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [gateway-service internal] load build definition from Dockerfile.buil  0.1s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [config-service internal] load build definition from Dockerfile.build  0.1s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [transfer-service internal] load build definition from Dockerfile.bui  0.1s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [discovery-service internal] load build definition from Dockerfile.bu  0.1s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [accounts-service internal] load build definition from Dockerfile.bui  0.2s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [cash-service internal] load build definition from Dockerfile.build    0.1s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [front-ui internal] load build definition from Dockerfile.build        0.2s
+[0m[36m => => transferring dockerfile: 1.03kB                                     0.0s
+[0m[36m => [config-service internal] load metadata for docker.io/library/maven:3  1.0s
+[0m[36m => [front-ui internal] load metadata for docker.io/library/eclipse-temur  1.0s
+[0m[36m => [transfer-service internal] load .dockerignore                         0.3s
+[0m[36m => => transferring context: 106B                                          0.0s
+[0m[36m => [discovery-service internal] load .dockerignore                        0.1s
+[0m[36m => => transferring context: 106B                                          0.0s
+[0m[36m => [notifications-service internal] load .dockerignore                    0.1s
+[0m[36m => => transferring context: 106B                                          0.0s
+[0m[36m => [config-service internal] load .dockerignore                           0.3s
+[0m[36m => => transferring context: 106B                                          0.0s
+[0m[36m => [accounts-service internal] load .dockerignore                         0.1s
+[0m[36m => => transferring context: 106B                                          0.0s
+[0m[36m => [gateway-service internal] load .dockerignore                          0.2s
+[0m[36m => => transferring context: 106B                                          0.0s
+[0m[36m => [cash-service internal] load .dockerignore                             0.2s
+[0m[36m => => transferring context: 106B                                          0.0s
+[0m[36m => [front-ui internal] load .dockerignore                                 0.1s
+[0m[36m => => transferring context: 106B                                          0.0s
+[0m[36m => [config-service builder 1/7] FROM docker.io/library/maven:3.9-eclipse  0.1s
+[0m[36m => => resolve docker.io/library/maven:3.9-eclipse-temurin-21-alpine@sha2  0.1s
+[0m[36m => [discovery-service internal] load build context                        0.2s
+[0m[36m => => transferring context: 58.63kB                                       0.1s
+[0m[36m => [config-service stage-1 1/4] FROM docker.io/library/eclipse-temurin:2  0.1s
+[0m[36m => => resolve docker.io/library/eclipse-temurin:21-jre-alpine@sha256:6ad  0.1s
+[0m[36m => [notifications-service internal] load build context                    0.2s
+[0m[36m => => transferring context: 58.63kB                                       0.1s
+[0m[36m => [front-ui internal] load build context                                 0.2s
+[0m[36m => => transferring context: 58.63kB                                       0.1s
+[0m[36m => [accounts-service internal] load build context                         0.3s
+[0m[36m => => transferring context: 58.63kB                                       0.1s
+[0m[36m => [gateway-service internal] load build context                          0.2s
+[0m[36m => => transferring context: 58.63kB                                       0.1s
+[0m[36m => [cash-service internal] load build context                             0.2s
+[0m[36m => => transferring context: 58.63kB                                       0.1s
+[0m[36m => [transfer-service internal] load build context                         0.2s
+[0m[36m => => transferring context: 59.42kB                                       0.1s
+[0m[36m => [config-service internal] load build context                           0.2s
+[0m[36m => => transferring context: 60.23kB                                       0.1s
+[0m[36m => CACHED [config-service builder 2/7] WORKDIR /workspace                 0.0s
+[0m[36m => CACHED [notifications-service builder 3/7] COPY pom.xml ./             0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m[31m => ERROR [notifications-service builder 5/7] RUN --mount=type=cache,targ  6.9s
+[0m[36m => CACHED [discovery-service builder 3/7] COPY pom.xml ./                 0.0s
+[0m[36m => CACHED [discovery-service builder 4/7] COPY */pom.xml ./               0.0s
+[0m[31m => ERROR [discovery-service builder 5/7] RUN --mount=type=cache,target=/  6.5s
+[0m[36m => CACHED [front-ui builder 3/7] COPY pom.xml ./                          0.0s
+[0m[36m => CACHED [front-ui builder 4/7] COPY */pom.xml ./                        0.0s
+[0m[33m => CANCELED [front-ui builder 5/7] RUN --mount=type=cache,target=/root/.  7.8s
+[0m[36m => CACHED [cash-service builder 3/7] COPY pom.xml ./                      0.0s
+[0m[36m => CACHED [cash-service builder 4/7] COPY */pom.xml ./                    0.0s
+[0m[33m => CANCELED [cash-service builder 5/7] RUN --mount=type=cache,target=/ro  7.4s
+[0m[36m => CACHED [accounts-service builder 3/7] COPY pom.xml ./                  0.0s
+[0m[36m => CACHED [accounts-service builder 4/7] COPY */pom.xml ./                0.0s
+[0m[33m => CANCELED [accounts-service builder 5/7] RUN --mount=type=cache,target  7.4s
+[0m[36m => CACHED [gateway-service builder 3/7] COPY pom.xml ./                   0.0s
+[0m[36m => CACHED [gateway-service builder 4/7] COPY */pom.xml ./                 0.0s
+[0m[33m => CANCELED [gateway-service builder 5/7] RUN --mount=type=cache,target=  7.5s
+[0m[36m => CACHED [transfer-service builder 3/7] COPY pom.xml ./                  0.0s
+[0m[36m => CACHED [transfer-service builder 4/7] COPY */pom.xml ./                0.0s
+[0m[33m => CANCELED [transfer-service builder 5/7] RUN --mount=type=cache,target  6.9s
+[0m[36m => CACHED [config-service builder 3/7] COPY pom.xml ./                    0.0s
+[0m[36m => CACHED [config-service builder 4/7] COPY */pom.xml ./                  0.0s
+[0m[33m => CANCELED [config-service builder 5/7] RUN --mount=type=cache,target=/  7.0s
+[0m[?25h------
+ > [notifications-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     mvn -B -DskipTests -pl notifications-service -am dependency:go-offline:
+6.446 [INFO] Scanning for projects...
+6.629 [ERROR] [ERROR] Some problems were encountered while processing the POMs:
+6.629 [FATAL] Non-resolvable parent POM for com.mybank:transfer-service:1.0.0-SNAPSHOT: The following artifacts could not be resolved: com.mybank:my-bank-app:pom:1.0.0-SNAPSHOT (absent): Could not find artifact com.mybank:my-bank-app:pom:1.0.0-SNAPSHOT and 'parent.relativePath' points at wrong local POM @ line 8, column 13
+6.629  @ 
+6.629 [ERROR] The build could not read 1 project -> [Help 1]
+6.629 [ERROR]   
+6.629 [ERROR]   The project com.mybank:transfer-service:1.0.0-SNAPSHOT (/workspace/pom.xml) has 1 error
+6.632 [ERROR]     Non-resolvable parent POM for com.mybank:transfer-service:1.0.0-SNAPSHOT: The following artifacts could not be resolved: com.mybank:my-bank-app:pom:1.0.0-SNAPSHOT (absent): Could not find artifact com.mybank:my-bank-app:pom:1.0.0-SNAPSHOT and 'parent.relativePath' points at wrong local POM @ line 8, column 13 -> [Help 2]
+6.639 [ERROR] 
+6.650 [ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+6.651 [ERROR] Re-run Maven using the -X switch to enable full debug logging.
+6.652 [ERROR] 
+6.652 [ERROR] For more information about the errors and possible solutions, please read the following articles:
+6.655 [ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/ProjectBuildingException
+6.655 [ERROR] [Help 2] http://cwiki.apache.org/confluence/display/MAVEN/UnresolvableModelException
+------
+------
+ > [discovery-service builder 5/7] RUN --mount=type=cache,target=/root/.m2     mvn -B -DskipTests -pl discovery-service -am dependency:go-offline:
+6.153 [INFO] Scanning for projects...
+6.286 [ERROR] [ERROR] Some problems were encountered while processing the POMs:
+6.286 [FATAL] Non-resolvable parent POM for com.mybank:transfer-service:1.0.0-SNAPSHOT: The following artifacts could not be resolved: com.mybank:my-bank-app:pom:1.0.0-SNAPSHOT (absent): Could not find artifact com.mybank:my-bank-app:pom:1.0.0-SNAPSHOT and 'parent.relativePath' points at wrong local POM @ line 8, column 13
+6.286  @ 
+6.287 [ERROR] The build could not read 1 project -> [Help 1]
+6.297 [ERROR]   
+6.303 [ERROR]   The project com.mybank:transfer-service:1.0.0-SNAPSHOT (/workspace/pom.xml) has 1 error
+6.303 [ERROR]     Non-resolvable parent POM for com.mybank:transfer-service:1.0.0-SNAPSHOT: The following artifacts could not be resolved: com.mybank:my-bank-app:pom:1.0.0-SNAPSHOT (absent): Could not find artifact com.mybank:my-bank-app:pom:1.0.0-SNAPSHOT and 'parent.relativePath' points at wrong local POM @ line 8, column 13 -> [Help 2]
+6.303 [ERROR] 
+6.304 [ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+6.311 [ERROR] Re-run Maven using the -X switch to enable full debug logging.
+6.311 [ERROR] 
+6.312 [ERROR] For more information about the errors and possible solutions, please read the following articles:
+6.315 [ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/ProjectBuildingException
+6.317 [ERROR] [Help 2] http://cwiki.apache.org/confluence/display/MAVEN/UnresolvableModelException
+------

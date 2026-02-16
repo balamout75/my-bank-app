@@ -44,7 +44,14 @@ data:
         properties:
           hibernate:
             default_schema: {{ .Values.db.schema }}
-
+      # Статические instances для lb:// (замена Eureka)
+      cloud:
+        discovery:
+          client:
+            simple:
+              instances:
+                notifications-service:
+                  - uri: http://{{ .Release.Name }}-notifications-service:8080
     # Отключаем Eureka
     eureka:
       client:
