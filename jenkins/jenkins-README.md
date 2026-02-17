@@ -6,7 +6,7 @@
 
 ## Обзор
 
-Jenkins автоматизирует полный цикл доставки: тесты → сборка Docker-образов → push в GitHub Container Registry (GHCR) → деплой в TEST → ручное подтверждение → деплой в PROD.
+Jenkins автоматизирует полный цикл доставки: тесты → сборка Docker-образов → push в GitHub Container Registry (GHCR) → деплой в TEST → Helm Tests → ручное подтверждение → деплой в PROD → Helm Tests.
 
 ```
 Developer                    Jenkins (Docker)                      Kubernetes
@@ -17,8 +17,10 @@ Developer                    Jenkins (Docker)                      Kubernetes
     │                             │  2. docker build (6 образов)        │
     │                             │  3. docker push → GHCR              │
     │                             │  4. helm deploy → namespace test ──▶│
-    │                             │  5. ⏸ Manual Approval               │
-    │                             │  6. helm deploy → namespace prod ──▶│
+    │                             │  5. helm test TEST                  │
+    │                             │  6. ⏸ Manual Approval               │
+    │                             │  7. helm deploy → namespace prod ──▶│
+    │                             │  8. helm test PROD                  │
     │                             │                                     │
 ```
 
@@ -87,6 +89,9 @@ Jenkins сканирует все ветки репозитория и ищет 
 │  Verify TEST                                                │
 │  kubectl get pods -n test                                   │
 ├─────────────────────────────────────────────────────────────┤
+│  Helm Test TEST                                             │
+│  health checks + gateway connectivity (информативный)       │
+├─────────────────────────────────────────────────────────────┤
 │  ⏸ Manual Approval                                          │
 │  "Deploy to PROD environment?" → [Yes, deploy]              │
 ├─────────────────────────────────────────────────────────────┤
@@ -95,10 +100,15 @@ Jenkins сканирует все ветки репозитория и ищет 
 ├─────────────────────────────────────────────────────────────┤
 │  Verify PROD                                                │
 │  kubectl get pods -n prod                                   │
+├─────────────────────────────────────────────────────────────┤
+│  Helm Test PROD                                             │
+│  health checks + gateway connectivity (информативный)       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-IMAGE_TAG = BUILD_NUMBER (автоинкремент Jenkins). Один и тот же тег используется в TEST и PROD — что протестировали, то и деплоим.
+- IMAGE_TAG = BUILD_NUMBER (автоинкремент Jenkins)
+- Один и тот же тег используется в TEST и PROD — что протестировали, то и деплоим
+- Helm Tests работают в информативном режиме — при ошибке pipeline **не останавливается**, а выводит предупреждение
 
 ---
 
@@ -210,7 +220,29 @@ Jenkins is fully up and running
 3. Нажмите **Scan Repository Now** — Jenkins найдёт Jenkinsfile
 4. Ветка с Jenkinsfile появится в списке
 5. Нажмите на ветку → **Build Now**
-6. После TEST деплоя появится кнопка **Yes, deploy** для PROD
+6. После TEST деплоя и Helm Tests появится кнопка **Yes, deploy** для PROD
+
+---
+
+## Helm Tests в pipeline
+
+Helm Tests запускаются автоматически после деплоя в каждое окружение:
+
+```
+Helm Deploy to TEST → Verify TEST → Helm Test TEST → Manual Approval
+Helm Deploy to PROD → Verify PROD → Helm Test PROD → ✅ Done
+```
+
+### Что проверяют тесты
+
+| Тест | Проверка |
+|------|---------|
+| **test-health** | PostgreSQL (TCP), Keycloak (TCP), 6 сервисов (actuator/health) |
+| **test-connectivity** | Маршруты Gateway → accounts, cash, transfer, notifications |
+
+### Информативный режим
+
+Тесты работают в режиме `|| echo "⚠️ Some tests failed"` — при ошибке pipeline **продолжает работу** и выводит предупреждение. Это позволяет задеплоить и проверить вручную, не блокируя весь процесс.
 
 ---
 
@@ -284,13 +316,14 @@ docker compose down
 
 | Аспект | K8s (ручной) | Jenkins CI/CD |
 |--------|-------------|---------------|
-| Тесты | Не запускаются | `mvn clean install` |
+| Тесты (Java) | Не запускаются | `mvn clean install` |
 | Сборка | `docker buildx bake` (локально) | `docker build` в Jenkins |
 | Образы | Локальные | GHCR (ghcr.io) |
 | Деплой | `helm install` вручную | Автоматически при push |
 | Окружения | Одно (mybank) | TEST + PROD |
 | Подтверждение | Нет | Manual Approval перед PROD |
 | Тег образа | latest | BUILD_NUMBER (версионирование) |
+| Helm Tests | `helm test` вручную | Автоматически после каждого деплоя |
 | Откат | `helm rollback` | Запуск предыдущего билда |
 
 ---
@@ -306,3 +339,4 @@ docker compose down
 | `admission webhook denied` | Конфликт Ingress хостов | Разные release names и хосты для TEST/PROD |
 | `Push blocked` | Секреты в Git | `git rm --cached jenkins/.env`, добавить в `.gitignore` |
 | Compilation error `\` | Пробел после `\` в Jenkinsfile | Убрать trailing spaces |
+| Helm Test Failed | Старые test-поды | Pipeline автоматически удаляет их перед запуском |

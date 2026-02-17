@@ -51,7 +51,10 @@ k8s/
 ├── Chart.yaml                  # Зонтичный чарт (umbrella)
 ├── values.yaml                 # Глобальные настройки
 ├── templates/
-│   └── NOTES.txt               # Инструкции после деплоя
+│   ├── NOTES.txt               # Инструкции после деплоя
+│   └── tests/                  # Helm-тесты
+│       ├── test-health.yaml    # Проверка доступности всех сервисов
+│       └── test-connectivity.yaml # Проверка маршрутов Gateway
 └── charts/
     ├── postgresql/             # БД (StatefulSet)
     ├── keycloak/               # OAuth2 сервер (Deployment + realm import)
@@ -142,12 +145,75 @@ helm install mybank . --namespace mybank --create-namespace \
 kubectl get pods -n mybank -w    # ждать все 1/1 Running (2-3 минуты)
 ```
 
-### Шаг 7. Доступ
+### Шаг 7. Helm Tests
+
+После того как все поды готовы, запустите тесты:
+
+```bash
+helm test mybank -n mybank
+```
+
+Ожидаемый результат:
+
+```
+TEST SUITE:     mybank-test-connectivity
+Phase:          Succeeded
+TEST SUITE:     mybank-test-health
+Phase:          Succeeded
+```
+
+### Шаг 8. Доступ
 
 | Сервис | URL |
 |--------|-----|
 | Приложение | http://mybank.dev.local |
 | Keycloak Admin | http://keycloak.mybank.dev.local/admin/ |
+
+---
+
+## Helm Tests
+
+Тесты находятся в `k8s/templates/tests/` и запускаются как отдельные поды после деплоя.
+
+### test-health
+
+Проверяет доступность всех компонентов:
+
+| Компонент | Проверка |
+|-----------|---------|
+| PostgreSQL | TCP порт 5432 |
+| Keycloak | TCP порт 80 (Service) |
+| Front UI | TCP порт 8081 |
+| Gateway Service | HTTP /actuator/health |
+| Accounts Service | HTTP /actuator/health |
+| Cash Service | HTTP /actuator/health |
+| Transfer Service | HTTP /actuator/health |
+| Notifications Service | HTTP /actuator/health |
+
+### test-connectivity
+
+Проверяет маршруты Gateway → backend-сервисы через HTTP-запросы к `/api/*` эндпоинтам.
+
+### Повторный запуск тестов
+
+При повторном запуске нужно удалить старые test-поды:
+
+```bash
+kubectl delete pod mybank-test-health -n mybank --ignore-not-found
+kubectl delete pod mybank-test-connectivity -n mybank --ignore-not-found
+helm test mybank -n mybank
+```
+
+### Диагностика при ошибке
+
+```bash
+# Какие контейнеры упали
+kubectl describe pod mybank-test-health -n mybank | findstr "Name: Exit"
+
+# Логи конкретного контейнера
+kubectl logs mybank-test-health -n mybank -c test-keycloak
+kubectl logs mybank-test-health -n mybank -c test-accounts
+```
 
 ---
 
@@ -267,6 +333,7 @@ helm install mybank . -n mybank --create-namespace \
 | Config import | `configserver:http://...` | `file:/config/application-k8s.yml` |
 | Балансировка | Eureka + Ribbon | K8s Service (round-robin) |
 | Порядок запуска | `depends_on` + healthcheck | Probes + restart policy |
+| Тесты | — | Helm Tests (health + connectivity) |
 
 ---
 
@@ -281,3 +348,4 @@ helm install mybank . -n mybank --create-namespace \
 | `UnknownHostException` | Хардкод DB host | Должен быть `{{ .Release.Name }}-postgresql` |
 | `context deadline exceeded` | Поды не стартуют за timeout | Проверить логи `kubectl logs`, увеличить `--timeout` |
 | Образ не обновился | Кэш Docker/K8s | `docker buildx bake --load` + `kubectl rollout restart` |
+| `helm test` Failed | Старые test-поды | `kubectl delete pod <test-pod> --ignore-not-found` |
