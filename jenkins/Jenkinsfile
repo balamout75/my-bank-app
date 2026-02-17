@@ -8,6 +8,10 @@ pipeline {
         DB_USER         = 'mybank'
         IMAGE_TAG       = "${env.BUILD_NUMBER}"
         CHART_DIR       = 'k8s'
+        KC_SECRET_ACCOUNTS      = credentials('KC_SECRET_ACCOUNTS')
+        KC_SECRET_CASH          = credentials('KC_SECRET_CASH')
+        KC_SECRET_TRANSFER      = credentials('KC_SECRET_TRANSFER')
+        KC_SECRET_NOTIFICATIONS = credentials('KC_SECRET_NOTIFICATIONS')
     }
     stages {
         stage('Build & Test') {
@@ -66,6 +70,10 @@ pipeline {
                   --set gateway-service.image.tag=${IMAGE_TAG} \
                   --set front-ui.image.repository=${DOCKER_REGISTRY}/mybank-frontend \
                   --set front-ui.image.tag=${IMAGE_TAG} \
+                  --set accounts-service.keycloak.clientSecret=${KC_SECRET_ACCOUNTS} \
+                  --set cash-service.keycloak.clientSecret=${KC_SECRET_CASH} \
+                  --set transfer-service.keycloak.clientSecret=${KC_SECRET_TRANSFER} \
+                  --set notifications-service.keycloak.clientSecret=${KC_SECRET_NOTIFICATIONS} \`
                   --wait --timeout 5m
                 """
             }
@@ -104,6 +112,10 @@ pipeline {
                   --set gateway-service.image.tag=${IMAGE_TAG} \
                   --set front-ui.image.repository=${DOCKER_REGISTRY}/mybank-frontend \
                   --set front-ui.image.tag=${IMAGE_TAG} \
+                  --set accounts-service.keycloak.clientSecret=${KC_SECRET_ACCOUNTS} \
+                  --set cash-service.keycloak.clientSecret=${KC_SECRET_CASH} \
+                  --set transfer-service.keycloak.clientSecret=${KC_SECRET_TRANSFER} \
+                  --set notifications-service.keycloak.clientSecret=${KC_SECRET_NOTIFICATIONS} \
                   --wait --timeout 5m
                 """
             }

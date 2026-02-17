@@ -79,5 +79,18 @@ if (dbPassword) {
     )
     store.addCredentials(Domain.global(), dbCred)
 }
-
+// Keycloak Client Secrets
+['KC_SECRET_ACCOUNTS', 'KC_SECRET_CASH', 'KC_SECRET_TRANSFER', 'KC_SECRET_NOTIFICATIONS'].each { name ->
+    def value = env[name]
+    if (value) {
+        println "--> Creating credential: ${name}"
+        def cred = new StringCredentialsImpl(
+                CredentialsScope.GLOBAL,
+                name,
+                "${name} from ENV",
+                Secret.fromString(value)
+        )
+        store.addCredentials(Domain.global(), cred)
+    }
+}
 println "--> Credential setup complete."
