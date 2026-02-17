@@ -97,7 +97,7 @@ kubectl get pods -n ingress-nginx -w    # ждать 1/1 Running
 Файл: `C:\Windows\System32\drivers\etc\hosts` (от имени администратора)
 
 ```
-127.0.0.1 mybank.dev.local keycloak.mybank.dev.local
+127.0.0.1 mybank.local keycloak.mybank.local mybank.dev.local keycloak.mybank.dev.local mybank.test.local keycloak.mybank.test.local mybank.prod.local keycloak.mybank.prod.local
 ```
 
 ### Шаг 3. CoreDNS rewrite
@@ -111,7 +111,10 @@ kubectl edit configmap coredns -n kube-system
 Добавить **перед** строкой `kubernetes cluster.local`:
 
 ```
+    rewrite name keycloak.mybank.local mybank-keycloak.mybank.svc.cluster.local
     rewrite name keycloak.mybank.dev.local mybank-keycloak.mybank.svc.cluster.local
+    rewrite name keycloak.mybank.test.local mybank-test-keycloak.test.svc.cluster.local
+    rewrite name keycloak.mybank.prod.local mybank-prod-keycloak.prod.svc.cluster.local
 ```
 
 Перезапуск:
