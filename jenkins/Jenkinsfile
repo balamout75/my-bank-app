@@ -85,6 +85,16 @@ pipeline {
             }
         }
 
+        stage('Helm Test TEST') {
+            steps {
+                sh """
+                kubectl delete pod mybank-test-test-health -n test --ignore-not-found
+                kubectl delete pod mybank-test-test-connectivity -n test --ignore-not-found
+                helm test mybank-test -n test || echo "⚠️ Some tests failed"
+                """
+            }
+        }
+
         stage('Manual Approval for PROD') {
             steps {
                 input message: 'Deploy to PROD environment?', ok: 'Yes, deploy'
@@ -124,6 +134,16 @@ pipeline {
         stage('Verify PROD') {
             steps {
                 sh 'kubectl get pods -n prod'
+            }
+        }
+
+        stage('Helm Test PROD') {
+            steps {
+                sh """
+                kubectl delete pod mybank-prod-test-health -n prod --ignore-not-found
+                kubectl delete pod mybank-prod-test-connectivity -n prod --ignore-not-found
+                helm test mybank-prod -n prod || echo "⚠️ Some tests failed"
+                """
             }
         }
     }

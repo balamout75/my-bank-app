@@ -1,6 +1,6 @@
 # 🏦 My Bank — Sprint Project (Yandex Practicum)
 
-# Домашняя работа к девятому спринту курса Java Middle Developer (Yandex Practicum)
+# Домашняя работа к десятому спринту курса Java Middle Developer (Yandex Practicum)
 
 ---
 
@@ -18,8 +18,8 @@
 | **Transfer Service** | Переводы между пользователями |
 | **Notifications Service** | Уведомления (Outbox / Event Store) |
 | **Gateway** | API Gateway |
-| **Config Server** | Централизованная конфигурация |
-| **Eureka** | Service Discovery |
+| **Config Server** | Централизованная конфигурация (Docker Compose) |
+| **Eureka** | Service Discovery (Docker Compose) |
 | **Keycloak** | Аутентификация и роли |
 | **PostgreSQL** | Хранение данных |
 
@@ -27,10 +27,21 @@
 
 ---
 
+# 🚀 Варианты развёртывания
+
+Проект поддерживает три варианта развёртывания:
+
+| Вариант | Описание | Документация |
+|---------|----------|-------------|
+| **Docker Compose** | Локальная разработка с Eureka и Config Server | Этот файл (ниже) |
+| **Kubernetes + Helm** | Деплой в K8s без Eureka (K8s DNS + ConfigMap) | [k8s/README.md](k8s/README.md) |
+| **Jenkins CI/CD** | Автоматизация: тесты → сборка → GHCR → TEST → PROD | [jenkins/README.md](jenkins/README.md) |
+
+---
+
 # 🧭 Личный технический контекст
 
 В данной работе я сознательно вышел из зоны комфорта:
-
 - Проект реализован на **Maven**, без использования Gradle
 - Используется **классический Spring MVC**, без WebFlux
 
@@ -41,15 +52,16 @@
 # 🔐 Безопасность
 
 Используется:
-
 - OAuth 2.0
 - OpenID Connect
 - Keycloak (Docker)
 
 ### Аутентификация пользователей
+
 Пользователь входит через Keycloak. JWT access token используется для доступа к сервисам.
 
 ### Межсервисное взаимодействие
+
 Сервисы взаимодействуют через **client_credentials** flow.  
 Каждый сервис выступает как OAuth2 client и Resource Server одновременно.
 
@@ -151,6 +163,16 @@ docker buildx bake --load -f docker-bake.hcl
 
 # 🚀 ВАРИАНТ 1. Запуск проекта (через Docker Compose)
 
+### Шаг 1. Подготовка секретов
+
+```bash
+cp docker-compose.env.example docker-compose.env
+```
+
+Заполните `docker-compose.env` своими значениями.
+
+### Шаг 2. Запуск
+
 ```bash
 docker compose --env-file docker-compose.env up -d
 ```
@@ -188,7 +210,6 @@ docker compose up -d --build
 3. **Gateway-service**
 
 Дальнейший порядок не важен:
-
 - Notifications-service
 - Accounts-service
 - Cash-service
@@ -198,7 +219,6 @@ docker compose up -d --build
 ---
 
 📌 **Примечание**
-
 - Контейнеры **nginx** и **ngrok** при локальном запуске сервисов **не требуются**
 - Доступ к приложению остаётся:
 
@@ -208,11 +228,28 @@ http://localhost:8081
 
 ---
 
+# 🚀 ВАРИАНТ 3. Kubernetes + Helm
+
+Деплой в Kubernetes без Eureka и Config Server. Используются K8s DNS, ConfigMap, Ingress-nginx.
+
+Подробная инструкция: **[k8s/README.md](k8s/README.md)**
+
+---
+
+# 🚀 ВАРИАНТ 4. Jenkins CI/CD
+
+Полная автоматизация: тесты → сборка → push образов в GHCR → деплой в TEST → ручное подтверждение → деплой в PROD.
+
+Подробная инструкция: **[jenkins/README.md](jenkins/README.md)**
+
+---
+
 # 🔐 SSO (Keycloak)
 
 Проект использует **Single Sign-On через Keycloak**.
 
 ### Страница входа
+
 При открытии:
 
 ```
@@ -224,7 +261,6 @@ http://localhost:8081
 ### После входа
 
 Keycloak выдаёт JWT токен, который используется:
-
 - Gateway
 - Accounts Service
 - Cash Service
@@ -258,6 +294,8 @@ Keycloak выдаёт JWT токен, который используется:
 .buildx-cache/blobs/
 .buildx-cache/index.json
 .buildx-cache/ingest/
+docker-compose.env
+jenkins/.env
 ```
 
 ---
@@ -269,6 +307,8 @@ Keycloak выдаёт JWT токен, который используется:
 - Keycloak (SSO)
 - PostgreSQL
 - Docker + BuildKit
+- Kubernetes + Helm
+- Jenkins CI/CD
 - Nginx + ngrok
 
 ---
@@ -321,17 +361,14 @@ Keycloak выдаёт JWT токен, который используется:
       ┌──────────────────────────────┐
       │ Eureka (discovery)           │  ← service registration
       └──────────────────────────────┘
-
       ┌──────────────────────────────┐
       │ Config Server                │  ← centralized config
       └──────────────────────────────┘
-
       ┌──────────────────────────────┐
       │ Keycloak                     │  ← OAuth2/OIDC issuer (JWT)
       └──────────────────────────────┘
-
       ┌──────────────────────────────┐
-      │ Ngrok          )             │  ← public domain → Nginx ((для авторизации в Docker)
+      │ Ngrok                        │  ← public domain → Nginx (для авторизации в Docker)
       └──────────────────────────────┘
 ```
 
@@ -375,7 +412,8 @@ Keycloak выдаёт JWT токен, который используется:
     - В Notifications Service создаётся запись (Outbox) с ключом `(service, operation_id)` и JSON payload.
 
 ### Идемпотентность
-- ключ операции создаётся заранее (`/cash/operation-key`)
+
+- ключ операции создаётся заранее `/cash/operation-key`)
 - повторный вызов с тем же `(service, operation_id)` не должен приводить к двойному списанию/зачислению
 - Notifications также защищён от дублей составным ключом
 
@@ -409,6 +447,7 @@ Keycloak выдаёт JWT токен, который используется:
     - В Outbox сохраняется JSON payload и выставляется статус доставки.
 
 ### Идемпотентность
+
 - повторный запрос с тем же `operationId` должен считаться дублем
 - ключ уникальности: `(service, operation_id)`
 - это позволяет безопасно применять Retry при ошибках сети/временной недоступности
@@ -424,7 +463,6 @@ Keycloak выдаёт JWT токен, который используется:
 - реализовать хореографическую SAGA для устойчивости распределённой транзакции
 
 ---
-
 
 # 🧠 Реализация и опыт
 
@@ -444,7 +482,6 @@ Keycloak выдаёт JWT токен, который используется:
 
 #### Multi-schema Postgres
 Каждый сервис использует собственную схему:
-
 ```
 accounts
 cash
@@ -458,9 +495,11 @@ notifications
 ---
 
 # 🧪 Тестирование
+
 В проекте реализовано модульное, интеграционное и контрактное тестирование, отражающее реальные сценарии работы микросервисной системы. Подход ориентирован на проверку архитектурных свойств сервисов: безопасности, идемпотентности, REST‑контрактов и устойчивости взаимодействия.
 
 ## 🧱 Общая стратегия
+
 | Уровень | Назначение |
 |--------|------------|
 | Unit tests | Проверка бизнес-логики без Spring-контекста |
@@ -472,11 +511,13 @@ notifications
 ---
 
 # 💰 Cash Service как Microservice Chassis
+
 Cash Service выступает как типовой microservice chassis: REST API, Security (OAuth2 Resource Server), Idempotency, работа с БД, вызовы других сервисов, error handling. Поэтому сервис покрыт тестами максимально глубоко.
 
 ---
 
 ## 🧪 Unit тесты (Cash Service, Transfer Service)
+
 Проверяется изолированная логика:
 - создание операции
 - изменение статуса операции
@@ -488,6 +529,7 @@ Cash Service выступает как типовой microservice chassis: REST
 ---
 
 ## 🔐 Security-aware интеграционные тесты
+
 Тесты не отключают безопасность, а эмулируют JWT, что позволяет проверять RBAC.
 
 ```java
@@ -505,11 +547,13 @@ var auth = jwt().jwt(j -> j
 ---
 
 ## 🗄 Работа с БД в тестах
+
 Каждый интеграционный тест поднимает PostgreSQL через Testcontainers, накатывает схему через Liquibase и использует реальный JPA-репозиторий.
 
 ---
 
 ## 🔄 Интеграционные сценарии Cash Service
+
 | Тест | Что проверяет |
 |------|----------------|
 | operate_success_shouldReturn204 | Успешное выполнение операции |
@@ -520,12 +564,15 @@ var auth = jwt().jwt(j -> j
 ---
 
 # 📜 Контрактные тесты
+
 Контрактные тесты реализованы с использованием Spring Cloud Contract.
 
 ### Назначение
+
 Контракты фиксируют HTTP метод, URL, структуру запроса и ответа, HTTP статус. Это гарантирует, что изменения Cash Service не сломают другие сервисы.
 
 ### Контракты Cash Service
+
 1. GET /cash/operation-key → 200 OK, JSON с operationId
 2. POST /cash/operate → 204 No Content при корректном запросе
 3. Ошибка валидации → 400 Bad Request и стандартная структура ошибки
@@ -533,6 +580,7 @@ var auth = jwt().jwt(j -> j
 ---
 
 ## 🎯 Итог
+
 Тестирование Cash Service покрывает бизнес-логику, безопасность, работу с БД, REST-контракты, идемпотентность и устойчивость архитектуры. Проверяются не только методы, но и инженерные принципы микросервисной системы.
 
 ---
@@ -540,7 +588,6 @@ var auth = jwt().jwt(j -> j
 # 📌 Итоги
 
 Проект позволил на практике разобраться с:
-
 - OAuth2 / JWT
 - Keycloak в Docker-сети
 - Outbox-паттерном
@@ -548,6 +595,8 @@ var auth = jwt().jwt(j -> j
 - Resilience4j
 - Liquibase
 - Микросервисной архитектурой
+- Kubernetes и Helm
+- CI/CD с Jenkins
 
 ---
 
@@ -556,10 +605,8 @@ var auth = jwt().jwt(j -> j
 Работа над проектом позволила выявить направления, требующие дальнейшего развития.
 
 ### 1. Transfer Service как SAGA
-
 Сервис переводов по своей природе является хорошим кандидатом для реализации паттерна **SAGA**.  
 Текущая реализация опирается на централизованную логику, однако в следующей работе планируется:
-
 - разделить перевод на две независимые транзакции
 - реализовать **хореографическую SAGA**
 - добиться устойчивости распределенной транзакции без блокировок
@@ -567,10 +614,8 @@ var auth = jwt().jwt(j -> j
 ---
 
 ### 2. Сборка multi-module проекта в Docker
-
 Не удалось довести до идеала 2-stage Dockerfile для многомодульного Maven-проекта.  
 Основные сложности:
-
 - работа parent POM
 - кэширование зависимостей
 - оптимизация слоёв образа
@@ -581,10 +626,8 @@ var auth = jwt().jwt(j -> j
 ---
 
 ### 3. Обработка кастомных исключений
-
 Механизм проброса бизнес-исключений от уровня сервисов до пользователя реализован частично.  
 В ряде сценариев можно было:
-
 - дать более точные сообщения
 - сохранить больше диагностической информации
 - стандартизировать error response
@@ -592,9 +635,34 @@ var auth = jwt().jwt(j -> j
 Этот аспект планируется улучшить в следующих проектах.
 
 ### 4. openAPI
+Очень пожалел, что не реализовал, постараюсь заняться этим завтра. Прямо сильно не хватало плана работы. Причина банальна, набрал много нового, и просто не знал, как оно получится. В итоге экспромт стал вдвое сложнее обдуманной разработки.
 
-Очень пожалел, что не реализовал, постараюсь заняться этим завтра. Прямо сильно не хватало плана работы. Причина банальна, набрал много нового, и просто не знал, как оно получится. В итоге экспромт стал вдвое сложнее обдуманной разработки.  
+---
 
+# 📁 Структура проекта
+
+```
+my-bank-app/
+├── accounts-service/           # Микросервис управления счетами
+├── cash-service/               # Микросервис операций с наличными
+├── transfer-service/           # Микросервис переводов
+├── notifications-service/      # Микросервис уведомлений
+├── gateway-service/            # API Gateway
+├── front-ui/                   # Веб-интерфейс (Thymeleaf)
+├── config-service/             # Spring Cloud Config Server
+├── discovery-service/          # Eureka Server
+├── keycloak/                   # Realm export
+├── proxy/                      # Nginx config
+├── docker-compose.yml          # Вариант 1: Docker Compose
+├── docker-compose.env.example  # Шаблон секретов
+├── docker-bake.hcl             # Multi-target Docker build
+├── Dockerfile.build            # Multi-stage Dockerfile
+├── pom.xml                     # Корневой Maven POM
+├── k8s/                        # Вариант 3: Kubernetes Helm чарты
+├── jenkins/                    # Вариант 4: CI/CD
+├── TECH_DEBT.md                # Технический долг
+└── README.md                   # Этот файл
+```
 
 # Автор
 

@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ .Release.Name }}-test-health
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: test-postgresql
+      image: busybox
+      command: ['sh', '-c']
+      args:
+        - |
+          echo "=== Testing PostgreSQL ==="
+          nc -z {{ .Release.Name }}-postgresql 5432 && echo "OK: PostgreSQL is reachable" || exit 1
+
+    - name: test-keycloak
+      image: busybox
+      command: ['sh', '-c']
+      args:
+        - |
+          echo "=== Testing Keycloak ==="
+          for i in 1 2 3 4 5; do
+            nc -z {{ .Release.Name }}-keycloak 80 && echo "OK: Keycloak is reachable" && exit 0
+            echo "Attempt $i: waiting..."
+            sleep 5
+          done
+          echo "FAIL: Keycloak is not reachable"
+          exit 1
+
+    - name: test-gateway
+      image: busybox
+      command: ['sh', '-c']
+      args:
+        - |
+          echo "=== Testing Gateway Service ==="
+          wget -q -T 10 -O /dev/null http://{{ .Release.Name }}-gateway-service:8090/actuator/health \
+            && echo "OK: Gateway Service is healthy" || exit 1
+
+    - name: test-front-ui
+      image: busybox
+      command: ['sh', '-c']
+      args:
+        - |
+          echo "=== Testing Front UI ==="
+          nc -z {{ .Release.Name }}-front-ui 8081 \
+            && echo "OK: Front UI is reachable" || exit 1
+
+    - name: test-accounts
+      image: busybox
+      command: ['sh', '-c']
+      args:
+        - |
+          echo "=== Testing Accounts Service ==="
+          wget -q -T 10 -O /dev/null http://{{ .Release.Name }}-accounts-service:8080/actuator/health \
+            && echo "OK: Accounts Service is healthy" || exit 1
+
+    - name: test-cash
+      image: busybox
+      command: ['sh', '-c']
+      args:
+        - |
+          echo "=== Testing Cash Service ==="
+          wget -q -T 10 -O /dev/null http://{{ .Release.Name }}-cash-service:8080/actuator/health \
+            && echo "OK: Cash Service is healthy" || exit 1
+
+    - name: test-transfer
+      image: busybox
+      command: ['sh', '-c']
+      args:
+        - |
+          echo "=== Testing Transfer Service ==="
+          wget -q -T 10 -O /dev/null http://{{ .Release.Name }}-transfer-service:8080/actuator/health \
+            && echo "OK: Transfer Service is healthy" || exit 1
+
+    - name: test-notifications
+      image: busybox
+      command: ['sh', '-c']
+      args:
+        - |
+          echo "=== Testing Notifications Service ==="
+          wget -q -T 10 -O /dev/null http://{{ .Release.Name }}-notifications-service:8080/actuator/health \
+            && echo "OK: Notifications Service is healthy" || exit 1
+
+  restartPolicy: Never
