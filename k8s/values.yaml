@@ -1,29 +1,24 @@
 # ============================================================
 # MyBank — Глобальные настройки зонтичного Helm-чарта
 # ============================================================
+# Для ручного деплоя: helm install mybank . -n mybank --create-namespace
+# Для Jenkins:        секреты передаются через --set (см. Jenkinsfile)
 
+# Хосты (override через --set для TEST/PROD)
 global:
-  # Хостнейм приложения (добавьте в /etc/hosts: 127.0.0.1 mybank.local keycloak.mybank.local)
-  appHost: mybank.local
-  keycloakHost: keycloak.mybank.local
+  appHost: mybank.dev.local
+  keycloakHost: keycloak.mybank.dev.local
 
-  # PostgreSQL
+  # PostgreSQL (host = {{ .Release.Name }}-postgresql, задаётся в шаблонах)
   postgresql:
-    host: mybank-postgresql
     port: 5432
     database: mybank
     username: mybank
-    password: mybank_password
+    password: ""  # Передано через --set global.postgresql.password
 
-  # Keycloak (внешний URL — через Ingress, для браузера и OAuth2 redirect)
-  keycloak:
-    externalUrl: "http://keycloak.mybank.local"
-    issuerUri: "http://keycloak.mybank.local/realms/mybank"
-    internalUrl: "http://mybank-keycloak:8080"
-    jwkSetUri: "http://mybank-keycloak:8080/realms/mybank/protocol/openid-connect/certs"
-
-  imageRegistry: ""
-
+# ============================================================
+# Подчарты
+# ============================================================
 postgresql:
   enabled: true
 

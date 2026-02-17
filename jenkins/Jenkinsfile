@@ -56,7 +56,7 @@ pipeline {
                 helm upgrade --install mybank-test ${CHART_DIR} \
                   --namespace test --create-namespace \
                   --set global.appHost=mybank.test.local \
-                  --set global.keycloakHost=keycloak.test.local \
+                  --set global.keycloakHost=keycloak.mybank.test.local \
                   --set global.postgresql.password=${DB_PASSWORD} \
                   --set accounts-service.image.repository=${DOCKER_REGISTRY}/mybank-accounts \
                   --set accounts-service.image.tag=${IMAGE_TAG} \
@@ -98,7 +98,7 @@ pipeline {
                 helm upgrade --install mybank-prod ${CHART_DIR} \
                   --namespace prod --create-namespace \
                   --set global.appHost=mybank.prod.local \
-                  --set global.keycloakHost=keycloak.prod.local \
+                  --set global.keycloakHost=keycloak.mybank.prod.local \
                   --set global.postgresql.password=${DB_PASSWORD} \
                   --set accounts-service.image.repository=${DOCKER_REGISTRY}/mybank-accounts \
                   --set accounts-service.image.tag=${IMAGE_TAG} \
