@@ -1,4 +1,4 @@
-﻿{
+{
   "realm": "mybank",
   "enabled": true,
 
@@ -98,11 +98,19 @@
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
         "http://localhost:8081/*",
-        "https://pseudovelar-fumeless-sung.ngrok-free.dev/*"
+        "https://pseudovelar-fumeless-sung.ngrok-free.dev/*",
+        "http://mybank.local/*",
+        "http://mybank.dev.local/*",
+	"http://mybank.test.local/*",
+	"http://mybank.prod.local/*"
       ],
       "webOrigins": [
         "http://localhost:8081",
-        "https://pseudovelar-fumeless-sung.ngrok-free.dev"
+        "https://pseudovelar-fumeless-sung.ngrok-free.dev",
+        "http://mybank.local",
+        "http://mybank.dev.local",
+	"http://mybank.test.local",
+	"http://mybank.prod.local"
       ],
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": true,
