@@ -10,50 +10,9 @@ pipeline {
         CHART_DIR       = 'k8s'
     }
     stages {
-        stage('Build & Unit Tests') {
-            parallel {
-                stage('Accounts Service') {
-                    steps {
-                        dir('accounts-service') {
-                            sh 'mvn clean test'
-                        }
-                    }
-                }
-                stage('Cash Service') {
-                    steps {
-                        dir('cash-service') {
-                            sh 'mvn clean test'
-                        }
-                    }
-                }
-                stage('Transfer Service') {
-                    steps {
-                        dir('transfer-service') {
-                            sh 'mvn clean test'
-                        }
-                    }
-                }
-                stage('Notifications Service') {
-                    steps {
-                        dir('notifications-service') {
-                            sh 'mvn clean test'
-                        }
-                    }
-                }
-                stage('Gateway Service') {
-                    steps {
-                        dir('gateway-service') {
-                            sh 'mvn clean test'
-                        }
-                    }
-                }
-                stage('Front UI') {
-                    steps {
-                        dir('front-ui') {
-                            sh 'mvn clean test'
-                        }
-                    }
-                }
+        stage('Build & Test') {
+            steps {
+                sh 'mvn clean verify'
             }
         }
 
@@ -93,8 +52,6 @@ pipeline {
                 helm upgrade --install mybank ${CHART_DIR} \
                   --namespace test --create-namespace \
                   --set global.postgresql.password=${DB_PASSWORD} \
-                  --set global.postgresql.database=${DB_NAME} \
-                  --set global.postgresql.username=${DB_USER} \
                   --set accounts-service.image.repository=${DOCKER_REGISTRY}/mybank-accounts \
                   --set accounts-service.image.tag=${IMAGE_TAG} \
                   --set cash-service.image.repository=${DOCKER_REGISTRY}/mybank-cash \
@@ -131,8 +88,6 @@ pipeline {
                 helm upgrade --install mybank ${CHART_DIR} \
                   --namespace prod --create-namespace \
                   --set global.postgresql.password=${DB_PASSWORD} \
-                  --set global.postgresql.database=${DB_NAME} \
-                  --set global.postgresql.username=${DB_USER} \
                   --set accounts-service.image.repository=${DOCKER_REGISTRY}/mybank-accounts \
                   --set accounts-service.image.tag=${IMAGE_TAG} \
                   --set cash-service.image.repository=${DOCKER_REGISTRY}/mybank-cash \
