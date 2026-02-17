@@ -73,7 +73,7 @@ pipeline {
                   --set accounts-service.keycloak.clientSecret=${KC_SECRET_ACCOUNTS} \
                   --set cash-service.keycloak.clientSecret=${KC_SECRET_CASH} \
                   --set transfer-service.keycloak.clientSecret=${KC_SECRET_TRANSFER} \
-                  --set notifications-service.keycloak.clientSecret=${KC_SECRET_NOTIFICATIONS} \`
+                  --set notifications-service.keycloak.clientSecret=${KC_SECRET_NOTIFICATIONS} \
                   --wait --timeout 5m
                 """
             }
