@@ -20,6 +20,7 @@
 - [ ] **Docker layer caching** — оптимизировать Dockerfile.build для Jenkins (сейчас пересборка медленная)
 - [ ] **Webhook trigger** — настроить GitHub webhook вместо ручного Scan Repository
 - [ ] **GitHub commit status** — добавить permission в токен для обновления статуса коммита
+- [ ] **Git tags** — автоматически тегировать релизы (v1, v2...) после успешного PROD-деплоя
 
 ## Код
 
