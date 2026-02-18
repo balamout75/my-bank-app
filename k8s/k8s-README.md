@@ -99,6 +99,7 @@ kubectl get pods -n ingress-nginx -w    # ждать 1/1 Running
 ```
 127.0.0.1 mybank.local keycloak.mybank.local mybank.dev.local keycloak.mybank.dev.local mybank.test.local keycloak.mybank.test.local mybank.prod.local keycloak.mybank.prod.local
 ```
+> 💡 **Почему указаны все окружения?** Настройки hosts и CoreDNS включают хосты для dev, test и prod, хотя для ручного деплоя достаточно только dev. Это сделано намеренно — чтобы DNS-конфигурация была **единой точкой настройки** для всех вариантов развёртывания (ручной K8s, Jenkins CI/CD). Настроив DNS один раз, вы сможете использовать любой вариант без дополнительных изменений.
 
 ### Шаг 3. CoreDNS rewrite
 
