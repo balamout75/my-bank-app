@@ -22,7 +22,7 @@ class CashServiceTest {
 
     @Mock CashOperationRepository repository;
     @Mock AccountsClient accountsClient;
-    @Mock NotificationsClient notificationsClient;
+    //@Mock NotificationsClient notificationsClient;
     @InjectMocks CashService service;
 
     @Test

@@ -49,14 +49,4 @@ public class HttpClientsConfig {
                 .requestInterceptor(new OAuth2ClientCredentialsInterceptor(manager, "cash-service"))
                 .build();
     }
-
-    @Bean("notificationsRestClient")
-    public RestClient notificationsRestClient(
-            @Qualifier("loadBalancedRestClientBuilder") RestClient.Builder lb,
-            OAuth2AuthorizedClientManager manager
-    ) {
-        return lb.baseUrl("lb://notifications-service")
-                .requestInterceptor(new OAuth2ClientCredentialsInterceptor(manager, "cash-service"))
-                .build();
-    }
 }
