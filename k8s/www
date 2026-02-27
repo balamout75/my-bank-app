@@ -1,0 +1,101 @@
+﻿C:\Practicum\module_three\Eleven\my-bank-app\k8s>kubectl logs -n mybank -l app=notifications-service --tail=100 -f
+        sasl.oauthbearer.assertion.algorithm = RS256
+        sasl.oauthbearer.assertion.claim.aud = null
+        sasl.oauthbearer.assertion.claim.exp.seconds = 300
+        sasl.oauthbearer.assertion.claim.iss = null
+        sasl.oauthbearer.assertion.claim.jti.include = false
+        sasl.oauthbearer.assertion.claim.nbf.seconds = 60
+        sasl.oauthbearer.assertion.claim.sub = null
+        sasl.oauthbearer.assertion.file = null
+        sasl.oauthbearer.assertion.private.key.file = null
+        sasl.oauthbearer.assertion.private.key.passphrase = null
+        sasl.oauthbearer.assertion.template.file = null
+        sasl.oauthbearer.client.credentials.client.id = null
+        sasl.oauthbearer.client.credentials.client.secret = null
+        sasl.oauthbearer.clock.skew.seconds = 30
+        sasl.oauthbearer.expected.audience = null
+        sasl.oauthbearer.expected.issuer = null
+        sasl.oauthbearer.header.urlencode = false
+        sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+        sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+        sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+        sasl.oauthbearer.jwks.endpoint.url = null
+        sasl.oauthbearer.jwt.retriever.class = class org.apache.kafka.common.security.oauthbearer.DefaultJwtRetriever
+        sasl.oauthbearer.jwt.validator.class = class org.apache.kafka.common.security.oauthbearer.DefaultJwtValidator
+        sasl.oauthbearer.scope = null
+        sasl.oauthbearer.scope.claim.name = scope
+        sasl.oauthbearer.sub.claim.name = sub
+        sasl.oauthbearer.token.endpoint.url = null
+        security.protocol = PLAINTEXT
+        security.providers = null
+        send.buffer.bytes = 131072
+        session.timeout.ms = 45000
+        share.acknowledgement.mode = implicit
+        socket.connection.setup.timeout.max.ms = 30000
+        socket.connection.setup.timeout.ms = 10000
+        ssl.cipher.suites = null
+        ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+        ssl.endpoint.identification.algorithm = https
+        ssl.engine.factory.class = null
+        ssl.key.password = null
+        ssl.keymanager.algorithm = SunX509
+        ssl.keystore.certificate.chain = null
+        ssl.keystore.key = null
+        ssl.keystore.location = null
+        ssl.keystore.password = null
+        ssl.keystore.type = JKS
+        ssl.protocol = TLSv1.3
+        ssl.provider = null
+        ssl.secure.random.implementation = null
+        ssl.trustmanager.algorithm = PKIX
+        ssl.truststore.certificates = null
+        ssl.truststore.location = null
+        ssl.truststore.password = null
+        ssl.truststore.type = JKS
+        value.deserializer = class org.springframework.kafka.support.serializer.JsonDeserializer
+
+2026-02-27T06:34:19.546Z  INFO 1 --- [notifications-service] [           main] o.a.k.c.t.i.KafkaMetricsCollector        : initializing Kafka metrics collector
+2026-02-27T06:34:19.893Z  INFO 1 --- [notifications-service] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-02-27T06:34:19.893Z  INFO 1 --- [notifications-service] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-02-27T06:34:19.896Z  INFO 1 --- [notifications-service] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-02-27T06:34:20.943Z  INFO 1 --- [notifications-service] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka version: 4.1.1
+2026-02-27T06:34:20.943Z  INFO 1 --- [notifications-service] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: be816b82d25370ce
+2026-02-27T06:34:20.943Z  INFO 1 --- [notifications-service] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1772174060943
+2026-02-27T06:34:21.000Z  INFO 1 --- [notifications-service] [           main] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Subscribed to topic(s): notifications
+2026-02-27T06:34:21.292Z  INFO 1 --- [notifications-service] [           main] c.m.n.NotificationsServiceApplication    : Started NotificationsServiceApplication in 58.341 seconds (process running for 63.71)
+2026-02-27T06:34:21.442Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] org.apache.kafka.clients.Metadata        : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Cluster ID: MkU3OEVBNTcwNTJENDM2Qk
+2026-02-27T06:34:21.495Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Discovered group coordinator mybank-kafka.mybank.svc.cluster.local:9092 (id: 2147483646 rack: null isFenced: false)
+2026-02-27T06:34:21.499Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] (Re-)joining group
+2026-02-27T06:34:21.792Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Request joining group due to: need to re-join with the given member-id: consumer-notifications-service-1-463740a0-3bef-471d-87c0-4083adb57d2b
+2026-02-27T06:34:21.793Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] (Re-)joining group
+2026-02-27T06:34:22.299Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Successfully joined group with generation Generation{generationId=2, memberId='consumer-notifications-service-1-463740a0-3bef-471d-87c0-4083adb57d2b', protocol='range'}
+2026-02-27T06:34:22.306Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Successfully synced group in generation Generation{generationId=2, memberId='consumer-notifications-service-1-463740a0-3bef-471d-87c0-4083adb57d2b', protocol='range'}
+2026-02-27T06:34:22.344Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Notifying assignor about the new Assignment(partitions=[notifications-0, notifications-1])
+2026-02-27T06:34:22.392Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] k.c.c.i.ConsumerRebalanceListenerInvoker : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Adding newly assigned partitions: [notifications-0, notifications-1]
+2026-02-27T06:34:22.402Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Found no committed offset for partition notifications-1
+2026-02-27T06:34:22.402Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Found no committed offset for partition notifications-0
+2026-02-27T06:34:22.494Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.SubscriptionState    : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Resetting offset for partition notifications-1 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[mybank-kafka.mybank.svc.cluster.local:9092 (id: 1 rack: null isFenced: false)], epoch=0}}.
+2026-02-27T06:34:22.495Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.SubscriptionState    : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Resetting offset for partition notifications-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[mybank-kafka.mybank.svc.cluster.local:9092 (id: 1 rack: null isFenced: false)], epoch=0}}.
+2026-02-27T06:34:22.496Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : notifications-service: partitions assigned: [notifications-0, notifications-1]
+2026-02-27T06:34:31.303Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Request joining group due to: group is already rebalancing
+2026-02-27T06:34:31.305Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] k.c.c.i.ConsumerRebalanceListenerInvoker : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Revoke previously assigned partitions [notifications-0, notifications-1]
+2026-02-27T06:34:31.305Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : notifications-service: partitions revoked: [notifications-0, notifications-1]
+2026-02-27T06:34:31.306Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] (Re-)joining group
+2026-02-27T06:34:31.310Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Successfully joined group with generation Generation{generationId=3, memberId='consumer-notifications-service-1-463740a0-3bef-471d-87c0-4083adb57d2b', protocol='range'}
+2026-02-27T06:34:31.320Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Finished assignment for group at generation 3: {consumer-notifications-service-1-463740a0-3bef-471d-87c0-4083adb57d2b=Assignment(partitions=[notifications-0, notifications-1, notifications-2])}
+2026-02-27T06:34:31.325Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Successfully synced group in generation Generation{generationId=3, memberId='consumer-notifications-service-1-463740a0-3bef-471d-87c0-4083adb57d2b', protocol='range'}
+2026-02-27T06:34:31.326Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Notifying assignor about the new Assignment(partitions=[notifications-0, notifications-1, notifications-2])
+2026-02-27T06:34:31.326Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] k.c.c.i.ConsumerRebalanceListenerInvoker : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Adding newly assigned partitions: [notifications-0, notifications-1, notifications-2]
+2026-02-27T06:34:31.329Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Found no committed offset for partition notifications-2
+2026-02-27T06:34:31.329Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Found no committed offset for partition notifications-1
+2026-02-27T06:34:31.329Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Found no committed offset for partition notifications-0
+2026-02-27T06:34:31.390Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.SubscriptionState    : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Resetting offset for partition notifications-2 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[mybank-kafka.mybank.svc.cluster.local:9092 (id: 1 rack: null isFenced: false)], epoch=0}}.
+2026-02-27T06:34:31.391Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.SubscriptionState    : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Resetting offset for partition notifications-1 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[mybank-kafka.mybank.svc.cluster.local:9092 (id: 1 rack: null isFenced: false)], epoch=0}}.
+2026-02-27T06:34:31.391Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.SubscriptionState    : [Consumer clientId=consumer-notifications-service-1, groupId=notifications-service] Resetting offset for partition notifications-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[mybank-kafka.mybank.svc.cluster.local:9092 (id: 1 rack: null isFenced: false)], epoch=0}}.
+2026-02-27T06:34:31.392Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : notifications-service: partitions assigned: [notifications-0, notifications-1, notifications-2]
+2026-02-27T06:34:31.507Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] c.m.n.l.NotificationKafkaListener        : 📩 KAFKA RECEIVED: service=cash-service, opId=2, user=alice
+2026-02-27T06:34:32.410Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] c.m.n.l.NotificationKafkaListener        : ✅ NOTIFICATION CREATED: service=cash-service, opId=2, user=alice
+2026-02-27T06:34:34.075Z  INFO 1 --- [notifications-service] [   scheduling-1] c.m.n.service.OutboxProcessor            : 🚀✅ NOTIFIED opId=2 user=alice service=cash-service payload={amount=0.11, opreration=DEPOSIT}
+2026-02-27T06:36:39.279Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] c.m.n.l.NotificationKafkaListener        : 📩 KAFKA RECEIVED: service=cash-service, opId=3, user=alice
+2026-02-27T06:36:39.288Z  INFO 1 --- [notifications-service] [ntainer#0-0-C-1] c.m.n.l.NotificationKafkaListener        : ✅ NOTIFICATION CREATED: service=cash-service, opId=3, user=alice
+2026-02-27T06:36:44.175Z  INFO 1 --- [notifications-service] [   scheduling-1] c.m.n.service.OutboxProcessor            : 🚀✅ NOTIFIED opId=3 user=alice service=cash-service payload={amount=0.09, opreration=DEPOSIT}

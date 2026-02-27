@@ -17,6 +17,20 @@ spec:
           echo "=== Testing PostgreSQL ==="
           nc -z {{ .Release.Name }}-postgresql 5432 && echo "OK: PostgreSQL is reachable" || exit 1
 
+    - name: test-kafka
+      image: busybox
+      command: ['sh', '-c']
+      args:
+        - |
+          echo "=== Testing Kafka ==="
+          for i in 1 2 3 4 5 6; do
+            nc -z {{ .Release.Name }}-kafka 9092 && echo "OK: Kafka is reachable" && exit 0
+            echo "Attempt $i: waiting..."
+            sleep 5
+          done
+          echo "FAIL: Kafka is not reachable"
+          exit 1
+
     - name: test-keycloak
       image: busybox
       command: ['sh', '-c']

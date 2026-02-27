@@ -26,10 +26,6 @@ spec:
           wget -qO- --timeout=5 http://{{ .Release.Name }}-gateway-service:8090/api/transfer/operation-key 2>&1 | grep -q "401\|403\|200" \
             || echo "WARN: Transfer route returned unexpected response (may need auth)"
 
-          echo "=== Testing Gateway → Notifications route ==="
-          wget -qO- --timeout=5 http://{{ .Release.Name }}-gateway-service:8090/api/notifications 2>&1 | grep -q "401\|403\|405\|200" \
-            || echo "WARN: Notifications route returned unexpected response (may need auth)"
-
           echo "=== All gateway routes are reachable ==="
           exit 0
 

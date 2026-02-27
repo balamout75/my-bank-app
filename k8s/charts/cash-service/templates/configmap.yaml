@@ -21,6 +21,7 @@ data:
           acks: all                # at-least-once: ждём подтверждения от всех реплик
           retries: 3
           properties:
+            spring.json.add.type.headers: false	
             enable.idempotence: true  # Исключает дубли на уровне producer
             max.in.flight.requests.per.connection: 1
       datasource:
@@ -54,8 +55,6 @@ data:
               instances:
                 accounts-service:
                   - uri: http://{{ .Release.Name }}-accounts-service:8080
-                notifications-service:
-                  - uri: http://{{ .Release.Name }}-notifications-service:8080
 
     # Отключаем Eureka
     eureka:
@@ -91,19 +90,6 @@ data:
             ignore-exceptions:
               - io.github.resilience4j.circuitbreaker.CallNotPermittedException
               - org.springframework.web.client.HttpClientErrorException
-          notifications-service:
-            max-attempts: 2
-            wait-duration: 300ms
-            exponential-backoff-multiplier: 2
-            retry-exceptions:
-              - org.springframework.web.client.ResourceAccessException
-              - org.springframework.web.client.HttpServerErrorException
-              - java.net.ConnectException
-              - java.net.SocketTimeoutException
-              - java.io.IOException
-            ignore-exceptions:
-              - io.github.resilience4j.circuitbreaker.CallNotPermittedException
-              - org.springframework.web.client.HttpClientErrorException
       circuitbreaker:
         circuitbreaker-aspect-order: 1
         instances:
@@ -123,28 +109,10 @@ data:
               - org.springframework.web.client.HttpServerErrorException
               - java.io.IOException
               - java.net.SocketTimeoutException
-          notifications-service:
-            register-health-indicator: true
-            sliding-window-type: COUNT_BASED
-            sliding-window-size: 5
-            minimum-number-of-calls: 3
-            failure-rate-threshold: 50
-            wait-duration-in-open-state: 15s
-            permitted-number-of-calls-in-half-open-state: 2
-            automatic-transition-from-open-to-half-open-enabled: true
-            ignore-exceptions:
-              - org.springframework.web.client.HttpClientErrorException
-            record-exceptions:
-              - org.springframework.web.client.ResourceAccessException
-              - org.springframework.web.client.HttpServerErrorException
-              - java.io.IOException
-              - java.net.SocketTimeoutException
       timelimiter:
         instances:
           accounts-service:
             timeout-duration: 5s
-          notifications-service:
-            timeout-duration: 3s
 
     management:
       endpoints:
