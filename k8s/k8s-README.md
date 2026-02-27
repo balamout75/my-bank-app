@@ -139,8 +139,10 @@ docker buildx bake --load -f docker-bake.hcl
 ```bash
 cd k8s
 helm dependency update .
-helm install mybank . --namespace mybank --create-namespace \
-  --set global.postgresql.password=mybank_password
+helm install mybank . --namespace mybank --create-namespace --set global.postgresql.password=mybank_password
+
+в случае повторной настройки
+helm upgrade mybank . --namespace mybank --create-namespace --set global.postgresql.password=mybank_password
 ```
 
 ### Шаг 6. Проверка

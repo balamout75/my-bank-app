@@ -2,6 +2,9 @@ dependencies:
 - name: postgresql
   repository: ""
   version: 1.0.0
+- name: kafka
+  repository: ""
+  version: 1.0.0
 - name: keycloak
   repository: ""
   version: 1.0.0
@@ -23,5 +26,5 @@ dependencies:
 - name: notifications-service
   repository: ""
   version: 1.0.0
-digest: sha256:d7327621f7e77c65cfb9c9be47b32bc5ef3e286356d1d2746f703212803d7bb4
-generated: "2026-02-15T23:46:29.149196+08:00"
+digest: sha256:07c9f876f12ec06a8ae85c4ab3faf4b257a2b3275c1a64546541b197d60cf471
+generated: "2026-02-27T11:12:02.9123115+08:00"

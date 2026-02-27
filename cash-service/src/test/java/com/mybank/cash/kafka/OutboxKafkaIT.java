@@ -16,8 +16,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
+
+import org.testcontainers.postgresql.PostgreSQLContainer;
+import org.testcontainers.kafka.KafkaContainer;
+
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
@@ -35,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class OutboxKafkaIT {
 
     @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:18.1")
+    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:18.1")
             .withDatabaseName("mybank")
             .withUsername("mybank")
             .withPassword("mybank");

@@ -1,7 +1,6 @@
 package com.mybank.notifications.service;
 
 import com.mybank.notifications.dto.NotificationEvent;
-import com.mybank.notifications.dto.NotificationRequest;
 import com.mybank.notifications.model.*;
 import com.mybank.notifications.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,20 +36,4 @@ public class NotificationService {
         return true;
     }
 
-    /**
-     * @deprecated Используйте {@link #createFromEvent(NotificationEvent)} для Kafka.
-     * Оставлено для обратной совместимости REST-контроллера (если есть).
-     */
-    @Deprecated
-    @Transactional
-    public Boolean createAndEnqueue(NotificationRequest req, String clientId) {
-        if (notificationRepository.findById(new NotificationId(clientId, req.operationId())).isPresent()) return false;
-        Notification n = new Notification();
-        n.setId(new NotificationId(clientId, req.operationId()));
-        n.setUsername(req.username());
-        n.setStatus(OperationStatus.UPDATED);
-        n.setPayload(req.payload());
-        notificationRepository.save(n);
-        return true;
-    }
 }
