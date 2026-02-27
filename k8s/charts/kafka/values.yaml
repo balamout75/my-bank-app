@@ -1,0 +1,25 @@
+image:
+  repository: apache/kafka
+  tag: "4.2.0"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+service:
+  port: 9092
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+storage:
+  size: 2Gi
+  storageClassName: ""
+
+# KRaft конфигурация
+kraft:
+  clusterId: "MkU3OEVBNTcwNTJENDM2Qk"  # Фиксированный ID кластера

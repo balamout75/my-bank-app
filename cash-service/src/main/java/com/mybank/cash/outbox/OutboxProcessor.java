@@ -1,8 +1,6 @@
 package com.mybank.cash.outbox;
 
-import com.mybank.cash.client.NotificationsClient;
 import com.mybank.cash.dto.NotificationEvent;
-import com.mybank.cash.dto.NotificationRequest;
 import com.mybank.cash.dto.OperationStatus;
 import com.mybank.cash.model.CashOperation;
 import com.mybank.cash.repository.CashOperationRepository;

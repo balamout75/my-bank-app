@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mybank.cash.config.TestSecurityItConfig;
 import com.mybank.cash.template.BaseIntegrationTest;
 import com.mybank.cash.client.AccountsClient;
-import com.mybank.cash.client.NotificationsClient;
 import com.mybank.cash.dto.CashOperationRequest;
 import com.mybank.cash.dto.CashOperationType;
 import org.junit.jupiter.api.Test;
@@ -41,7 +40,6 @@ class CashControllerIT extends BaseIntegrationTest {
     @Autowired ObjectMapper objectMapper;
 
     @MockitoBean AccountsClient accountsClient;
-    @MockitoBean NotificationsClient notificationsClient;
 
     @Test
     void flow_shouldReserveKey_thenOperate() throws Exception {

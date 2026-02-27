@@ -13,7 +13,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.KafkaContainer;
@@ -42,7 +42,7 @@ class OutboxKafkaIT {
 
     @Container
     static KafkaContainer kafka = new KafkaContainer(
-            DockerImageName.parse("apache/kafka:3.9.0")
+            DockerImageName.parse("apache/kafka:4.2.0")
     );
 
     @DynamicPropertySource
@@ -74,7 +74,6 @@ class OutboxKafkaIT {
 
     @Test
     void shouldSendNotificationEventToKafka() {
-        // Given: операция в статусе UPDATED
         CashOperation op = CashOperation.builder()
                 .operationId(repository.getNextOperationId())
                 .username("alice")
@@ -109,14 +108,15 @@ class OutboxKafkaIT {
     }
 
     private KafkaConsumer<String, NotificationEvent> createConsumer() {
-        return new KafkaConsumer<>(Map.of(
+        var props = Map.<String, Object>of(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers(),
                 ConsumerConfig.GROUP_ID_CONFIG, "test-group",
-                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
-                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class,
-                JsonDeserializer.TRUSTED_PACKAGES, "com.mybank.*",
-                JsonDeserializer.VALUE_DEFAULT_TYPE, NotificationEvent.class.getName()
-        ));
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
+        );
+
+        var valueDeserializer = new JacksonJsonDeserializer<>(NotificationEvent.class);
+        valueDeserializer.addTrustedPackages("com.mybank"); // или "com.mybank.*"
+
+        return new KafkaConsumer<>(props, new StringDeserializer(), valueDeserializer);
     }
 }

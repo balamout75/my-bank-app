@@ -1,7 +1,6 @@
 package com.mybank.cash.service;
 
 import com.mybank.cash.client.AccountsClient;
-import com.mybank.cash.client.NotificationsClient;
 import com.mybank.cash.dto.CashOperationRequest;
 import com.mybank.cash.dto.CashOperationType;
 import com.mybank.cash.dto.OperationStatus;

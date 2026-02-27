@@ -9,6 +9,9 @@ dependencies:
   - name: postgresql
     version: 1.0.0
     condition: postgresql.enabled
+  - name: kafka
+    version: 1.0.0
+    condition: kafka.enabled
   - name: keycloak
     version: 1.0.0
     condition: keycloak.enabled

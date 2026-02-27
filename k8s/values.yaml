@@ -22,6 +22,9 @@ global:
 postgresql:
   enabled: true
 
+kafka:
+  enabled: true
+
 keycloak:
   enabled: true
 
