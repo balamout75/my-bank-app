@@ -3,9 +3,9 @@ package com.mybank.transfer.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mybank.transfer.client.AccountsClient;
-import com.mybank.transfer.client.NotificationsClient;
 import com.mybank.transfer.config.TestSecurityItConfig;
 import com.mybank.transfer.dto.TransferOperationRequest;
+import com.mybank.transfer.outbox.OutboxProcessor;
 import com.mybank.transfer.template.BaseIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SpringBootTest
+@SpringBootTest(properties = {
+        "spring.autoconfigure.exclude=org.springframework.boot.kafka.autoconfigure.KafkaAutoConfiguration"
+})
 @AutoConfigureMockMvc
 @Import(TestSecurityItConfig.class)
 class TransferControllerIT extends BaseIntegrationTest {
@@ -37,15 +39,12 @@ class TransferControllerIT extends BaseIntegrationTest {
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
 
-    @MockitoBean
-    AccountsClient accountsClient;
-    @MockitoBean
-    NotificationsClient notificationsClient;
+    @MockitoBean AccountsClient accountsClient;
+    @MockitoBean OutboxProcessor outboxProcessor;
 
     @Test
     void flow_shouldReserveKey_thenTransfer() throws Exception {
 
-        // внешние вызовы
         doNothing().when(accountsClient).transfer(any());
 
         var auth = jwt().jwt(j -> j
@@ -53,7 +52,6 @@ class TransferControllerIT extends BaseIntegrationTest {
                 .claim("clientRoles", "transfer.write")
         ).authorities(new SimpleGrantedAuthority("ROLE_transfer.write"));
 
-        // 1) резервируем operationKey
         String keyJson = mockMvc.perform(get("/transfer/operation-key").with(auth))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -63,9 +61,8 @@ class TransferControllerIT extends BaseIntegrationTest {
                 .getContentAsString();
 
         JsonNode node = objectMapper.readTree(keyJson);
-        long operationId = node.get("operationId").asLong(); // <-- проверь имя поля в OperationKeyResponse
+        long operationId = node.get("operationId").asLong();
 
-        // 2) выполняем операцию с зарезервированным operationId
         var request = new TransferOperationRequest(
                 operationId,
                 "bob",
@@ -83,7 +80,6 @@ class TransferControllerIT extends BaseIntegrationTest {
     @Test
     void transfer_withZeroAmount_shouldReturn400() throws Exception {
 
-        // внешние вызовы
         doNothing().when(accountsClient).transfer(any());
 
         var auth = jwt().jwt(j -> j
@@ -91,7 +87,6 @@ class TransferControllerIT extends BaseIntegrationTest {
                 .claim("clientRoles", "transfer.write")
         ).authorities(new SimpleGrantedAuthority("ROLE_transfer.write"));
 
-        // 1) резервируем operationKey
         String keyJson = mockMvc.perform(get("/transfer/operation-key").with(auth))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -101,9 +96,8 @@ class TransferControllerIT extends BaseIntegrationTest {
                 .getContentAsString();
 
         JsonNode node = objectMapper.readTree(keyJson);
-        long operationId = node.get("operationId").asLong(); // <-- проверь имя поля в OperationKeyResponse
+        long operationId = node.get("operationId").asLong();
 
-        // 2) выполняем операцию с зарезервированным operationId
         var request = new TransferOperationRequest(
                 operationId,
                 "bob",
@@ -128,7 +122,6 @@ class TransferControllerIT extends BaseIntegrationTest {
                 .claim("clientRoles", "transfer.write")
         ).authorities(new SimpleGrantedAuthority("ROLE_transfer.write"));
 
-        // 1️⃣ Получаем operation key
         String keyJson = mockMvc.perform(get("/transfer/operation-key").with(auth))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -143,7 +136,6 @@ class TransferControllerIT extends BaseIntegrationTest {
                 new BigDecimal("100.00")
         );
 
-        // 2️⃣ Первый вызов — успешный
         mockMvc.perform(post("/transfer/transfer")
                         .with(auth)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -151,7 +143,6 @@ class TransferControllerIT extends BaseIntegrationTest {
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        // 3️⃣ Повторный вызов с тем же ключом — должен упасть
         mockMvc.perform(post("/transfer/transfer")
                         .with(auth)
                         .contentType(MediaType.APPLICATION_JSON)

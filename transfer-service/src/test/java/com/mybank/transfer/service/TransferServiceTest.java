@@ -1,7 +1,6 @@
 package com.mybank.transfer.service;
 
 import com.mybank.transfer.client.AccountsClient;
-import com.mybank.transfer.client.NotificationsClient;
 import com.mybank.transfer.dto.TransferConsumeRequest;
 import com.mybank.transfer.dto.TransferOperationRequest;
 import com.mybank.transfer.dto.OperationStatus;
@@ -23,12 +22,9 @@ class TransferServiceTest {
 
     @Mock TransferOperationRepository repository;
     @Mock AccountsClient accountsClient;
-    @Mock NotificationsClient notificationsClient;
     @InjectMocks TransferService service;
 
     @Test
-
-
     /*
     * Executes the business workflow of a cash operation:
     * updates state, calls external services, and persists all lifecycle changes.

@@ -32,7 +32,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 
-@SpringBootTest
+@SpringBootTest (properties = {
+        "spring.autoconfigure.exclude=org.springframework.boot.kafka.autoconfigure.KafkaAutoConfiguration"
+})
 @AutoConfigureMockMvc
 @Import(TestSecurityItConfig.class)
 class CashControllerIT extends BaseIntegrationTest {

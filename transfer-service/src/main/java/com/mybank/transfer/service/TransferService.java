@@ -1,7 +1,6 @@
 package com.mybank.transfer.service;
 
 import com.mybank.transfer.client.AccountsClient;
-import com.mybank.transfer.client.NotificationsClient;
 import com.mybank.transfer.dto.*;
 import com.mybank.transfer.exception.InvalidOperationKeyException;
 import com.mybank.transfer.model.TransferOperation;
@@ -20,8 +19,6 @@ public class TransferService {
 
     private final TransferOperationRepository operationRepository;
     private final AccountsClient accountsClient;
-    private final NotificationsClient notificationsClient;
-
 
     /**
      * Генерирует новый ключ операции
@@ -61,7 +58,6 @@ public class TransferService {
         var existingOpt = operationRepository.findById(operationId);
         if (existingOpt.isPresent()) {
             TransferOperation op = existingOpt.get();
-            // username всегда должен совпадать
             if (!op.getUsername().equals(username)) {
                 throw new InvalidOperationKeyException("OperationId принадлежит другому пользователю: " + operationId);
             }
@@ -89,7 +85,6 @@ public class TransferService {
                     operation.getUsername(),
                     operation.getRecipient(),
                     operation.getAmount()
-
             ));
             operation.setStatus(OperationStatus.UPDATED);
             operation.setCompletedAt(LocalDateTime.now());

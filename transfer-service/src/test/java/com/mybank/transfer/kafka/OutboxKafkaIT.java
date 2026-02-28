@@ -1,12 +1,11 @@
-package com.mybank.cash.kafka;
+package com.mybank.transfer.kafka;
 
-import com.mybank.cash.config.TestSecurityItConfig;
-import com.mybank.cash.dto.CashOperationType;
-import com.mybank.cash.dto.NotificationEvent;
-import com.mybank.cash.dto.OperationStatus;
-import com.mybank.cash.model.CashOperation;
-import com.mybank.cash.repository.CashOperationRepository;
-import com.mybank.cash.template.BaseIntegrationTest;
+import com.mybank.transfer.config.TestSecurityItConfig;
+import com.mybank.transfer.dto.NotificationEvent;
+import com.mybank.transfer.dto.OperationStatus;
+import com.mybank.transfer.model.TransferOperation;
+import com.mybank.transfer.repository.TransferOperationRepository;
+import com.mybank.transfer.template.BaseIntegrationTest;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,22 +40,21 @@ class OutboxKafkaIT extends BaseIntegrationTest {
     EmbeddedKafkaBroker embeddedKafkaBroker;
 
     @Autowired
-    CashOperationRepository repository;
+    TransferOperationRepository repository;
 
     @BeforeEach
     void cleanUp() {
         repository.deleteAll();
     }
 
-
     @Test
     void shouldSendNotificationEventToKafka() {
         // Given
-        CashOperation op = CashOperation.builder()
+        TransferOperation op = TransferOperation.builder()
                 .operationId(repository.getNextOperationId())
                 .username("alice")
-                .amount(new BigDecimal("100.00"))
-                .type(CashOperationType.DEPOSIT)
+                .recipient("bob")
+                .amount(new BigDecimal("250.00"))
                 .createdAt(LocalDateTime.now())
                 .notificationAttemptsAt(LocalDateTime.now())
                 .notificationAttempts(0)
@@ -79,13 +77,13 @@ class OutboxKafkaIT extends BaseIntegrationTest {
 
             consumer.subscribe(List.of("notifications"));
             var record = KafkaTestUtils.getSingleRecord(consumer, "notifications", Duration.ofSeconds(15));
-            assertThat(record.value().service()).isEqualTo("cash-service");
+            assertThat(record.value().service()).isEqualTo("transfer-service");
             assertThat(record.value().username()).isEqualTo("alice");
             assertThat(record.value().operationId()).isEqualTo(op.getOperationId());
         }
 
         // And: статус операции = NOTIFIED
-        CashOperation updated = repository.findById(op.getOperationId()).orElseThrow();
+        TransferOperation updated = repository.findById(op.getOperationId()).orElseThrow();
         assertThat(updated.getStatus()).isEqualTo(OperationStatus.NOTIFIED);
     }
 }
