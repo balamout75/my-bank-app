@@ -1,0 +1,17 @@
+spring:
+  cloud:
+    config:
+      enabled: false
+  security:
+    oauth2:
+      client:
+        registration: {}
+        provider: {}
+
+gateway:
+  url: http://localhost:9999
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: WARN

@@ -1,0 +1,23 @@
+spring:
+  cloud:
+    discovery:
+      enabled: false
+    loadbalancer:
+      enabled: false
+    contract:
+      stubrunner:
+        cloud:
+          enabled: false
+          loadbalancer:
+            enabled: false
+          stubbed:
+            discovery:
+              enabled: false
+eureka:
+  client:
+    enabled: false
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: WARN
