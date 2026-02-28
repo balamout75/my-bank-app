@@ -1,12 +1,11 @@
-package com.mybank.cash.kafka;
+package com.mybank.accounts.kafka;
 
-import com.mybank.cash.config.TestSecurityItConfig;
-import com.mybank.cash.dto.CashOperationType;
-import com.mybank.cash.dto.NotificationEvent;
-import com.mybank.cash.dto.OperationStatus;
-import com.mybank.cash.model.CashOperation;
-import com.mybank.cash.repository.CashOperationRepository;
-import com.mybank.cash.template.BaseIntegrationTest;
+import com.mybank.accounts.config.TestSecurityItConfig;
+import com.mybank.accounts.dto.NotificationEvent;
+import com.mybank.accounts.model.AccountOperation;
+import com.mybank.accounts.model.OperationStatus;
+import com.mybank.accounts.repository.AccountOperationRepository;
+import com.mybank.accounts.template.BaseIntegrationTest;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,10 +19,10 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,25 +41,22 @@ class OutboxKafkaIT extends BaseIntegrationTest {
     EmbeddedKafkaBroker embeddedKafkaBroker;
 
     @Autowired
-    CashOperationRepository repository;
+    AccountOperationRepository repository;
 
     @Test
     void shouldSendNotificationEventToKafka() {
         // Given
-        CashOperation op = CashOperation.builder()
-                .operationId(repository.getNextOperationId())
-                .username("alice")
-                .amount(new BigDecimal("100.00"))
-                .type(CashOperationType.DEPOSIT)
-                .createdAt(LocalDateTime.now())
-                .notificationAttemptsAt(LocalDateTime.now())
-                .notificationAttempts(0)
-                .build();
-        repository.save(op);
+        AccountOperation op = new AccountOperation();
+        op.setOperationId(repository.nextOperationId());
+        op.setUsername("alice");
+        op.setPayload(Map.of("firstName", "Alice", "lastName", "Smith"));
         op.setStatus(OperationStatus.UPDATED);
+        op.setAttempts(0);
+        op.setCreatedAt(LocalDateTime.now());
+        op.setUpdatedAt(LocalDateTime.now());
         repository.save(op);
 
-        // When
+        // When — scheduler отправит сам
 
         // Then
         var valueDeserializer = new JacksonJsonDeserializer<>(NotificationEvent.class);
@@ -85,12 +81,11 @@ class OutboxKafkaIT extends BaseIntegrationTest {
                         .orElse(null);
             }
             assertThat(found).as("NotificationEvent с opId=" + op.getOperationId()).isNotNull();
-            assertThat(found.service()).isEqualTo("cash-service");
+            assertThat(found.service()).isEqualTo("accounts-service");
             assertThat(found.username()).isEqualTo("alice");
         }
-
         // And: статус операции = NOTIFIED
-        CashOperation updated = repository.findById(op.getOperationId()).orElseThrow();
+        AccountOperation updated = repository.findById(op.getOperationId()).orElseThrow();
         assertThat(updated.getStatus()).isEqualTo(OperationStatus.NOTIFIED);
     }
 }

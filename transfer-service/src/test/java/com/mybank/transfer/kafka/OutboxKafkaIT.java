@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,11 +42,6 @@ class OutboxKafkaIT extends BaseIntegrationTest {
 
     @Autowired
     TransferOperationRepository repository;
-
-    @BeforeEach
-    void cleanUp() {
-        repository.deleteAll();
-    }
 
     @Test
     void shouldSendNotificationEventToKafka() {
@@ -76,10 +72,20 @@ class OutboxKafkaIT extends BaseIntegrationTest {
         ).createConsumer()) {
 
             consumer.subscribe(List.of("notifications"));
-            var record = KafkaTestUtils.getSingleRecord(consumer, "notifications", Duration.ofSeconds(15));
-            assertThat(record.value().service()).isEqualTo("transfer-service");
-            assertThat(record.value().username()).isEqualTo("alice");
-            assertThat(record.value().operationId()).isEqualTo(op.getOperationId());
+
+            NotificationEvent found = null;
+            var deadline = System.currentTimeMillis() + 15_000;
+            while (found == null && System.currentTimeMillis() < deadline) {
+                var records = consumer.poll(Duration.ofMillis(500));
+                found = StreamSupport.stream(records.records("notifications").spliterator(), false)
+                        .map(r -> r.value())
+                        .filter(e -> e.operationId().equals(op.getOperationId()))
+                        .findFirst()
+                        .orElse(null);
+            }
+            assertThat(found).as("NotificationEvent с opId=" + op.getOperationId()).isNotNull();
+            assertThat(found.service()).isEqualTo("transfer-service");
+            assertThat(found.username()).isEqualTo("alice");
         }
 
         // And: статус операции = NOTIFIED

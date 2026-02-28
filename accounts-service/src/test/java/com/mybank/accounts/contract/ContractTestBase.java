@@ -27,7 +27,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
+@ActiveProfiles("contract-test")
 @Import(TestSecurityItConfig.class)
 public abstract class ContractTestBase {
 
