@@ -40,13 +40,6 @@ data:
                   filters:
                     - StripPrefix=1
 
-                - id: notifications-service
-                  uri: http://{{ .Release.Name }}-notifications-service:{{ .Values.routes.notificationsService.port }}
-                  predicates:
-                    - Path=/api/notifications/**
-                  filters:
-                    - StripPrefix=1
-
               globalcors:
                 cors-configurations:
                   "[/**]":

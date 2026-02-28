@@ -1,39 +1,32 @@
 spring:
   main:
     allow-bean-definition-overriding: true
-
-  # ==== DATASOURCE будет переопределён Testcontainers ====
   datasource:
-    url: jdbc:tc:postgresql:16-alpine:///dummy
+    url: jdbc:tc:postgresql:16-alpine:///dummy?currentSchema=cash
     username: test
     password: test
-
   jpa:
     hibernate:
       ddl-auto: none
     properties:
       hibernate:
         format_sql: true
-
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
     default-schema: cash
     liquibase-schema: public
     enabled: true
-
   cloud:
     discovery:
       enabled: false
     config:
       enabled: false
-
   security:
     oauth2:
       client:
         registration: {}
         provider: {}
 
-# чтобы не падал RestClient interceptor
 clients:
   accounts:
     url: http://localhost/dummy
@@ -45,3 +38,6 @@ logging:
     root: INFO
     org.testcontainers: INFO
     org.springframework.security: WARN
+    kafka: WARN
+    org.apache.kafka: WARN
+    state.change.logger: WARN

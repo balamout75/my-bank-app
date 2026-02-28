@@ -3,6 +3,7 @@ package com.mybank.cash.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mybank.cash.config.TestSecurityItConfig;
+import com.mybank.cash.outbox.OutboxProcessor;
 import com.mybank.cash.template.BaseIntegrationTest;
 import com.mybank.cash.client.AccountsClient;
 import com.mybank.cash.dto.CashOperationRequest;
@@ -38,8 +39,8 @@ class CashControllerIT extends BaseIntegrationTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
-
     @MockitoBean AccountsClient accountsClient;
+    @MockitoBean OutboxProcessor outboxProcessor;
 
     @Test
     void flow_shouldReserveKey_thenOperate() throws Exception {

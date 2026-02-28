@@ -25,7 +25,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
+@ActiveProfiles("contract-test")
 @Import(TestSecurityItConfig.class)
 public abstract class ContractTestBase {
 
@@ -35,8 +35,7 @@ public abstract class ContractTestBase {
     @MockitoBean
     CashService cashService;
 
-    @MockitoBean
-    OutboxProcessor outboxProcessor;
+    @MockitoBean OutboxProcessor outboxProcessor;
 
 
     @BeforeEach
