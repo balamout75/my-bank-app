@@ -139,7 +139,7 @@ def helmDeploy(String namespace, String appHost, String keycloakHost) {
         'accounts-service' : env.KC_SECRET_ACCOUNTS,
         'cash-service'     : env.KC_SECRET_CASH,
         'transfer-service' : env.KC_SECRET_TRANSFER,
-        'front-ui'         : env.KC_SECRET_FRONTEND
+        'front-ui' 	   : env.KC_SECRET_FRONTEND
     ]
 
     // Build --set args for all service images
