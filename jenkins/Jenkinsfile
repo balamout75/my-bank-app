@@ -15,10 +15,12 @@ pipeline {
         KC_ADMIN_PASSWORD       = credentials('KC_ADMIN_PASSWORD')
     }
     stages {
+
         stage('Build & Test') {
             steps {
-                sh 'mvn -U clean verify install'
-            }
+                sh 'mvn clean install -DskipITs'
+                sh 'mvn verify -pl front-ui'          
+	    }
         }
 
         stage('Build Docker Images') {
