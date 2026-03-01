@@ -15,15 +15,12 @@ pipeline {
         KC_ADMIN_PASSWORD       = credentials('KC_ADMIN_PASSWORD')
     }
     stages {
-
         stage('Build & Test') {
             steps {
-                sh 'mvn clean install -DskipITs'
-                sh 'mvn verify -pl front-ui'          
-	    }
+                sh 'mvn clean install'
+            }
         }
-
-        stage('Build Docker Images') {
+        stage('Docker Build & Push') {
             steps {
                 script {
                     def services = [
@@ -34,85 +31,60 @@ pipeline {
                         'gateway-service'       : 'mybank-gateway',
                         'front-ui'              : 'mybank-frontend'
                     ]
-                    def builds = [:]
-                    services.each { module, imageName ->
-                        builds[module] = {
-                            sh "docker build -f Dockerfile.build --build-arg MODULE=${module} -t ${DOCKER_REGISTRY}/${imageName}:${IMAGE_TAG} ."
-                        }
-                    }
-                    parallel builds
-                }
-            }
-        }
-
-        stage('Push Docker Images') {
-            steps {
-                script {
-                    def imageNames = [
-                        'mybank-accounts', 'mybank-cash', 'mybank-transfer',
-                        'mybank-notifications', 'mybank-gateway', 'mybank-frontend'
-                    ]
                     withCredentials([string(credentialsId: 'GHCR_TOKEN', variable: 'GHCR_TOKEN')]) {
                         sh "echo \$GHCR_TOKEN | docker login ghcr.io -u ${GITHUB_USERNAME} --password-stdin"
-                        imageNames.each { name ->
-                            sh "docker push ${DOCKER_REGISTRY}/${name}:${IMAGE_TAG}"
+                        def tasks = [:]
+                        services.each { module, imageName ->
+                            tasks[module] = {
+                                sh """
+                                docker build -f Dockerfile.build --build-arg MODULE=${module} \
+                                    -t ${DOCKER_REGISTRY}/${imageName}:${IMAGE_TAG} .
+                                docker push ${DOCKER_REGISTRY}/${imageName}:${IMAGE_TAG}
+                                """
+                            }
                         }
+                        parallel tasks
                     }
                 }
             }
         }
-
-        stage('Helm Deploy to TEST') {
+        stage('Prepare Helm') {
+            steps {
+                sh "helm dependency update ${CHART_DIR}"
+            }
+        }
+        stage('Deploy to TEST') {
             steps {
                 script {
                     helmDeploy('test', 'mybank.test.local', 'keycloak.mybank.test.local')
                 }
             }
         }
-
         stage('Verify TEST') {
             steps {
                 sh 'kubectl get pods -n test'
+                script { helmTest('test') }
             }
         }
-
-        stage('Helm Test TEST') {
-            steps {
-                script {
-                    helmTest('test')
-                }
-            }
-        }
-
         stage('Manual Approval for PROD') {
             steps {
                 input message: 'Deploy to PROD environment?', ok: 'Yes, deploy'
             }
         }
-
-        stage('Helm Deploy to PROD') {
+        stage('Deploy to PROD') {
             steps {
                 script {
                     helmDeploy('prod', 'mybank.prod.local', 'keycloak.mybank.prod.local')
                 }
             }
         }
-
         stage('Verify PROD') {
             steps {
                 sh 'kubectl get pods -n prod'
-            }
-        }
-
-        stage('Helm Test PROD') {
-            steps {
-                script {
-                    helmTest('prod')
-                }
+                script { helmTest('prod') }
             }
         }
     }
-
     post {
         always {
             sh 'docker logout ghcr.io || true'
@@ -137,26 +109,19 @@ def helmDeploy(String namespace, String appHost, String keycloakHost) {
         'gateway-service'       : 'mybank-gateway',
         'front-ui'              : 'mybank-frontend'
     ]
-
     def kcSecrets = [
         'accounts-service' : env.KC_SECRET_ACCOUNTS,
         'cash-service'     : env.KC_SECRET_CASH,
         'transfer-service' : env.KC_SECRET_TRANSFER,
-        'front-ui' 	   : env.KC_SECRET_FRONTEND
+        'front-ui'         : env.KC_SECRET_FRONTEND
     ]
-
-    // Build --set args for all service images
     def imageArgs = services.collect { svc, img ->
         "--set ${svc}.image.repository=${DOCKER_REGISTRY}/${img} --set ${svc}.image.tag=${IMAGE_TAG}"
     }.join(' \\\n  ')
-
-    // Build --set args for keycloak client secrets
     def secretArgs = kcSecrets.collect { svc, secret ->
         "--set ${svc}.keycloak.clientSecret=${secret}"
     }.join(' \\\n  ')
-
     sh """
-    helm dependency update ${CHART_DIR}
     helm upgrade --install mybank-${namespace} ${CHART_DIR} \\
       --namespace ${namespace} --create-namespace \\
       --set global.appHost=${appHost} \\
