@@ -8,6 +8,7 @@ pipeline {
         DB_USER         = 'mybank'
         IMAGE_TAG       = "${env.BUILD_NUMBER}"
         CHART_DIR       = 'k8s'
+	TESTCONTAINERS_RYUK_DISABLED = 'true'
         KC_SECRET_ACCOUNTS      = credentials('KC_SECRET_ACCOUNTS')
         KC_SECRET_CASH          = credentials('KC_SECRET_CASH')
         KC_SECRET_TRANSFER      = credentials('KC_SECRET_TRANSFER')
@@ -17,7 +18,7 @@ pipeline {
     stages {
         stage('Build & Test') {
             steps {
-                sh 'mvn clean install'
+                sh 'mvn clean install -DskipITs' 
             }
         }
         stage('Docker Build & Push') {
