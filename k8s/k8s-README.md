@@ -34,11 +34,14 @@
 │                ├── transfer-service:8080                      │
 │                └── notifications-service:8080                 │
 │                                                              │
+│  Kafka (StatefulSet, KRaft) ← cash, transfer, accounts      │
+│       └── notifications-service (consumer)                   │
+│                                                              │
 │  PostgreSQL (StatefulSet, 5 схем)                            │
 │  Keycloak (Deployment, realm import)                         │
 │                                                              │
 │  ConfigMap — конфигурация каждого сервиса                    │
-│  Secret — DB credentials, OAuth2 client secrets              │
+│  Secret — DB credentials, OAuth2 secrets, Kafka bootstrap    │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -50,6 +53,7 @@
 k8s/
 ├── Chart.yaml                  # Зонтичный чарт (umbrella)
 ├── values.yaml                 # Глобальные настройки
+├── values-local.yaml           # Локальные секреты (НЕ коммитить!)
 ├── templates/
 │   ├── NOTES.txt               # Инструкции после деплоя
 │   └── tests/                  # Helm-тесты
@@ -57,6 +61,7 @@ k8s/
 │       └── test-connectivity.yaml # Проверка маршрутов Gateway
 └── charts/
     ├── postgresql/             # БД (StatefulSet)
+    ├── kafka/                  # Kafka KRaft (StatefulSet)
     ├── keycloak/               # OAuth2 сервер (Deployment + realm import)
     ├── gateway-service/        # API Gateway (порт 8090)
     ├── front-ui/               # Веб-интерфейс (порт 8081, Ingress)
@@ -70,8 +75,8 @@ k8s/
 - `templates/deployment.yaml` — Pod с контейнером сервиса
 - `templates/service.yaml` — K8s Service (ClusterIP)
 - `templates/configmap.yaml` — Spring Boot конфигурация (application-k8s.yml)
-- `templates/secret.yaml` — DB credentials, OAuth2 client secret
-- `values.yaml` — параметры по умолчанию
+- `templates/secret.yaml` — DB credentials, OAuth2 client secret, Kafka bootstrap
+- `values.yaml` — параметры по умолчанию (секреты — пустые placeholder'ы)
 
 ---
 
@@ -134,24 +139,62 @@ kubectl rollout restart deployment coredns -n kube-system
 docker buildx bake --load -f docker-bake.hcl
 ```
 
-### Шаг 5. Деплой
+### Шаг 5. Подготовка секретов
+
+Создайте файл `k8s/values-local.yaml` (добавьте в `.gitignore`!):
+
+```yaml
+global:
+  postgresql:
+    password: "mybank_password"
+
+accounts-service:
+  keycloak:
+    clientSecret: "your-accounts-client-secret"
+
+cash-service:
+  keycloak:
+    clientSecret: "your-cash-client-secret"
+
+transfer-service:
+  keycloak:
+    clientSecret: "your-transfer-client-secret"
+
+front-ui:
+  keycloak:
+    clientSecret: "your-frontend-client-secret"
+
+keycloak:
+  admin:
+    password: "admin"
+```
+
+> ⚠️ Этот файл содержит реальные секреты. Убедитесь что он в `.gitignore`:
+> ```
+> k8s/values-local.yaml
+> ```
+
+### Шаг 6. Деплой
 
 ```bash
 cd k8s
 helm dependency update .
-helm install mybank . --namespace mybank --create-namespace --set global.postgresql.password=mybank_password
-
-в случае повторной настройки
-helm upgrade mybank . --namespace mybank --create-namespace --set global.postgresql.password=mybank_password
+helm install mybank . --namespace mybank --create-namespace -f values-local.yaml
 ```
 
-### Шаг 6. Проверка
+В случае повторного деплоя:
+
+```bash
+helm upgrade --install mybank . --namespace mybank -f values-local.yaml
+```
+
+### Шаг 7. Проверка
 
 ```bash
 kubectl get pods -n mybank -w    # ждать все 1/1 Running (2-3 минуты)
 ```
 
-### Шаг 7. Helm Tests
+### Шаг 8. Helm Tests
 
 После того как все поды готовы, запустите тесты:
 
@@ -168,7 +211,7 @@ TEST SUITE:     mybank-test-health
 Phase:          Succeeded
 ```
 
-### Шаг 8. Доступ
+### Шаг 9. Доступ
 
 | Сервис | URL |
 |--------|-----|
@@ -189,6 +232,7 @@ Phase:          Succeeded
 |-----------|---------|
 | PostgreSQL | TCP порт 5432 |
 | Keycloak | TCP порт 80 (Service) |
+| Kafka | TCP порт 9092 |
 | Front UI | TCP порт 8081 |
 | Gateway Service | HTTP /actuator/health |
 | Accounts Service | HTTP /actuator/health |
@@ -223,6 +267,42 @@ kubectl logs mybank-test-health -n mybank -c test-accounts
 
 ---
 
+## Управление секретами
+
+### Как секреты попадают в Pod
+
+```
+values-local.yaml (НЕ коммитится)
+    │ helm install -f values-local.yaml
+    ▼
+values.yaml (пустые placeholder'ы "")
+    │ перезаписываются через -f
+    ▼
+templates/secret.yaml → K8s Secret (Opaque)
+    │
+    ▼
+deployment.yaml → envFrom: secretRef → Pod env vars
+    │
+    ▼
+configmap.yaml → ${DB_URL}, ${KAFKA_BOOTSTRAP_SERVERS} (Spring Boot резолвит)
+```
+
+### Что хранится в K8s Secrets
+
+| Сервис | Ключи в Secret |
+|--------|---------------|
+| accounts-service | DB_URL, DB_USER, DB_PASSWORD, OAUTH2_CLIENT_SECRET, KAFKA_BOOTSTRAP_SERVERS |
+| cash-service | DB_URL, DB_USER, DB_PASSWORD, OAUTH2_CLIENT_SECRET, KAFKA_BOOTSTRAP_SERVERS |
+| transfer-service | DB_URL, DB_USER, DB_PASSWORD, OAUTH2_CLIENT_SECRET, KAFKA_BOOTSTRAP_SERVERS |
+| notifications-service | DB_URL, DB_USER, DB_PASSWORD, KAFKA_BOOTSTRAP_SERVERS |
+| front-ui | OAUTH2_CLIENT_SECRET |
+| keycloak | KEYCLOAK_ADMIN_PASSWORD |
+| postgresql | POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD |
+
+> ⚠️ Notifications-service не использует Keycloak (нет OAUTH2_CLIENT_SECRET). Front-ui не использует БД напрямую (секреты БД отсутствуют).
+
+---
+
 ## Управление
 
 ### Обновление после изменения кода
@@ -236,7 +316,7 @@ kubectl rollout restart deployment -n mybank
 
 ```bash
 cd k8s
-helm upgrade mybank . --namespace mybank
+helm upgrade --install mybank . --namespace mybank -f values-local.yaml
 ```
 
 ### Масштабирование
@@ -271,6 +351,9 @@ kubectl exec -n mybank <pod-name> -- nslookup keycloak.mybank.dev.local
 
 # Проверка Keycloak
 kubectl exec -n mybank <pod-name> -- curl -s http://keycloak.mybank.dev.local/realms/mybank
+
+# Проверка секрета (PowerShell)
+kubectl get secret mybank-accounts-service -n mybank -o jsonpath="{.data.KAFKA_BOOTSTRAP_SERVERS}"
 ```
 
 ### Удаление
@@ -298,29 +381,41 @@ global:
     port: 5432
     database: mybank
     username: mybank
-    password: ""    # передаётся через --set
+    password: ""    # передаётся через values-local.yaml или --set
+```
+
+### values-local.yaml — локальные секреты
+
+```yaml
+global:
+  postgresql:
+    password: "mybank_password"
+
+accounts-service:
+  keycloak:
+    clientSecret: "..."
+
+# ... остальные сервисы
 ```
 
 ### Как параметры попадают в Pod
 
 ```
-values.yaml
+values.yaml + values-local.yaml
     │
-    ├──→ secret.yaml     → env vars (DB_URL, DB_PASSWORD, OAUTH2_CLIENT_SECRET)
+    ├──→ secret.yaml     → env vars (DB_URL, DB_PASSWORD, OAUTH2_CLIENT_SECRET, KAFKA_BOOTSTRAP_SERVERS)
     ├──→ configmap.yaml  → application-k8s.yml (монтируется как файл)
     └──→ deployment.yaml → image, ports, probes, volumes
 ```
 
-Deployment монтирует ConfigMap как файл `/config/application-k8s.yml` и загружает Secret как environment variables. Spring Boot читает `${DB_URL}`, `${DB_PASSWORD}` из окружения.
+Deployment монтирует ConfigMap как файл `/config/application-k8s.yml` и загружает Secret как environment variables. Spring Boot читает `${DB_URL}`, `${DB_PASSWORD}`, `${KAFKA_BOOTSTRAP_SERVERS}` из окружения.
 
 ### Переопределение параметров
 
 ```bash
 helm install mybank . -n mybank --create-namespace \
+  -f values-local.yaml \
   --set global.appHost=mybank.prod.local \
-  --set global.keycloakHost=keycloak.mybank.prod.local \
-  --set global.postgresql.password=secure_password \
-  --set accounts-service.keycloak.clientSecret=xxx \
   --set accounts-service.image.tag=42
 ```
 
@@ -334,12 +429,13 @@ helm install mybank . -n mybank --create-namespace \
 | Конфигурация | Config Server (Git) | ConfigMap (application-k8s.yml) |
 | Прокси | nginx container | Ingress-nginx |
 | DNS | Docker DNS | CoreDNS + rewrite |
-| Секреты | .env файл | K8s Secrets (через Helm) |
+| Секреты | .env файл | K8s Secrets (через Helm + values-local.yaml) |
 | Spring профиль | `docker` | `k8s` |
 | Config import | `configserver:http://...` | `file:/config/application-k8s.yml` |
 | Балансировка | Eureka + Ribbon | K8s Service (round-robin) |
 | Порядок запуска | `depends_on` + healthcheck | Probes + restart policy |
 | Тесты | — | Helm Tests (health + connectivity) |
+| Kafka | docker-compose service | K8s StatefulSet (KRaft) |
 
 ---
 
@@ -355,3 +451,6 @@ helm install mybank . -n mybank --create-namespace \
 | `context deadline exceeded` | Поды не стартуют за timeout | Проверить логи `kubectl logs`, увеличить `--timeout` |
 | Образ не обновился | Кэш Docker/K8s | `docker buildx bake --load` + `kubectl rollout restart` |
 | `helm test` Failed | Старые test-поды | `kubectl delete pod <test-pod> --ignore-not-found` |
+| `localhost:9092` в логах | Нет KAFKA_BOOTSTRAP_SERVERS | Добавить в secret.yaml и configmap (`${KAFKA_BOOTSTRAP_SERVERS}`) |
+| `no main manifest attribute` | Нет spring-boot-maven-plugin | Добавить плагин в pom.xml сервиса |
+| Секреты в Git | Plaintext в values.yaml | Использовать `values-local.yaml` (в `.gitignore`) |

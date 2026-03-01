@@ -2,7 +2,6 @@ package com.mybank.notifications.listener;
 
 import com.mybank.notifications.dto.NotificationEvent;
 import com.mybank.notifications.service.NotificationService;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,8 +28,8 @@ class NotificationKafkaListenerTest {
         );
     }
 
+    // onNotificationEvent → новое событие → вызывает createFromEvent
     @Test
-    @DisplayName("onNotificationEvent → новое событие → вызывает createFromEvent")
     void onEvent_new_shouldCallService() {
         var event = event();
         when(notificationService.createFromEvent(event)).thenReturn(true);
@@ -40,8 +39,8 @@ class NotificationKafkaListenerTest {
         verify(notificationService).createFromEvent(event);
     }
 
+    // onNotificationEvent → дубликат → вызывает createFromEvent, не падает
     @Test
-    @DisplayName("onNotificationEvent → дубликат → вызывает createFromEvent, не падает")
     void onEvent_duplicate_shouldNotThrow() {
         var event = event();
         when(notificationService.createFromEvent(event)).thenReturn(false);
@@ -51,8 +50,8 @@ class NotificationKafkaListenerTest {
         verify(notificationService).createFromEvent(event);
     }
 
+    // onNotificationEvent → ошибка сервиса → пробрасывает исключение для Kafka retry
     @Test
-    @DisplayName("onNotificationEvent → ошибка сервиса → пробрасывает исключение для Kafka retry")
     void onEvent_error_shouldRethrow() {
         var event = event();
         when(notificationService.createFromEvent(event)).thenThrow(new RuntimeException("DB down"));

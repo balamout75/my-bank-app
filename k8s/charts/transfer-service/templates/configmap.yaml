@@ -10,8 +10,20 @@ data:
   application.yml: |
     server:
       port: 8080
-
     spring:
+      kafka:
+        bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+        admin:
+          fail-fast: false
+        producer:
+          key-serializer: org.apache.kafka.common.serialization.StringSerializer
+          value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+          acks: all                # at-least-once: ждём подтверждения от всех реплик
+          retries: 3
+          properties:
+            spring.json.add.type.headers: false	
+            enable.idempotence: true  # Исключает дубли на уровне producer
+            max.in.flight.requests.per.connection: 1
       datasource:
         url: ${DB_URL}
         username: ${DB_USER}

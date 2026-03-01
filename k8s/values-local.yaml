@@ -1,0 +1,23 @@
+﻿global:
+  postgresql:
+    password: "mybank_password"
+
+accounts-service:
+  keycloak:
+    clientSecret: "Ycm7AwLxKchJ76kaRwDaG0RyHsp1T2rK"
+
+cash-service:
+  keycloak:
+    clientSecret: "GJj0e0li8KrcaHb9S20ze8SDo8lO1zIL"
+
+transfer-service:
+  keycloak:
+    clientSecret: "RnGnXR7iX8ZSgb5lSiiG53QteuGrKC9h"
+
+front-ui:
+  keycloak:
+    clientSecret: "lLL8B1F0WroO7QXWC58nzfR2OZ4fUp9q"
+
+keycloak:
+  admin:
+    password: "admin"

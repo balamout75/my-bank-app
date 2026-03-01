@@ -14,4 +14,8 @@ gateway:
 logging:
   level:
     root: INFO
+    org.testcontainers: INFO
     org.springframework.security: WARN
+    kafka: WARN
+    org.apache.kafka: WARN
+    state.change.logger: WARN

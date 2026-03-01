@@ -32,7 +32,9 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
+        <!-- Версии Maven plugins -->
+        <maven.surefire.version>3.5.5</maven.surefire.version>
+        <maven.failsafe.version>3.5.5</maven.failsafe.version>
         <!-- Версии Spring -->
         <spring-boot.version>4.0.2</spring-boot.version>
         <spring-cloud.version>2025.1.1</spring-cloud.version>
@@ -101,20 +103,6 @@
                     </executions>
                 </plugin>
 
-                <!-- Maven Surefire Plugin (для unit тестов) -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.4</version>
-                </plugin>
-
-                <!-- Maven Failsafe Plugin (для integration тестов) -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>3.0.0</version>
-                </plugin>
-
                 <plugin>
                     <groupId>org.springframework.cloud</groupId>
                     <artifactId>spring-cloud-contract-maven-plugin</artifactId>
@@ -137,6 +125,20 @@
                             </path>
                         </annotationProcessorPaths>
                     </configuration>
+                </plugin>
+
+                <!-- Unit tests -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven.surefire.version}</version>
+                </plugin>
+
+                <!-- Integration tests -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${maven.failsafe.version}</version>
                 </plugin>
 
             </plugins>
