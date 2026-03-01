@@ -11,6 +11,7 @@ pipeline {
         KC_SECRET_ACCOUNTS      = credentials('KC_SECRET_ACCOUNTS')
         KC_SECRET_CASH          = credentials('KC_SECRET_CASH')
         KC_SECRET_TRANSFER      = credentials('KC_SECRET_TRANSFER')
+        KC_SECRET_FRONTEND      = credentials('KC_SECRET_FRONTEND')
         KC_ADMIN_PASSWORD       = credentials('KC_ADMIN_PASSWORD')
     }
     stages {
