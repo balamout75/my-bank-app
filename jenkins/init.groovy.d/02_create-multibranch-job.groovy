@@ -2,6 +2,7 @@ import jenkins.model.*
 import org.jenkinsci.plugins.github_branch_source.*
 import jenkins.branch.*
 import org.jenkinsci.plugins.workflow.multibranch.*
+import jenkins.scm.impl.trait.RegexSCMHeadFilterTrait
 
 def env = System.getenv()
 def instance = Jenkins.get()
@@ -10,6 +11,9 @@ def jobName       = "MyBank"
 def githubRepo    = env['GITHUB_REPOSITORY']
 def credentialsId = "github-creds"
 def scriptPath    = "jenkins/Jenkinsfile"
+
+// Фильтр: оставляем только ветку sprint-11-bank-features и все PR (PR-*)
+def branchRegex = '^(sprint-11-bank-features|PR-.*)$'
 
 println "--> Запуск create-multibranch-job.groovy"
 
@@ -39,17 +43,25 @@ def repo  = parts[1]
 def source = new GitHubSCMSource(owner, repo)
 source.setCredentialsId(credentialsId)
 source.setTraits([
-        new BranchDiscoveryTrait(1),
+        // Находим ветки
+        new BranchDiscoveryTrait(3),
+
+        // Находим PR из origin и forks
         new OriginPullRequestDiscoveryTrait(1),
-        new ForkPullRequestDiscoveryTrait(1, new ForkPullRequestDiscoveryTrait.TrustPermission())
+        new ForkPullRequestDiscoveryTrait(1, new ForkPullRequestDiscoveryTrait.TrustPermission()),
+
+        // Фильтруем: sprint-11 + PR-*
+        new RegexSCMHeadFilterTrait(branchRegex)
 ])
 
 def branchSource = new BranchSource(source)
 branchSource.setStrategy(new DefaultBranchPropertyStrategy([] as BranchProperty[]))
 
+// Создаём Multibranch job (оставляем твою схему new + add)
 def mbp = new WorkflowMultiBranchProject(instance, jobName)
 mbp.getSourcesList().add(branchSource)
 
+// Указываем путь к Jenkinsfile в репозитории
 def factory = new WorkflowBranchProjectFactory()
 factory.setScriptPath(scriptPath)
 mbp.setProjectFactory(factory)
