@@ -1,29 +1,16 @@
 package com.mybank.frontend.consumer;
 
-import com.mybank.frontend.dto.client.AccountMeResponse;
-import com.mybank.frontend.dto.client.AccountSummaryResponse;
 import com.mybank.frontend.dto.client.CashOperationType;
 import com.mybank.frontend.dto.client.OperationKeyResponse;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.contract.stubrunner.StubFinder;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 
-import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class CashClientConsumerTest extends BaseClientConsumerTest {
-
-    @Configuration
-    static class TestConfig {}
-
-    @Autowired
-    StubFinder stubFinder;
 
     @Test
     void should_get_operation_key() {

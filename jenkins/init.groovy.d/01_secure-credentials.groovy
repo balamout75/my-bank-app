@@ -80,7 +80,7 @@ if (dbPassword) {
     store.addCredentials(Domain.global(), dbCred)
 }
 // Keycloak Client Secrets
-['KC_SECRET_ACCOUNTS', 'KC_SECRET_CASH', 'KC_SECRET_TRANSFER', 'KC_SECRET_NOTIFICATIONS'].each { name ->
+['KC_SECRET_ACCOUNTS', 'KC_SECRET_CASH', 'KC_SECRET_TRANSFER', 'KC_SECRET_FRONTEND'].each { name ->
     def value = env[name]
     if (value) {
         println "--> Creating credential: ${name}"
@@ -92,5 +92,18 @@ if (dbPassword) {
         )
         store.addCredentials(Domain.global(), cred)
     }
+}
+
+// Keycloak Admin Password
+def kcAdminPassword = env['KC_ADMIN_PASSWORD']
+if (kcAdminPassword) {
+    println "--> Creating credential: KC_ADMIN_PASSWORD"
+    def kcAdminCred = new StringCredentialsImpl(
+            CredentialsScope.GLOBAL,
+            "KC_ADMIN_PASSWORD",
+            "Keycloak admin password from ENV",
+            Secret.fromString(kcAdminPassword)
+    )
+    store.addCredentials(Domain.global(), kcAdminCred)
 }
 println "--> Credential setup complete."

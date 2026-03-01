@@ -30,6 +30,9 @@ spec:
               value: k8s
             - name: SPRING_CONFIG_IMPORT
               value: "file:/config/application-k8s.yml"  
+          envFrom:
+            - secretRef:
+                name: {{ .Release.Name }}-front-ui
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:

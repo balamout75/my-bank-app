@@ -33,7 +33,10 @@ spec:
             - name: KEYCLOAK_ADMIN
               value: {{ .Values.admin.username }}
             - name: KEYCLOAK_ADMIN_PASSWORD
-              value: {{ .Values.admin.password }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-keycloak
+                  key: KEYCLOAK_ADMIN_PASSWORD
             - name: KC_HTTP_ENABLED
               value: "true"
             - name: KC_SPI_SECURITY_HEADERS_STRICT_TRANSPORT_SECURITY

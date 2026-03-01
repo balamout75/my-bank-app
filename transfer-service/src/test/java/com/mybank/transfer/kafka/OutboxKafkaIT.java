@@ -7,7 +7,6 @@ import com.mybank.transfer.model.TransferOperation;
 import com.mybank.transfer.repository.TransferOperationRepository;
 import com.mybank.transfer.template.BaseIntegrationTest;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

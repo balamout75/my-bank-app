@@ -7,7 +7,7 @@ replicaCount: 1
 
 admin:
   username: admin
-  password: admin
+  password: ""  # Injected via --set from Jenkins credentials
 
 service:
   port: 80

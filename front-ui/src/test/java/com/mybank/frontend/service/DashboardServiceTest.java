@@ -6,7 +6,6 @@ import com.mybank.frontend.client.TransferClient;
 import com.mybank.frontend.dto.client.*;
 import com.mybank.frontend.mapper.DashboardMapper;
 import com.mybank.frontend.viewmodel.FrontendDTO;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -55,8 +54,8 @@ class DashboardServiceTest {
 
     // ======================== buildPage ========================
 
+    // buildPage → вызывает getMe, getAll и mapper
     @Test
-    @DisplayName("buildPage → вызывает getMe, getAll и mapper")
     void buildPage_shouldCallClientsAndMapper() {
         var auth = mockAuth();
         var meDto = new AccountMeResponse("alice", "Alice", "Smith", LocalDate.of(1990, 1, 1), new BigDecimal("10000"));
@@ -74,8 +73,8 @@ class DashboardServiceTest {
         verify(accountsClient).getAll("test-token");
     }
 
+    // buildPage → accounts недоступен → mapper получает null и errorMessage
     @Test
-    @DisplayName("buildPage → accounts недоступен → mapper получает null и errorMessage")
     void buildPage_accountsDown_shouldPassErrorToMapper() {
         var auth = mockAuth();
         when(accountsClient.getMe("test-token")).thenThrow(new ResourceAccessException("Connection refused"));
@@ -89,9 +88,8 @@ class DashboardServiceTest {
     }
 
     // ======================== operate ========================
-
+    // operate → получает ключ и вызывает cashClient.operate
     @Test
-    @DisplayName("operate → получает ключ и вызывает cashClient.operate")
     void operate_shouldGetKeyAndCallOperate() {
         var auth = mockAuth();
         when(cashClient.getOperationKey("test-token")).thenReturn(new OperationKeyResponse(42L));
@@ -109,9 +107,8 @@ class DashboardServiceTest {
     }
 
     // ======================== transfer ========================
-
+    // transfer получает ключ и вызывает transferClient.transfer
     @Test
-    @DisplayName("transfer → получает ключ и вызывает transferClient.transfer")
     void transfer_shouldGetKeyAndCallTransfer() {
         var auth = mockAuth();
         when(transferClient.getOperationKey("test-token")).thenReturn(new OperationKeyResponse(77L));
@@ -129,9 +126,8 @@ class DashboardServiceTest {
     }
 
     // ======================== updateAccount ========================
-
+    // updateAccount вызывает accountsClient.updateMe
     @Test
-    @DisplayName("updateAccount → вызывает accountsClient.updateMe")
     void updateAccount_shouldCallAccountsClient() {
         var auth = mockAuth();
         var form = new FrontendDTO.AccountUpdateForm("Alice", "Johnson", LocalDate.of(1990, 5, 15));

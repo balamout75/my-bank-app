@@ -22,4 +22,4 @@ ingress:
   annotations: {}
 
 keycloak:
-  clientSecret: "lLL8B1F0WroO7QXWC58nzfR2OZ4fUp9q"
+  clientSecret: ""  # Injected via --set from Jenkins credentials

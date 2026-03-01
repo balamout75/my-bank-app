@@ -24,7 +24,7 @@ data:
             registration:
               keycloak:
                 client-id: front-ui
-                client-secret: {{ .Values.keycloak.clientSecret }}
+                client-secret: ${OAUTH2_CLIENT_SECRET}
                 scope: openid,profile,email
                 authorization-grant-type: authorization_code
                 redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"

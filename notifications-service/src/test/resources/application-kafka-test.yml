@@ -1,0 +1,18 @@
+spring:
+  kafka:
+    listener:
+      auto-startup: true
+    consumer:
+      group-id: notifications-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.mybank.*"
+        spring.json.value.default.type: com.mybank.notifications.dto.NotificationEvent
+application:
+  kafka:
+    topic:
+      notifications: notifications
+  outbox:
+    fixed-delay-ms: 5000

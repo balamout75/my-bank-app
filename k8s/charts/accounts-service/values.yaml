@@ -17,7 +17,7 @@ resources:
     memory: 512Mi
 
 keycloak:
-  clientSecret: "Ycm7AwLxKchJ76kaRwDaG0RyHsp1T2rK"
+  clientSecret: ""  # Injected via --set from Jenkins credentials
 
 db:
   schema: accounts

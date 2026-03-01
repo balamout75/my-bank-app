@@ -66,9 +66,8 @@ class FrontControllerIT {
     }
 
     // ======================== SECURITY ========================
-
+    // GET / без аутентификации → redirect на OAuth2 login
     @Test
-    @DisplayName("GET / без аутентификации → redirect на OAuth2 login")
     void dashboard_noAuth_shouldRedirect() throws Exception {
         mockMvc.perform(get("/"))
                 .andExpect(status().is3xxRedirection());
@@ -82,10 +81,9 @@ class FrontControllerIT {
     }
 
     // ======================== DASHBOARD ========================
-
+    // GET / с OAuth2 login → 200, рендерит main.html
     @Test
-    @DisplayName("GET / с OAuth2 login → 200, рендерит main.html")
-    void dashboard_withAuth_shouldReturn200() throws Exception {
+      void dashboard_withAuth_shouldReturn200() throws Exception {
         mockMvc.perform(get("/").with(oauth2Login()
                         .attributes(attrs -> attrs.put("preferred_username", "alice"))))
                 .andDo(print())
@@ -95,9 +93,8 @@ class FrontControllerIT {
     }
 
     // ======================== ACCOUNT UPDATE ========================
-
+    // POST /account/update → redirect:/
     @Test
-    @DisplayName("POST /account/update → redirect:/")
     void updateAccount_shouldRedirect() throws Exception {
         doNothing().when(dashboardService).updateAccount(any(), any());
 
@@ -111,8 +108,8 @@ class FrontControllerIT {
                 .andExpect(redirectedUrl("/"));
     }
 
+    // POST /account/update с пустым firstName → возвращает main (ошибка валидации)
     @Test
-    @DisplayName("POST /account/update с пустым firstName → возвращает main (ошибка валидации)")
     void updateAccount_invalidForm_shouldRenderMain() throws Exception {
         mockMvc.perform(post("/account/update")
                         .with(oauth2Login().attributes(a -> a.put("preferred_username", "alice")))
@@ -125,9 +122,8 @@ class FrontControllerIT {
     }
 
     // ======================== CASH DEPOSIT ========================
-
+    // POST /cash/deposit → redirect:/
     @Test
-    @DisplayName("POST /cash/deposit → redirect:/")
     void deposit_shouldRedirect() throws Exception {
         doNothing().when(dashboardService).operate(any(), any(), eq(CashOperationType.DEPOSIT));
 
@@ -140,9 +136,8 @@ class FrontControllerIT {
     }
 
     // ======================== CASH WITHDRAW ========================
-
+    // POST /cash/withdraw → redirect:/
     @Test
-    @DisplayName("POST /cash/withdraw → redirect:/")
     void withdraw_shouldRedirect() throws Exception {
         doNothing().when(dashboardService).operate(any(), any(), eq(CashOperationType.WITHDRAW));
 
@@ -155,9 +150,8 @@ class FrontControllerIT {
     }
 
     // ======================== TRANSFER ========================
-
+    // POST /cash/transfer → redirect:/
     @Test
-    @DisplayName("POST /cash/transfer → redirect:/")
     void transfer_shouldRedirect() throws Exception {
         doNothing().when(dashboardService).transfer(any(), any());
 
@@ -171,9 +165,8 @@ class FrontControllerIT {
     }
 
     // ======================== ACCOUNTS UNAVAILABLE ========================
-
+    // POST /cash/deposit → accounts недоступен → redirect:/ с errorMessage
     @Test
-    @DisplayName("POST /cash/deposit → accounts недоступен → redirect:/ с errorMessage")
     void deposit_accountsDown_shouldRedirectWithError() throws Exception {
         var unavailablePage = defaultPage();
         unavailablePage.setAccountsAvailable(false);
