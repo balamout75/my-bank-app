@@ -15,7 +15,6 @@
 
     <!-- Модули приложения -->
     <modules>
-        <module>front-ui</module>
         <module>discovery-service</module>
         <module>config-service</module>
         <module>gateway-service</module>
@@ -23,6 +22,7 @@
         <module>notifications-service</module>
         <module>cash-service</module>
         <module>transfer-service</module>
+        <module>front-ui</module>
     </modules>
 
     <properties>
