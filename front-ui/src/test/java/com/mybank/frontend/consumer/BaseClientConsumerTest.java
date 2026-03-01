@@ -22,9 +22,9 @@ import org.springframework.web.client.RestClient;
 @AutoConfigureStubRunner(
         stubsMode = StubRunnerProperties.StubsMode.LOCAL,
         ids = {
-                "com.mybank:accounts-service:+:stubs",
-                "com.mybank:cash-service:+:stubs",
-                "com.mybank:transfer-service:+:stubs"
+                "com.mybank:accounts-service:1.0.0-SNAPSHOT:stubs",
+                "com.mybank:cash-service:1.0.0-SNAPSHOT:stubs",
+                "com.mybank:transfer-service:1.0.0-SNAPSHOT:stubs"
         }
 )
 public abstract class BaseClientConsumerTest {

@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = AccountsClientConsumerTest.TestConfig.class)
 @AutoConfigureStubRunner(
-        ids = "com.mybank:accounts-service:+:stubs",
+        ids = "com.mybank:accounts-service:1.0.0-SNAPSHOT:stubs",
         stubsMode = StubRunnerProperties.StubsMode.LOCAL
 )
 class AccountsClientConsumerTest {
