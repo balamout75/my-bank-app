@@ -11,7 +11,7 @@
 ## Секреты
 
 - [ ] **Keycloak realm secrets** — вынести client secrets из realm-mybank.json в Helm values / Jenkins credentials
-- [ ] **values.yaml** — убрать default секреты (clientSecret) из values.yaml подчартов
+- [x] **values.yaml** — убрать default секреты (clientSecret) из values.yaml подчартов
 - [ ] **Sealed Secrets / External Secrets** — внедрить для production
 
 ## CI/CD
