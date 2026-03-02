@@ -180,9 +180,10 @@ KC_SECRET_FRONTEND=your-frontend-client-secret
 KC_ADMIN_PASSWORD=your-keycloak-admin-password
 ```
 
-> ⚠️ `KC_SECRET_FRONTEND` заменяет прежний `KC_SECRET_NOTIFICATIONS`. Notifications-service не использует Keycloak, а front-ui — использует.
+> ⚠️ === ВНИМАНИЕ - ВСЕ НАСТРОЙКИ Keycloak надо перенести в keycloak/realm-mybank.json, там hardcode ===
 
 ### Шаг 3. Инфраструктура Kubernetes
+> ⚠️ ВНИМАНИЕ - Если Вы выполнили развертывание helm чартов по инструкции в /k8s, то пункт 3 следует пропустить, у Вас и так все настроено
 
 **Ingress-nginx:**
 

@@ -15,8 +15,6 @@
 
     <!-- Модули приложения -->
     <modules>
-        <module>discovery-service</module>
-        <module>config-service</module>
         <module>gateway-service</module>
         <module>accounts-service</module>
         <module>notifications-service</module>

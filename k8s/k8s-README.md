@@ -122,6 +122,7 @@ kubectl edit configmap coredns -n kube-system
     rewrite name keycloak.mybank.test.local mybank-test-keycloak.test.svc.cluster.local
     rewrite name keycloak.mybank.prod.local mybank-prod-keycloak.prod.svc.cluster.local
 ```
+> ⚠️ Обратите внимание на результат выполнения команды. Команда может не примениться, поскольку чувствительна к пробелам и прочему форматированию.
 
 Перезапуск:
 
@@ -191,7 +192,7 @@ helm upgrade --install mybank . --namespace mybank -f values-local.yaml
 ### Шаг 7. Проверка
 
 ```bash
-kubectl get pods -n mybank -w    # ждать все 1/1 Running (2-3 минуты)
+kubectl get pods -n mybank -w    # ждать все 1/1 Running (3-7 минут)
 ```
 
 ### Шаг 8. Helm Tests
