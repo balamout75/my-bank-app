@@ -1,7 +1,6 @@
 package com.mybank.cash.service;
 
 import com.mybank.cash.client.AccountsClient;
-import com.mybank.cash.client.NotificationsClient;
 import com.mybank.cash.dto.BalanceUpdateRequest;
 import com.mybank.cash.dto.CashOperationRequest;
 import com.mybank.cash.dto.OperationKeyResponse;
@@ -24,7 +23,6 @@ public class CashService {
 
     private final CashOperationRepository operationRepository;
     private final AccountsClient accountsClient;
-    private final NotificationsClient notificationsClient;
 
 
     /**

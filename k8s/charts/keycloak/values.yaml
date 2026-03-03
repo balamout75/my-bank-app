@@ -1,0 +1,26 @@
+image:
+  repository: quay.io/keycloak/keycloak
+  tag: "25.0.2"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+admin:
+  username: admin
+  password: ""  # Injected via --set from Jenkins credentials
+
+service:
+  port: 80
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}

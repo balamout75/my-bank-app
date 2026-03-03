@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:16-alpine:///dummy?currentSchema=accounts
+    username: test
+    password: test
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    default-schema: accounts
+    liquibase-schema: public
+    enabled: true
+  cloud:
+    discovery:
+      enabled: false
+    config:
+      enabled: false
+  security:
+    oauth2:
+      client:
+        registration: {}
+        provider: {}
+
+clients:
+  notifications:
+    url: http://localhost/dummy
+
+logging:
+  level:
+    root: INFO
+    org.testcontainers: INFO
+    org.springframework.security: WARN
+    kafka: WARN
+    org.apache.kafka: WARN
+    state.change.logger: WARN

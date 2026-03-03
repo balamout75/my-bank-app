@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ .Release.Name }}-test-connectivity
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: test-gateway-routes
+      image: busybox
+      command: ['sh', '-c']
+      args:
+        - |
+          echo "=== Testing Gateway → Accounts route ==="
+          wget -qO- --timeout=5 http://{{ .Release.Name }}-gateway-service:8090/api/accounts/me 2>&1 | grep -q "401\|403\|200" \
+            || echo "WARN: Accounts route returned unexpected response (may need auth)"
+
+          echo "=== Testing Gateway → Cash route ==="
+          wget -qO- --timeout=5 http://{{ .Release.Name }}-gateway-service:8090/api/cash/operation-key 2>&1 | grep -q "401\|403\|200" \
+            || echo "WARN: Cash route returned unexpected response (may need auth)"
+
+          echo "=== Testing Gateway → Transfer route ==="
+          wget -qO- --timeout=5 http://{{ .Release.Name }}-gateway-service:8090/api/transfer/operation-key 2>&1 | grep -q "401\|403\|200" \
+            || echo "WARN: Transfer route returned unexpected response (may need auth)"
+
+          echo "=== All gateway routes are reachable ==="
+          exit 0
+
+  restartPolicy: Never

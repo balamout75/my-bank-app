@@ -1,0 +1,17 @@
+spring:
+  autoconfigure:
+    exclude: []
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      properties:
+        spring.json.add.type.headers: false
+    admin:
+      fail-fast: false
+
+application:
+  kafka:
+    topic:
+      notifications: notifications

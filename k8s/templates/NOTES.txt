@@ -1,0 +1,57 @@
+============================================================
+  MyBank — развёрнут в Kubernetes!
+============================================================
+
+📋 ВАЖНО: Выполните шаги ниже для корректной работы.
+
+1. DNS (Windows hosts)
+   Файл: C:\Windows\System32\drivers\etc\hosts
+   Добавить:
+     127.0.0.1  {{ .Values.global.appHost }}  {{ .Values.global.keycloakHost }}
+
+2. CoreDNS rewrite (OAuth2 issuer внутри кластера)
+   kubectl edit configmap coredns -n kube-system
+   Добавить ПЕРЕД строкой "kubernetes cluster.local":
+     rewrite name {{ .Values.global.keycloakHost }} {{ .Release.Name }}-keycloak.{{ .Release.Namespace }}.svc.cluster.local
+   Затем:
+     kubectl rollout restart deployment coredns -n kube-system
+
+3. Ingress-nginx
+   Проверить:
+     kubectl get pods -n ingress-nginx
+
+   Если нет — установить:
+     kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0/deploy/static/provider/cloud/deploy.yaml
+
+4. Проверка
+   Дождаться готовности:
+     kubectl get pods -n {{ .Release.Namespace }} -w
+
+   Все поды должны быть 1/1 Running.
+
+5. Доступ
+   Приложение:  http://{{ .Values.global.appHost }}
+   Keycloak:    http://{{ .Values.global.keycloakHost }}/admin/
+   Keycloak:    Admin / admin
+
+   Тестовые пользователи:
+     Alice / alice
+     Bob   / bob
+
+6. Сервисы
+   postgresql            — БД
+   keycloak              — OAuth2 сервер
+   gateway-service       — API Gateway
+   front-ui              — Веб-интерфейс
+   accounts-service      — Управление счетами
+   cash-service          — Операции с наличными
+   transfer-service      — Переводы
+   notifications-service — Уведомления
+
+⚠️  Частые проблемы
+   CrashLoopBackOff → Проверить CoreDNS rewrite (шаг 2)
+   403 Forbidden    → Проверить роли в Keycloak
+   No servers       → Добавить spring.cloud.discovery.client.simple.instances в ConfigMap
+   Прокси           → Добавить {{ .Values.global.appHost }};{{ .Values.global.keycloakHost }} в исключения
+
+============================================================

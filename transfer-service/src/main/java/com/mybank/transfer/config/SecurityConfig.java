@@ -56,7 +56,7 @@ public class SecurityConfig {
             }
             Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
             if (resourceAccess != null) {
-                Object client = resourceAccess.get("cash-service"); // clientId в Keycloak
+                Object client = resourceAccess.get("transfer-service"); // clientId в Keycloak
                 if (client instanceof Map<?, ?> clientMap) {
                     Object cr = clientMap.get("roles");
                     if (cr instanceof Collection<?> col) {

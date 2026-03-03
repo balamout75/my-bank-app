@@ -15,14 +15,12 @@
 
     <!-- Модули приложения -->
     <modules>
-        <module>front-ui</module>
-        <module>discovery-service</module>
-        <module>config-service</module>
         <module>gateway-service</module>
         <module>accounts-service</module>
         <module>notifications-service</module>
         <module>cash-service</module>
         <module>transfer-service</module>
+        <module>front-ui</module>
     </modules>
 
     <properties>
@@ -32,7 +30,9 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
+        <!-- Версии Maven plugins -->
+        <maven.surefire.version>3.5.5</maven.surefire.version>
+        <maven.failsafe.version>3.5.5</maven.failsafe.version>
         <!-- Версии Spring -->
         <spring-boot.version>4.0.2</spring-boot.version>
         <spring-cloud.version>2025.1.1</spring-cloud.version>
@@ -101,7 +101,12 @@
                     </executions>
                 </plugin>
 
-                <!-- Maven Compiler Plugin -->
+                <plugin>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-contract-maven-plugin</artifactId>
+                    <version>${spring-cloud-contract-plugin.version}</version>
+                </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -110,28 +115,30 @@
                         <source>${java.version}</source>
                         <target>${java.version}</target>
                         <release>${java.version}</release>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
                     </configuration>
                 </plugin>
 
-                <!-- Maven Surefire Plugin (для unit тестов) -->
+                <!-- Unit tests -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.4</version>
+                    <version>${maven.surefire.version}</version>
                 </plugin>
 
-                <!-- Maven Failsafe Plugin (для integration тестов) -->
+                <!-- Integration tests -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>${maven.failsafe.version}</version>
                 </plugin>
 
-                <plugin>
-                    <groupId>org.springframework.cloud</groupId>
-                    <artifactId>spring-cloud-contract-maven-plugin</artifactId>
-                    <version>${spring-cloud-contract-plugin.version}</version>
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>

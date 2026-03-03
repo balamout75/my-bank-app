@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.contract.stubrunner.StubFinder;
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
 import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -16,12 +17,17 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = NotificationsConsumerTest.TestConfig.class)
+@ContextConfiguration(classes = AccountsClientConsumerTest.TestConfig.class)
 @AutoConfigureStubRunner(
-        ids = "com.mybank:accounts-service:+:stubs",
+        ids = "com.mybank:accounts-service:1.0.0-SNAPSHOT:stubs",
         stubsMode = StubRunnerProperties.StubsMode.LOCAL
 )
 class AccountsClientConsumerTest {
+
+    @Configuration
+    static class TestConfig {
+        // пусто — нам не нужен Boot, только Spring TestContext + Stub Runner
+    }
 
     @Autowired
     StubFinder stubFinder;

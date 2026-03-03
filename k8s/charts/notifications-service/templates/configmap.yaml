@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-notifications-service
+  labels:
+    app: notifications-service
+    app.kubernetes.io/name: notifications-service
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  application.yml: |
+    server:
+      port: 8080
+    spring:
+      kafka:
+        bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+        admin:
+          fail-fast: false
+        consumer:
+          group-id: notifications-service
+          auto-offset-reset: earliest          
+          enable-auto-commit: false            
+          key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+          properties:
+            spring.json.use.type.headers: false    # Игнорировать Java-класс из заголовков
+            spring.json.value.default.type: com.mybank.notifications.dto.NotificationEvent		
+            spring.json.trusted.packages: com.mybank.*
+            reconnect.backoff.ms: 1000
+            reconnect.backoff.max.ms: 10000
+        listener:
+          missing-topics-fatal: false
+          ack-mode: record
+      datasource:
+        url: ${DB_URL}
+        username: ${DB_USER}
+        password: ${DB_PASSWORD}
+      liquibase:
+        change-log: classpath:db/changelog/db.changelog-master.xml
+        default-schema: {{ .Values.db.schema }}
+        liquibase-schema: public
+      jpa:
+        hibernate:
+          ddl-auto: validate
+        properties:
+          hibernate:
+            default_schema: {{ .Values.db.schema }}
+    # Отключаем Eureka
+    eureka:
+      client:
+        enabled: false
+
+    application:
+      outbox:
+        fixed-delay-ms: 5000
+        order:
+          limit: 10
+        max-attempts: 5
+      kafka:
+        topic:
+          notifications: notifications
+          partitions: 3
+          replicas: 1
+    logging:
+      level:
+        com.mybank.notifications: DEBUG

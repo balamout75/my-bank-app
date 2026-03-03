@@ -5,8 +5,6 @@
     "transfer-service",
     "notifications-service",
     "gateway-service",
-    "config-service",
-    "discovery-service",
     "front-ui"
   ]
 }
@@ -16,7 +14,6 @@ variable "REGISTRY" {
 }
 
 # Локальный кэш билдкита (быстро и удобно)
-# Можно заменить на registry cache, если хочешь делиться кэшем в CI.
 target "_common" {
   context    = "."
   dockerfile = "Dockerfile.build"
@@ -51,18 +48,6 @@ target "gateway-service" {
   inherits = ["_common"]
   args = { MODULE = "gateway-service" }
   tags = ["${REGISTRY}/yp-mybank-gateway:latest"]
-}
-
-target "config-service" {
-  inherits = ["_common"]
-  args = { MODULE = "config-service" }
-  tags = ["${REGISTRY}/yp-mybank-config:latest"]
-}
-
-target "discovery-service" {
-  inherits = ["_common"]
-  args = { MODULE = "discovery-service" }
-  tags = ["${REGISTRY}/yp-mybank-discovery:latest"]
 }
 
 target "front-ui" {

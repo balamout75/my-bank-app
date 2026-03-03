@@ -1,4 +1,4 @@
-﻿# syntax=docker/dockerfile:1.7
+﻿# syntax=docker/dockerfile:1.7-labs
 
 FROM maven:3.9-eclipse-temurin-21-alpine AS builder
 WORKDIR /workspace
@@ -7,7 +7,7 @@ ARG MODULE
 
 # 1️⃣ Копируем только pom'ы (слой зависимостей)
 COPY pom.xml ./
-COPY */pom.xml ./
+COPY --parents */pom.xml ./
 
 # 2️⃣ Кэш Maven зависимостей (BuildKit volume, не образ!)
 RUN --mount=type=cache,target=/root/.m2 \

@@ -1,6 +1,5 @@
 package com.mybank.accounts.service;
 
-import com.mybank.accounts.client.notifications.NotificationsClient;
 import com.mybank.accounts.dto.AccountMeResponse;
 import com.mybank.accounts.dto.AccountSummaryResponse;
 import com.mybank.accounts.dto.AccountUpdateRequest;
@@ -27,7 +26,6 @@ public class AccountsService {
 
     private static final Logger log = LoggerFactory.getLogger(AccountsService.class);
     private final AccountRepository repo;
-    private final NotificationsClient notificationsClient;
     private final AccountOperationRepository accountOperationRepository;
 
     private static AccountMeResponse toMeResponse(UserAccount u) {

@@ -1,0 +1,47 @@
+# ============================================================
+# MyBank — Глобальные настройки зонтичного Helm-чарта
+# ============================================================
+# Для ручного деплоя: helm install mybank . -n mybank --create-namespace
+# Для Jenkins:        секреты передаются через --set (см. Jenkinsfile)
+
+# Хосты (override через --set для TEST/PROD)
+global:
+  appHost: mybank.dev.local
+  keycloakHost: keycloak.mybank.dev.local
+
+  # PostgreSQL (host = {{ .Release.Name }}-postgresql, задаётся в шаблонах)
+  postgresql:
+    port: 5432
+    database: mybank
+    username: mybank
+    password: ""  # Передано через --set global.postgresql.password
+
+# ============================================================
+# Подчарты
+# ============================================================
+postgresql:
+  enabled: true
+
+kafka:
+  enabled: true
+
+keycloak:
+  enabled: true
+
+gateway-service:
+  enabled: true
+
+front-ui:
+  enabled: true
+
+accounts-service:
+  enabled: true
+
+cash-service:
+  enabled: true
+
+transfer-service:
+  enabled: true
+
+notifications-service:
+  enabled: true

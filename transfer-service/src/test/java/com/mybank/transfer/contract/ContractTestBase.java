@@ -25,7 +25,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
+@ActiveProfiles("contract-test")
 @Import(TestSecurityItConfig.class)
 public abstract class ContractTestBase {
 
@@ -46,8 +46,8 @@ public abstract class ContractTestBase {
         RestAssuredMockMvc.postProcessors(
                 jwt().jwt(j -> j
                         .claim("preferred_username", "alice")
-                        .claim("clientRoles", "cash.write")
-                ).authorities(new SimpleGrantedAuthority("ROLE_cash.write"))
+                        .claim("clientRoles", "transfer.write")
+                ).authorities(new SimpleGrantedAuthority("ROLE_transfer.write"))
         );
 
         when(transferService.generateOperationKey(anyString()))

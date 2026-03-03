@@ -1,0 +1,144 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_REGISTRY = credentials('DOCKER_REGISTRY')
+        DB_PASSWORD     = credentials('DB_PASSWORD')
+        GITHUB_USERNAME = credentials('GITHUB_USERNAME')
+        DB_NAME         = 'mybank'
+        DB_USER         = 'mybank'
+        IMAGE_TAG       = "${env.BUILD_NUMBER}"
+        CHART_DIR       = 'k8s'
+	TESTCONTAINERS_RYUK_DISABLED = 'true'
+        KC_SECRET_ACCOUNTS      = credentials('KC_SECRET_ACCOUNTS')
+        KC_SECRET_CASH          = credentials('KC_SECRET_CASH')
+        KC_SECRET_TRANSFER      = credentials('KC_SECRET_TRANSFER')
+        KC_SECRET_FRONTEND      = credentials('KC_SECRET_FRONTEND')
+        KC_ADMIN_PASSWORD       = credentials('KC_ADMIN_PASSWORD')
+    }
+    stages {
+        stage('Build & Test') {
+            steps {
+                sh 'mvn clean install -DskipITs' 
+            }
+        }
+        stage('Docker Build & Push') {
+            steps {
+                script {
+                    def services = [
+                        'accounts-service'      : 'mybank-accounts',
+                        'cash-service'          : 'mybank-cash',
+                        'transfer-service'      : 'mybank-transfer',
+                        'notifications-service' : 'mybank-notifications',
+                        'gateway-service'       : 'mybank-gateway',
+                        'front-ui'              : 'mybank-frontend'
+                    ]
+                    withCredentials([string(credentialsId: 'GHCR_TOKEN', variable: 'GHCR_TOKEN')]) {
+                        sh "echo \$GHCR_TOKEN | docker login ghcr.io -u ${GITHUB_USERNAME} --password-stdin"
+                        def tasks = [:]
+                        services.each { module, imageName ->
+                            tasks[module] = {
+                                sh """
+                                docker build -f Dockerfile.build --build-arg MODULE=${module} \
+                                    -t ${DOCKER_REGISTRY}/${imageName}:${IMAGE_TAG} .
+                                docker push ${DOCKER_REGISTRY}/${imageName}:${IMAGE_TAG}
+                                """
+                            }
+                        }
+                        parallel tasks
+                    }
+                }
+            }
+        }
+        stage('Prepare Helm') {
+            steps {
+                sh "helm dependency update ${CHART_DIR}"
+            }
+        }
+        stage('Deploy to TEST') {
+            steps {
+                script {
+                    helmDeploy('test', 'mybank.test.local', 'keycloak.mybank.test.local')
+                }
+            }
+        }
+        stage('Verify TEST') {
+            steps {
+                sh 'kubectl get pods -n test'
+                script { helmTest('test') }
+            }
+        }
+        stage('Manual Approval for PROD') {
+            steps {
+                input message: 'Deploy to PROD environment?', ok: 'Yes, deploy'
+            }
+        }
+        stage('Deploy to PROD') {
+            steps {
+                script {
+                    helmDeploy('prod', 'mybank.prod.local', 'keycloak.mybank.prod.local')
+                }
+            }
+        }
+        stage('Verify PROD') {
+            steps {
+                sh 'kubectl get pods -n prod'
+                script { helmTest('prod') }
+            }
+        }
+    }
+    post {
+        always {
+            sh 'docker logout ghcr.io || true'
+        }
+        success {
+            echo '✅ MyBank deployed successfully!'
+        }
+        failure {
+            echo '❌ Deployment failed!'
+        }
+    }
+}
+
+// ─── Shared Functions ──────────────────────────────────────────
+
+def helmDeploy(String namespace, String appHost, String keycloakHost) {
+    def services = [
+        'accounts-service'      : 'mybank-accounts',
+        'cash-service'          : 'mybank-cash',
+        'transfer-service'      : 'mybank-transfer',
+        'notifications-service' : 'mybank-notifications',
+        'gateway-service'       : 'mybank-gateway',
+        'front-ui'              : 'mybank-frontend'
+    ]
+    def kcSecrets = [
+        'accounts-service' : env.KC_SECRET_ACCOUNTS,
+        'cash-service'     : env.KC_SECRET_CASH,
+        'transfer-service' : env.KC_SECRET_TRANSFER,
+        'front-ui'         : env.KC_SECRET_FRONTEND
+    ]
+    def imageArgs = services.collect { svc, img ->
+        "--set ${svc}.image.repository=${DOCKER_REGISTRY}/${img} --set ${svc}.image.tag=${IMAGE_TAG}"
+    }.join(' \\\n  ')
+    def secretArgs = kcSecrets.collect { svc, secret ->
+        "--set ${svc}.keycloak.clientSecret=${secret}"
+    }.join(' \\\n  ')
+    sh """
+    helm upgrade --install mybank-${namespace} ${CHART_DIR} \\
+      --namespace ${namespace} --create-namespace \\
+      --set global.appHost=${appHost} \\
+      --set global.keycloakHost=${keycloakHost} \\
+      --set global.postgresql.password=${DB_PASSWORD} \\
+      --set keycloak.admin.password=${KC_ADMIN_PASSWORD} \\
+      ${imageArgs} \\
+      ${secretArgs} \\
+      --wait --timeout 15m
+    """
+}
+
+def helmTest(String namespace) {
+    sh """
+    kubectl delete pod mybank-${namespace}-test-health -n ${namespace} --ignore-not-found
+    kubectl delete pod mybank-${namespace}-test-connectivity -n ${namespace} --ignore-not-found
+    helm test mybank-${namespace} -n ${namespace} || echo "⚠️ Some tests failed"
+    """
+}

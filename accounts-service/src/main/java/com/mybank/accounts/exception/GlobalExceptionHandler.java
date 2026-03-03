@@ -2,6 +2,7 @@ package com.mybank.accounts.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -22,7 +23,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InsufficientFundsException.class)
     public ProblemDetail handleInsufficientFunds(InsufficientFundsException ex) {
         log.warn("Insufficient funds: {}", ex.getMessage());
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(422), ex.getMessage());
         problem.setTitle("Insufficient Funds");
         problem.setProperty("currentBalance", ex.getCurrentBalance());
         problem.setProperty("requestedAmount", ex.getRequestedAmount());

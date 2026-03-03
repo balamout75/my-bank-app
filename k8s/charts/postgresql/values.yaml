@@ -1,0 +1,19 @@
+image:
+  repository: postgres
+  tag: "16-alpine"
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+storage:
+  size: 1Gi
+  storageClassName: ""
+
+service:
+  port: 5432
