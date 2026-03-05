@@ -33,3 +33,6 @@ dependencies:
   - name: notifications-service
     version: 1.0.0
     condition: notifications-service.enabled
+  - name: zipkin
+    version: 1.0.0
+    condition: zipkin.enabled

@@ -10,8 +10,9 @@ data:
   application-k8s.yml: |
     server:
       port: 8081
-
     spring:
+      application:
+        name: front-ui
       http:
         clients:
           connect-timeout: 2s
@@ -113,6 +114,26 @@ data:
               - org.springframework.web.client.HttpServerErrorException
               - org.springframework.web.client.ResourceAccessException
               - java.io.IOException
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: health,info,circuitbreakers,retries,metrics,prometheus
+      endpoint:
+        health:
+          show-details: always
+          probes:
+            enabled: true   # важно для k8s readiness/liveness
+      health:
+        circuitbreakers:
+          enabled: true
+      tracing:
+        sampling:
+          probability: 1.0  # для проверки, чтобы всегда были трейсы
+        service-name: ${spring.application.name}
+      zipkin:
+        tracing:
+          endpoint: http://{{ .Release.Name }}-zipkin:9411/api/v2/spans           
 
     logging:
       level:

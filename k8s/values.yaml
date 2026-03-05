@@ -8,6 +8,7 @@
 global:
   appHost: mybank.dev.local
   keycloakHost: keycloak.mybank.dev.local
+  zipkinHost: zipkin.mybank.dev.local
 
   # PostgreSQL (host = {{ .Release.Name }}-postgresql, задаётся в шаблонах)
   postgresql:
@@ -44,4 +45,7 @@ transfer-service:
   enabled: true
 
 notifications-service:
+  enabled: true
+
+zipkin:
   enabled: true

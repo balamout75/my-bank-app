@@ -13,6 +13,8 @@ data:
       port: 8090
 
     spring:
+      application:
+        name: gateway-service      
       cloud:
         gateway:
           server:
@@ -61,10 +63,22 @@ data:
       endpoint:
         gateway:
           access: unrestricted
+        health:
+          show-details: always
+          probes:
+            enabled: true
+     
       endpoints:
         web:
           exposure:
-            include: health,info,gateway
+            include: health,info,gateway,metrics,prometheus
+      tracing:
+        sampling:
+          probability: 1.0
+        service-name: ${spring.application.name}
+      zipkin:
+        tracing:
+          endpoint: http://{{ .Release.Name }}-zipkin:9411/api/v2/spans
 
     logging:
       level:
