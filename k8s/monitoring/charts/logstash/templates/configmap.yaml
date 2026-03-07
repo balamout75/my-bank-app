@@ -16,10 +16,7 @@ data:
     }
 
     filter {
-      # ── Fallback: строки не в JSON (JVM startup, raw text) ──────
-      # Некоторые строки при старте контейнера не являются JSON
-      # (например, вывод JVM до инициализации логгера).
-      # Filebeat пробросил их как plain text — пробуем распарсить здесь.
+      # ── Fallback: plain text строки при старте контейнера ───────
       if ![log][level] and [message] =~ "^\{" {
         json {
           source => "message"
@@ -28,8 +25,6 @@ data:
       }
 
       # ── Нормализуем namespace ПЕРВЫМ ────────────────────────────
-      # Важно: до PII-блока, иначе условие [namespace] == "mybank"
-      # никогда не сработает.
       if [kubernetes][namespace] and ![namespace] {
         mutate {
           add_field => { "namespace" => "%{[kubernetes][namespace]}" }
@@ -42,16 +37,13 @@ data:
           add_field => { "service_name" => "%{[service][name]}" }
         }
       }
-      # Fallback: взять из k8s label app= если service.name нет
       if ![service_name] and [kubernetes][labels][app] {
         mutate {
           add_field => { "service_name" => "%{[kubernetes][labels][app]}" }
         }
       }
       if ![service_name] {
-        mutate {
-          add_field => { "service_name" => "unknown_service" }
-        }
+        mutate { add_field => { "service_name" => "unknown_service" } }
       }
 
       # ── Нормализуем уровень лога ────────────────────────────────
@@ -67,35 +59,98 @@ data:
         drop { }
       }
 
-      # ── Парсим бизнес-события notifications ─────────────────────
-      # notifications-service пишет: "Notification sent: type=TRANSFER userId=42"
-      if [service_name] == "notifications-service" and [message] =~ "Notification" {
-        grok {
-          match => { "message" => "Notification %{WORD:notification_status}: type=%{WORD:notification_type}( userId=%{NUMBER:user_id})?" }
-          add_tag => [ "notification_event" ]
-          tag_on_failure => []
-        }
-      }
+      # ── Парсим события notifications-service ────────────────────
+      # service.name из ECS = "notification-service" (Spring Boot app name)
+      # kubernetes label app = "notifications-service"
+      # оба варианта проверяем
+      if [service_name] == "notification-service" or [service_name] == "notifications-service" {
 
-      # ── Парсим общие бизнес-события ─────────────────────────────
-      if [message] =~ "User ID:" {
-        grok {
-          match => { "message" => "User ID: %{NUMBER:user_id} - Action: %{WORD:action}" }
-          add_tag => [ "business_event" ]
-          tag_on_failure => []
+        if [message] =~ "KAFKA RECEIVED" {
+          grok {
+            match => { "message" => "KAFKA RECEIVED: service=%{DATA:notif_source_service}, opId=%{NUMBER:notif_op_id}, user=%{GREEDYDATA:notif_user}" }
+            add_field => { "notif_event" => "RECEIVED" }
+            tag_on_failure => []
+          }
+
+        } else if [message] =~ "NOTIFICATION CREATED" {
+          grok {
+            match => { "message" => "NOTIFICATION CREATED: service=%{DATA:notif_source_service}, opId=%{NUMBER:notif_op_id}, user=%{GREEDYDATA:notif_user}" }
+            add_field => { "notif_event" => "CREATED" }
+            tag_on_failure => []
+          }
+
+        } else if [message] =~ "NOTIFICATION SKIPPED" {
+          grok {
+            match => { "message" => "NOTIFICATION SKIPPED \(duplicate\): service=%{DATA:notif_source_service}, opId=%{NUMBER:notif_op_id}" }
+            add_field => { "notif_event" => "SKIPPED" }
+            tag_on_failure => []
+          }
+
+        } else if [message] =~ "NOTIFICATION ERROR" {
+          grok {
+            match => { "message" => "NOTIFICATION ERROR: service=%{DATA:notif_source_service}, opId=%{NUMBER:notif_op_id}, error=%{GREEDYDATA:notif_error}" }
+            add_field => { "notif_event" => "ERROR" }
+            tag_on_failure => []
+          }
+
+        } else if [message] =~ "NOTIFIED " {
+          # 🚀✅ NOTIFIED opId=8 user=alice service=accounts-service payload={lastName=Smith2, firstName=Alice, dateOfBirth=[1990, 1, 1]}
+          grok {
+            match => { "message" => "NOTIFIED opId=%{NUMBER:notif_op_id} user=%{WORD:notif_user} service=%{DATA:notif_source_service} payload=\{%{GREEDYDATA:notif_payload_raw}\}" }
+            add_field => { "notif_event" => "NOTIFIED" }
+            tag_on_failure => []
+          }
+
+          # Тип операции по source_service
+          if [notif_source_service] == "accounts-service" {
+            mutate { add_field => { "notif_operation_type" => "ACCOUNT_UPDATE" } }
+          } else if [notif_source_service] == "cash-service" {
+            # опечатка в коде: opreration вместо operation — проверяем оба
+            if [notif_payload_raw] =~ "WITHDRAW" {
+              mutate { add_field => { "notif_operation_type" => "WITHDRAW" } }
+            } else if [notif_payload_raw] =~ "DEPOSIT" {
+              mutate { add_field => { "notif_operation_type" => "DEPOSIT" } }
+            } else {
+              mutate { add_field => { "notif_operation_type" => "CASH_OTHER" } }
+            }
+          } else if [notif_source_service] == "transfer-service" {
+            mutate { add_field => { "notif_operation_type" => "TRANSFER" } }
+          } else {
+            mutate { add_field => { "notif_operation_type" => "UNKNOWN" } }
+          }
+
+        } else if [message] =~ "RETRY " {
+          grok {
+            match => { "message" => "RETRY opId=%{NUMBER:notif_op_id} user=%{WORD:notif_user} service=%{DATA:notif_source_service} attempt=%{NUMBER:notif_attempt}" }
+            add_field => { "notif_event" => "RETRY" }
+            tag_on_failure => []
+          }
+
+        } else if [message] =~ "NOTIFICATION FAILED" {
+          grok {
+            match => { "message" => "NOTIFICATION FAILED opId=%{NUMBER:notif_op_id} user=%{WORD:notif_user} service=%{DATA:notif_source_service} attempt=%{NUMBER:notif_attempt}" }
+            add_field => { "notif_event" => "FAILED" }
+            tag_on_failure => []
+          }
+        }
+
+        if [notif_event] {
+          mutate { add_tag => [ "notification_event" ] }
         }
       }
 
       # ── Маскировка PII ──────────────────────────────────────────
+      # Regex fix: [^,}\]]+ вместо [\w\s\-\.]+ чтобы матчить Smith2, Alice и т.д.
+      # останавливаемся на запятой, закрывающей скобке } или ]
       if [namespace] == "mybank" {
         mutate {
           gsub => [
-            "message", "(?i)(firstName|lastName|fullName|recipientName|senderName|accountName)(\s*[:=]\s*)[\w\s\-\.]+", "\1\2[MASKED]"
+            "message", "(?i)(firstName|lastName|fullName|recipientName|senderName|accountName)(\\s*[:=]\\s*)[^,}\\]]+", "\\1\\2[MASKED]"
           ]
         }
         mutate {
           gsub => [
-            "message", "(?i)(amount|sum|balance|credit|debit)(\s*[:=]\s*)\d+[\.,]?\d*", "\1\2***"
+            "message", "(?i)(amount|sum|balance|credit|debit)(\\s*[:=]\\s*)\\d+[\\.,]?\\d*", "\\1\\2***"
           ]
         }
         if [user][full_name] {

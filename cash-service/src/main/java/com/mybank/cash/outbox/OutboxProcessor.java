@@ -45,7 +45,7 @@ public class OutboxProcessor {
     }
 
     public void sendNotification(CashOperation op) {
-        Map<String, Object> payload = Map.of("opreration", op.getType (), "amount", op.getAmount());
+        Map<String, Object> payload = Map.of("operation", op.getType (), "amount", op.getAmount());
 
         NotificationEvent event = new NotificationEvent(
                 "cash-service",

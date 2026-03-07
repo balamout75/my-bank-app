@@ -9,14 +9,14 @@
 Helm-чарт `k8s/monitoring` разворачивает полный observability-стек в namespace `monitoring`.
 Чарт полностью независим от `k8s/mybank` — деплоится отдельно и живёт своей жизнью.
 
-| Компонент | Назначение | Порт |
-|-----------|-----------|------|
-| **Prometheus** | Сбор и хранение метрик | 9090 |
-| **Grafana** | Дашборды и визуализация | 3000 |
-| **Alertmanager** | Маршрутизация алертов | 9093 |
-| **Elasticsearch** | Хранение и индексирование логов | 9200 |
-| **Logstash** | Парсинг и обогащение логов | 5044 (beats), 5000 (tcp) |
-| **Kibana** | Поиск, анализ, визуализация логов | 5601 |
+| Компонент | Назначение | URL |
+|-----------|-----------|-----|
+| **Prometheus** | Сбор и хранение метрик | http://prometheus.monitoring.local |
+| **Grafana** | Дашборды и визуализация | http://grafana.monitoring.local |
+| **Alertmanager** | Маршрутизация алертов | http://alertmanager.monitoring.local |
+| **Kibana** | Поиск, анализ, дашборды | http://kibana.monitoring.local |
+| **Elasticsearch** | Хранение и индексирование логов | ClusterIP :9200 (внутри кластера) |
+| **Logstash** | Парсинг и обогащение логов | ClusterIP :5044/:5000 (внутри кластера) |
 | **Filebeat** | Сбор логов с подов (DaemonSet) | — |
 
 ---
@@ -31,8 +31,8 @@ Spring Boot pods                      ┌─────────────
   └── /actuator/prometheus            │  Filebeat (DaemonSet)               │
                                       │    └── читает /var/log/containers/  │
 Метрики:                              │         (только namespace: mybank)  │
-  ServiceMonitor ──────────────────→  │  Logstash                           │
-  (CRD из kube-prometheus-stack)      │    └── парсинг, фильтрация, enrich  │
+  ServiceMonitor ──────────────────→  │  Logstash :5044                     │
+  (CRD из kube-prometheus-stack)      │    └── парсинг, PII маскировка      │
                                       │  Elasticsearch                      │
                                       │    └── индекс: monitoring-logs-*    │
                                       │  Kibana                             │
@@ -42,17 +42,20 @@ Spring Boot pods                      ┌─────────────
                                       │    ├── scrape via ServiceMonitors   │
                                       │    └── PrometheusRule alerts        │
                                       │  Grafana                            │
-                                      │    └── дашборды (dashboards 19004)  │
                                       │  Alertmanager                       │
                                       └─────────────────────────────────────┘
 ```
 
 **Поток логов:**
 ```
-Pod (stdout, ECS JSON)
+Pod stdout (ECS JSON)
   → Filebeat (DaemonSet, /var/log/containers/)
-  → Logstash (beats protocol :5044)
-  → Elasticsearch (index: monitoring-logs-YYYY.MM.dd)
+  → Logstash :5044
+    ├── нормализация namespace, service_name, level
+    ├── парсинг событий notifications-service (grok)
+    ├── PII маскировка (имена, суммы)
+    └── фильтрация шума (Kafka internal, ActiveMQ)
+  → Elasticsearch (monitoring-logs-YYYY.MM.dd)
   → Kibana
 ```
 
@@ -60,7 +63,7 @@ Pod (stdout, ECS JSON)
 ```
 Spring Boot /actuator/prometheus
   → ServiceMonitor (CRD, namespace: mybank)
-  → Prometheus scrape (каждые 15 сек)
+  → Prometheus (scrape каждые 15 сек)
   → PrometheusRule alerts → Alertmanager
   → Grafana dashboards
 ```
@@ -72,36 +75,21 @@ Spring Boot /actuator/prometheus
 ```
 k8s/monitoring/
 ├── Chart.yaml                   # Зонтичный чарт + зависимость kube-prometheus-stack
-├── values.yaml                  # Глобальные настройки всех компонентов
+├── values.yaml                  # Глобальные настройки
 ├── values-local.yaml            # Переопределения для docker-desktop
 ├── templates/
+│   ├── ingress.yaml             # Ingress для всех UI-компонентов
 │   └── NOTES.txt                # Инструкции после деплоя
-└── charts/
-    ├── elasticsearch/
-    │   ├── templates/
-    │   │   ├── statefulset.yaml # StatefulSet + PVC (10Gi)
-    │   │   └── service.yaml     # ClusterIP :9200
-    │   └── values.yaml
-    ├── logstash/
-    │   ├── templates/
-    │   │   ├── deployment.yaml
-    │   │   ├── service.yaml     # ClusterIP :5044, :5000
-    │   │   └── configmap.yaml   # pipeline.conf — правила парсинга
-    │   └── values.yaml
-    ├── kibana/
-    │   ├── templates/
-    │   │   ├── deployment.yaml
-    │   │   └── service.yaml     # ClusterIP :5601
-    │   └── values.yaml
-    └── filebeat/
-        ├── templates/
-        │   ├── daemonset.yaml   # Запускается на каждом узле
-        │   ├── configmap.yaml   # filebeat.yml — правила сбора
-        │   └── rbac.yaml        # ClusterRole для чтения pod metadata
-        └── values.yaml
+├── charts/
+│   ├── elasticsearch/
+│   ├── logstash/
+│   │   └── templates/
+│   │       └── configmap.yaml   # Logstash pipeline — парсинг и маскировка
+│   ├── kibana/
+│   └── filebeat/
+└── kibana/
+    └── notifications-dashboard.ndjson  # Дашборд для импорта
 ```
-
-> `kube-prometheus-stack` (Prometheus + Grafana + Alertmanager) указан как зависимость в `Chart.yaml` с `repository: prometheus-community/helm-charts`.
 
 ---
 
@@ -110,29 +98,51 @@ k8s/monitoring/
 - Docker Desktop с включённым Kubernetes
 - Helm v4+
 - kubectl
+- Ingress-nginx установлен в кластере
 - Доступ к интернету (для скачивания `kube-prometheus-stack`)
 
 ---
 
 ## Установка
 
-### Шаг 1. Добавить Helm-репозиторий
+> ⚠️ Все команды выполняются из папки `k8s/monitoring/`, если не указано иное.
+
+### Шаг 1. Ingress-nginx
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0/deploy/static/provider/cloud/deploy.yaml
+
+# Ждать 1/1 Running
+kubectl get pods -n ingress-nginx -w
+```
+
+### Шаг 2. DNS — /etc/hosts
+
+**Windows** — `C:\Windows\System32\drivers\etc\hosts` (от имени администратора)
+**Linux / macOS** — `/etc/hosts`
+
+```
+127.0.0.1  prometheus.monitoring.local  grafana.monitoring.local
+127.0.0.1  alertmanager.monitoring.local  kibana.monitoring.local
+```
+
+### Шаг 3. Helm-репозиторий
 
 ```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 ```
 
-### Шаг 2. Скачать зависимости
+### Шаг 4. Скачать зависимости
 
 ```bash
 cd k8s/monitoring
 helm dependency update
 ```
 
-### Шаг 3. Создать values-local.yaml
+### Шаг 5. values-local.yaml
 
-Для docker-desktop некоторые компоненты kube-prometheus-stack нужно отключить (они требуют доступа к компонентам control plane, которых нет в docker-desktop):
+Для docker-desktop необходимо отключить компоненты control plane которых нет в docker-desktop:
 
 ```yaml
 # k8s/monitoring/values-local.yaml
@@ -162,79 +172,46 @@ kube-prometheus-stack:
         memory: "256Mi"
 ```
 
-### Шаг 4. Установить чарт
+### Шаг 6. Установить чарт
 
 ```bash
 helm install k8s-monitoring . -n monitoring --create-namespace -f values-local.yaml
 ```
 
-### Шаг 5. Проверить готовность
+### Шаг 7. Проверить готовность
 
 ```bash
 kubectl get pods -n monitoring -w
 ```
 
-Ожидаемое состояние (все `1/1 Running`):
+Ожидаемый порядок готовности: Elasticsearch → Prometheus/Grafana → Logstash → Filebeat → Kibana.
 
 ```
-elasticsearch-0                    1/1 Running
-filebeat-xxxxx                     1/1 Running
-kibana-xxxxx                       1/1 Running
-logstash-xxxxx                     1/1 Running
-k8s-monitoring-grafana-xxxxx       1/1 Running
-k8s-monitoring-kube-prometheus-xxx 1/1 Running
-k8s-monitoring-alertmanager-xxxxx  1/1 Running
+elasticsearch-0                                          1/1  Running  ← первым
+logstash-xxxxx                                           1/1  Running
+filebeat-xxxxx                                           1/1  Running
+k8s-monitoring-grafana-xxxxx                             1/1  Running
+k8s-monitoring-kube-promet-operator-xxxxx                1/1  Running
+k8s-monitoring-kube-promet-prometheus-xxxxx              1/1  Running
+k8s-monitoring-kube-promet-alertmanager-xxxxx            1/1  Running
+k8s-monitoring-kube-state-metrics-xxxxx                  1/1  Running
+kibana-xxxxx                                             1/1  Running  ← последним, ~2-4 мин
 ```
 
-> Kibana стартует дольше всего (~2 мин). Если видите CrashLoopBackOff — это нормально при первом старте, дождитесь.
+> ⚠️ **Kibana стартует 2–4 минуты.** Кратковременный `CrashLoopBackOff` при старте — нормально, Kibana ждёт Elasticsearch. Дождитесь `1/1 Running`.
 
 ---
 
 ## Доступ к интерфейсам
 
-### Prometheus
+| Сервис | URL | Credentials |
+|--------|-----|-------------|
+| Prometheus | http://prometheus.monitoring.local | — |
+| Grafana | http://grafana.monitoring.local | admin / admin |
+| Alertmanager | http://alertmanager.monitoring.local | — |
+| Kibana | http://kibana.monitoring.local | — |
 
-```bash
-kubectl port-forward -n monitoring svc/k8s-monitoring-kube-prometheus-prometheus 9090:9090
-```
-Открыть: http://localhost:9090
-
-Полезные запросы:
-```
-# Все targets mybank
-http://localhost:9090/targets?search=mybank
-
-# Метрика активных алертов
-http://localhost:9090/alerts
-```
-
-### Grafana
-
-```bash
-kubectl port-forward -n monitoring svc/k8s-monitoring-grafana 3000:80
-```
-Открыть: http://localhost:3000  (admin / admin)
-
-Рекомендуемые дашборды (импорт через Dashboards → Import):
-
-| ID | Название | Назначение |
-|----|----------|-----------|
-| 19004 | Spring Boot Statistics | Метрики Spring Boot 3.x/4.x |
-| 1860 | Node Exporter Full | Метрики узлов кластера |
-
-### Kibana
-
-```bash
-kubectl port-forward -n monitoring svc/kibana-service 5601:5601
-```
-Открыть: http://localhost:5601
-
-### Alertmanager
-
-```bash
-kubectl port-forward -n monitoring svc/k8s-monitoring-kube-prometheus-alertmanager 9093:9093
-```
-Открыть: http://localhost:9093
+> ⚠️ **Zipkin** находится в чарте `k8s/mybank` (namespace: mybank), не здесь.
 
 ---
 
@@ -242,7 +219,9 @@ kubectl port-forward -n monitoring svc/k8s-monitoring-kube-prometheus-alertmanag
 
 ### 1. Создать Data View
 
-Stack Management → Data Views → **Create data view**:
+```
+Stack Management → Data Views → Create data view
+```
 
 | Поле | Значение |
 |------|---------|
@@ -252,91 +231,106 @@ Stack Management → Data Views → **Create data view**:
 
 ### 2. Настроить колонки в Discover
 
-Analytics → Discover → добавить колонки:
+```
+Analytics → Discover
+```
 
-- `service_name`
-- `log.level`
-- `message`
-- `kubernetes.pod.name`
+Добавить колонки: `service_name`, `level`, `message`, `kubernetes.pod.name`
 
 Сохранить как: **mybank-logs**
 
-### 3. Полезные KQL-запросы
+### 3. Импортировать дашборды
 
 ```
-# Только ошибки и предупреждения
-log.level: "ERROR" or log.level: "WARN"
+Stack Management → Saved Objects → Import
+```
+
+| Файл | Описание |
+|------|---------|
+| `kibana/notifications-dashboard.ndjson` | Операции через notifications-service |
+
+### 4. Полезные KQL-запросы
+
+```
+# Только ошибки
+level: "ERROR"
 
 # Логи конкретного сервиса
 service_name: "accounts-service"
 
-# Исключения
-error.type: *
+# Все уведомления
+service_name: "notification-service" AND message: *NOTIFIED*
 
-# Бизнес-события
-tags: "business_event"
+# Переводы
+service_name: "notification-service" AND message: *TRANSFER*
 
-# Трассировка конкретного запроса
-trace.id: "abc123"
+# Ошибки notifications
+service_name: "notification-service" AND message: *ERROR*
 
-# Ошибки за последний час
-log.level: "ERROR" and @timestamp >= now-1h
-```
-
----
-
-## ECS JSON логирование
-
-Все Spring Boot сервисы настроены на вывод логов в формате **Elastic Common Schema** — это стандартный формат Elastic, который Kibana понимает нативно.
-
-Настройка в `configmap.yaml` каждого сервиса:
-
-```yaml
-logging:
-  structured:
-    format:
-      console: ecs
-```
-
-Зависимости в `pom.xml` **не нужны** — ECS-формат встроен в Spring Boot 4 (3.4+).
-
-Пример ECS-записи:
-
-```json
-{
-  "@timestamp": "2026-03-07T10:00:00.000Z",
-  "log.level": "INFO",
-  "service.name": "accounts-service",
-  "message": "User ID: 1 - Action: BALANCE_UPDATED",
-  "trace.id": "abc123",
-  "kubernetes.pod.name": "mybank-accounts-service-xyz"
-}
+# По trace ID
+traceId: "abc123"
 ```
 
 ---
 
 ## Logstash Pipeline
 
-Logstash получает логи от Filebeat по beats-протоколу (порт 5044) и выполняет:
+Получает логи от Filebeat по beats-протоколу (:5044) и выполняет:
 
-- Извлечение `service_name` из ECS-поля `service.name`
-- Добавление `namespace` из метаданных Kubernetes
-- Фильтрация шума (Kafka internal logs, ActiveMQ heartbeat)
-- Парсинг бизнес-событий через grok: `User ID: X - Action: Y`
-- Маршрутизация в Elasticsearch в индекс `monitoring-logs-YYYY.MM.dd`
+**Порядок обработки:**
+1. JSON fallback — повторный парсинг plain-text строк (JVM startup messages)
+2. Нормализация `namespace` из `kubernetes.namespace` — **первым**, до всех фильтров
+3. Нормализация `service_name` из `service.name` или `kubernetes.labels.app`
+4. Нормализация `level` из `log.level`
+5. Фильтрация шума (Kafka internal, ActiveMQ)
+6. Парсинг событий `notifications-service` (grok) → поля `notif_event`, `notif_operation_type`
+7. PII маскировка (только namespace: mybank)
+
+**Парсируемые события notifications-service:**
+
+| notif_event | Сообщение |
+|-------------|-----------|
+| RECEIVED | `📩 KAFKA RECEIVED: service=..., opId=..., user=...` |
+| CREATED | `✅ NOTIFICATION CREATED: service=..., opId=..., user=...` |
+| SKIPPED | `⏭️ NOTIFICATION SKIPPED (duplicate): service=..., opId=...` |
+| NOTIFIED | `🚀✅ NOTIFIED opId=... user=... service=... payload={...}` |
+| RETRY | `🚀⚠️ RETRY opId=... user=... service=... attempt=...` |
+| FAILED | `🚀💥 NOTIFICATION FAILED opId=... user=... service=...` |
+| ERROR | `❌ NOTIFICATION ERROR: service=..., opId=..., error=...` |
+
+**Тип операции** (`notif_operation_type`) определяется по `notif_source_service` и содержимому payload:
+
+| notif_operation_type | Условие |
+|---------------------|---------|
+| ACCOUNT_UPDATE | source = accounts-service |
+| WITHDRAW | source = cash-service + payload содержит WITHDRAW |
+| DEPOSIT | source = cash-service + payload содержит DEPOSIT |
+| TRANSFER | source = transfer-service |
+
+**PII маскировка** (namespace: mybank):
+- Имена в message: `firstName`, `lastName`, `fullName` и др. → `[MASKED]`
+- Суммы в message: `amount`, `balance`, `credit` и др. → `***`
+- ECS поля: `user.full_name`, `user.name` → `[MASKED]`; `transaction.amount` → `***`
 
 ---
 
-## Обновление чарта
+## Управление чартом
+
+### Обновление
 
 ```bash
 cd k8s/monitoring
 helm upgrade k8s-monitoring . -n monitoring -f values-local.yaml
 ```
 
----
+### Перезапуск компонента
 
-## Удаление
+```bash
+kubectl rollout restart deployment/logstash -n monitoring
+kubectl rollout restart deployment/kibana -n monitoring
+```
+
+### Удаление
 
 ```bash
 helm uninstall k8s-monitoring -n monitoring
@@ -349,56 +343,46 @@ kubectl delete pvc -n monitoring -l app=elasticsearch
 
 ## Диагностика
 
-### Проверить что метрики собираются
+### Метрики не собираются (targets DOWN в Prometheus)
 
 ```bash
-# Все ServiceMonitor-ы
+# Проверить ServiceMonitor-ы
 kubectl get servicemonitor -n mybank
 
-# Состояние Prometheus targets
-kubectl port-forward -n monitoring svc/k8s-monitoring-kube-prometheus-prometheus 9090:9090
-# → http://localhost:9090/targets?search=mybank
+# Убедиться что в values-local.yaml есть:
+# serviceMonitorSelectorNilUsesHelmValues: false
 ```
 
-### Проверить поток логов
+### Логи не попадают в Kibana
 
 ```bash
-# Filebeat отправляет данные?
-kubectl logs -n monitoring -l app=filebeat --tail=50
+# 1. Filebeat отправляет?
+kubectl logs -n monitoring daemonset/filebeat --tail=30
 
-# Logstash получает?
-kubectl logs -n monitoring -l app=logstash --tail=50
+# 2. Logstash получает?
+kubectl logs -n monitoring deployment/logstash --tail=50
 
-# Elasticsearch принимает?
-kubectl exec -n monitoring elasticsearch-0 -- \
-  curl -s http://localhost:9200/_cat/indices?v | grep monitoring-logs
+# 3. Elasticsearch принимает?
+kubectl exec -n monitoring deployment/logstash -- \
+  curl -s http://elasticsearch-service:9200/_cat/indices?v
 ```
 
-### Kibana не стартует (CrashLoopBackOff)
-
-```bash
-kubectl describe pod -n monitoring <kibana-pod>
-```
-
-Чаще всего причина — недостаточно памяти. Убедитесь что в `values.yaml` задано:
+### Kibana OOMKilled
 
 ```yaml
+# values.yaml — увеличить лимит:
 kibana:
   resources:
     limits:
       memory: "1.5Gi"   # меньше 1Gi → OOMKilled
 ```
 
-### Prometheus не видит mybank ServiceMonitor-ы
+### После helm upgrade pod не перезапустился
 
-Убедитесь что в `values-local.yaml` заданы:
+Helm обновляет ConfigMap, но не рестартует pod автоматически:
 
-```yaml
-kube-prometheus-stack:
-  prometheus:
-    prometheusSpec:
-      serviceMonitorSelectorNilUsesHelmValues: false
-      podMonitorSelectorNilUsesHelmValues: false
+```bash
+kubectl rollout restart deployment/logstash -n monitoring
 ```
 
 ---
@@ -408,39 +392,41 @@ kube-prometheus-stack:
 | Проблема | Статус | Комментарий |
 |----------|--------|-------------|
 | `node-exporter` CrashLoopBackOff | ⚠️ Известная | На docker-desktop проблема с `/sys/fs/cgroup`. Не влияет на остальное |
-| Kibana медленный старт | ℹ️ Норма | Первый запуск занимает ~2 минуты |
-| Zipkin Connection reset при старте | ℹ️ Норма | Zipkin стартует до ES, само проходит через 1-2 мин |
-| `trace.id` не попадает в логи | 📋 Tech Debt | Требует настройки Micrometer Tracing + Zipkin bridge |
+| Kibana медленный старт | ℹ️ Норма | Первый запуск 2–4 минуты |
+| Logstash ERROR в логах про `http://elasticsearch:9200` | ℹ️ Норма | X-Pack license checker — не мешает pipeline, данные идут через `elasticsearch-service:9200` |
 
 ---
 
 ## values.yaml — ключевые параметры
 
 ```yaml
-# Включение kube-prometheus-stack
-prometheusStack:
-  enabled: true
+# Ingress — хосты для UI компонентов
+ingress:
+  hosts:
+    prometheus:   prometheus.monitoring.local
+    grafana:      grafana.monitoring.local
+    alertmanager: alertmanager.monitoring.local
+    kibana:       kibana.monitoring.local
 
 kube-prometheus-stack:
   prometheus:
     prometheusSpec:
-      serviceMonitorSelectorNilUsesHelmValues: false  # важно!
+      serviceMonitorSelectorNilUsesHelmValues: false  # обязательно!
+      podMonitorSelectorNilUsesHelmValues: false
   grafana:
     adminPassword: admin
 
 elasticsearch:
-  enabled: true
   persistence:
     size: 10Gi
   javaOpts: "-Xms512m -Xmx512m"
 
 kibana:
-  enabled: true
   resources:
     limits:
-      memory: "1.5Gi"  # меньше → OOMKilled
+      memory: "1.5Gi"   # меньше → OOMKilled
 
 filebeat:
-  enabled: true
-  watchNamespace: "mybank"  # собирать логи только из mybank
+  watchNamespace: "mybank"   # собирать логи только из mybank
+                              # "" = все namespace (для prod)
 ```
