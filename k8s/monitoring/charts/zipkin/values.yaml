@@ -1,0 +1,16 @@
+enabled: true
+image:
+  repository: openzipkin/zipkin
+  tag: "3.5"
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "100m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+service:
+  port: 9411
+storage:
+  type: elasticsearch
+  esHost: "http://elasticsearch-service:9200"

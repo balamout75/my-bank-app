@@ -1,42 +1,44 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kibana
+  name: zipkin
   namespace: monitoring
   labels:
-    app: kibana
+    app: zipkin
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kibana
+      app: zipkin
   template:
     metadata:
       labels:
-        app: kibana
+        app: zipkin
     spec:
       containers:
-        - name: kibana
+        - name: zipkin
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
-            - containerPort: 5601
+            - containerPort: 9411
               name: http
           env:
-            - name: ELASTICSEARCH_HOSTS
-              value: "http://elasticsearch-service:9200"
-            - name: xpack.security.enabled
-              value: "false"
+            - name: JAVA_OPTS
+              value: "-Xms512m -Xmx512m -XX:+ExitOnOutOfMemoryError"
+            - name: STORAGE_TYPE
+              value: {{ .Values.storage.type | quote }}
+            - name: ES_HOSTS
+              value: {{ .Values.storage.esHost | quote }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           readinessProbe:
             httpGet:
-              path: /api/status
-              port: 5601
+              path: /health
+              port: 9411
             initialDelaySeconds: 30
             periodSeconds: 10
           livenessProbe:
             httpGet:
-              path: /api/status
-              port: 5601
-            initialDelaySeconds: 60
+              path: /health
+              port: 9411
+            initialDelaySeconds: 45
             periodSeconds: 30

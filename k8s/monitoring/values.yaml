@@ -1,15 +1,38 @@
 # ============================================================
-# ELK Stack — values.yaml
-# Namespace: monitoring (рядом с Prometheus)
+# k8s-monitoring — единый observability чарт
+# Namespace: monitoring
 # ============================================================
 
-global:
-  elasticsearchHost: "elasticsearch-service"
-  elasticsearchPort: 9200
-  imageTag: "8.12.0"
+# ── Prometheus + Grafana ─────────────────────────────────────
+prometheusStack:
+  enabled: true
+
+ingress:
+  enabled: true
+  hosts:
+    prometheus:   prometheus.monitoring.local
+    grafana:      grafana.monitoring.local
+    alertmanager: alertmanager.monitoring.local
+    kibana:       kibana.monitoring.local
+    zipkin:       zipkin.monitoring.local
+
+# Настройки kube-prometheus-stack передаются напрямую
+kube-prometheus-stack:
+  prometheus:
+    prometheusSpec:
+      # Обнаруживать ServiceMonitor-ы из любого namespace
+      serviceMonitorSelectorNilUsesHelmValues: false
+      podMonitorSelectorNilUsesHelmValues: false
+  grafana:
+    adminPassword: admin
+    service:
+      type: ClusterIP
+  alertmanager:
+    enabled: true
 
 # ── Elasticsearch ────────────────────────────────────────────
 elasticsearch:
+  enabled: true
   replicaCount: 1
   image:
     repository: docker.elastic.co/elasticsearch/elasticsearch
@@ -42,8 +65,8 @@ logstash:
       cpu: "500m"
   javaOpts: "-Xms256m -Xmx256m"
   service:
-    beatsPort: 5044   # Filebeat → Logstash
-    tcpPort: 5000     # совместимость с docker-compose
+    beatsPort: 5044
+    tcpPort: 5000
 
 # ── Kibana ───────────────────────────────────────────────────
 kibana:
@@ -53,10 +76,10 @@ kibana:
     tag: "8.12.0"
   resources:
     requests:
-      memory: "256Mi"
+      memory: "512Mi"
       cpu: "100m"
     limits:
-      memory: "512Mi"
+      memory: "1.5Gi"      # OOMKilled при меньшем значении
       cpu: "500m"
   service:
     port: 5601
@@ -74,5 +97,4 @@ filebeat:
     limits:
       memory: "128Mi"
       cpu: "200m"
-  # Собирать логи только из namespace mybank
   watchNamespace: "mybank"
