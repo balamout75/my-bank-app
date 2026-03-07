@@ -1,5 +1,6 @@
 package com.mybank.transfer.config;
 
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -23,7 +24,7 @@ public class SecurityConfig {
         http
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
                         .requestMatchers("/transfer/transfer","/transfer/operation-key").hasAuthority("ROLE_transfer.write")
                         .requestMatchers("/transfer/operation").hasAuthority("ROLE_transfer.read")
                         .anyRequest().authenticated()

@@ -1,5 +1,6 @@
 package com.mybank.accounts.config;
 
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +25,7 @@ public class SecurityConfig {
         http
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
                         .requestMatchers(HttpMethod.GET, "/accounts/me").hasAuthority("ROLE_accounts.read")
                         .requestMatchers(HttpMethod.PUT, "/accounts/me").hasAuthority("ROLE_accounts.write")
                         .requestMatchers(HttpMethod.GET, "/accounts/all").hasAuthority("ROLE_accounts.read")
