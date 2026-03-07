@@ -7,7 +7,7 @@ replicaCount: 1
 
 admin:
   username: admin
-  password: ""  # Injected via --set from Jenkins credentials
+  password: ""  # передаётся через values-local.yaml или --set
 
 service:
   port: 80

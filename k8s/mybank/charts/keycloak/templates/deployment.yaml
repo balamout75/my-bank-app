@@ -18,6 +18,40 @@ spec:
         app: keycloak
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      initContainers:
+        - name: realm-init
+          image: bhgedigital/envsubst:latest
+          command:
+            - sh
+            - -c
+            - envsubst < /tpl/realm-mybank.json.tpl > /realm/realm-mybank.json
+          env:
+            - name: KC_SECRET_ACCOUNTS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-keycloak-realm-secrets
+                  key: KC_SECRET_ACCOUNTS
+            - name: KC_SECRET_CASH
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-keycloak-realm-secrets
+                  key: KC_SECRET_CASH
+            - name: KC_SECRET_TRANSFER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-keycloak-realm-secrets
+                  key: KC_SECRET_TRANSFER
+            - name: KC_SECRET_FRONTEND
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-keycloak-realm-secrets
+                  key: KC_SECRET_FRONTEND
+          volumeMounts:
+            - name: realm-template
+              mountPath: /tpl
+            - name: realm-ready
+              mountPath: /realm
+
       containers:
         - name: keycloak
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -35,7 +69,7 @@ spec:
             - name: KEYCLOAK_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-keycloak
+                  name: {{ .Release.Name }}-keycloak   # ← admin secret в subchart
                   key: KEYCLOAK_ADMIN_PASSWORD
             - name: KC_HTTP_ENABLED
               value: "true"
@@ -44,9 +78,8 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - name: realm-config
-              mountPath: /opt/keycloak/data/import/realm-mybank.json
-              subPath: realm-mybank.json
+            - name: realm-ready
+              mountPath: /opt/keycloak/data/import
               readOnly: true
           readinessProbe:
             tcpSocket:
@@ -60,7 +93,10 @@ spec:
             initialDelaySeconds: 120
             periodSeconds: 15
             failureThreshold: 10
+
       volumes:
-        - name: realm-config
+        - name: realm-template
           configMap:
-            name: {{ .Release.Name }}-keycloak-realm
+            name: {{ .Release.Name }}-keycloak-realm-template
+        - name: realm-ready
+          emptyDir: {}
