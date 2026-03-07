@@ -8,13 +8,11 @@ prometheusStack:
   enabled: true
 
 ingress:
-  enabled: true
   hosts:
     prometheus:   prometheus.monitoring.local
     grafana:      grafana.monitoring.local
     alertmanager: alertmanager.monitoring.local
     kibana:       kibana.monitoring.local
-    zipkin:       zipkin.monitoring.local
 
 # Настройки kube-prometheus-stack передаются напрямую
 kube-prometheus-stack:

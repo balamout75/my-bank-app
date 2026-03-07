@@ -111,7 +111,7 @@ kubectl get pods -n ingress-nginx -w
 
 # Мониторинг
 127.0.0.1  prometheus.monitoring.local  grafana.monitoring.local
-127.0.0.1  alertmanager.monitoring.local  kibana.monitoring.local  zipkin.monitoring.local
+127.0.0.1  alertmanager.monitoring.local  kibana.monitoring.local
 ```
 
 > 💡 Если планируете Jenkins CI/CD — добавьте сразу все среды: `mybank.test.local keycloak.mybank.test.local mybank.prod.local keycloak.mybank.prod.local`.

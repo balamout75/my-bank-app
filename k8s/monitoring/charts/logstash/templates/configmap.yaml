@@ -6,11 +6,9 @@ metadata:
 data:
   logstash.conf: |
     input {
-      # Filebeat → Logstash (основной источник в K8s)
       beats {
         port => 5044
       }
-      # TCP совместимость с docker-compose (json_lines)
       tcp {
         port => 5000
         codec => json_lines
@@ -18,24 +16,36 @@ data:
     }
 
     filter {
-      # ── Убираем шум ──────────────────────────────────────
-      if [log][logger] =~ "activemq" or [log][logger] =~ "org.apache.kafka" {
-        drop { }
-      }
-
-      # ── Парсим бизнес-события ─────────────────────────────
-      if [message] =~ "User ID:" {
-        grok {
-          match => { "message" => "User ID: %{NUMBER:user_id} - Action: %{WORD:action}" }
-          add_tag => [ "business_event" ]
+      # ── Fallback: строки не в JSON (JVM startup, raw text) ──────
+      # Некоторые строки при старте контейнера не являются JSON
+      # (например, вывод JVM до инициализации логгера).
+      # Filebeat пробросил их как plain text — пробуем распарсить здесь.
+      if ![log][level] and [message] =~ "^\{" {
+        json {
+          source => "message"
+          skip_on_invalid_json => true
         }
       }
 
-      # ── Нормализуем service_name ──────────────────────────
-      # ECS формат: service.name → service_name для индекса
+      # ── Нормализуем namespace ПЕРВЫМ ────────────────────────────
+      # Важно: до PII-блока, иначе условие [namespace] == "mybank"
+      # никогда не сработает.
+      if [kubernetes][namespace] and ![namespace] {
+        mutate {
+          add_field => { "namespace" => "%{[kubernetes][namespace]}" }
+        }
+      }
+
+      # ── Нормализуем service_name ────────────────────────────────
       if [service][name] and ![service_name] {
         mutate {
           add_field => { "service_name" => "%{[service][name]}" }
+        }
+      }
+      # Fallback: взять из k8s label app= если service.name нет
+      if ![service_name] and [kubernetes][labels][app] {
+        mutate {
+          add_field => { "service_name" => "%{[kubernetes][labels][app]}" }
         }
       }
       if ![service_name] {
@@ -44,18 +54,58 @@ data:
         }
       }
 
-      # ── Добавляем namespace из Filebeat метаданных ────────
-      if [kubernetes][namespace] and ![namespace] {
-        mutate {
-          add_field => { "namespace" => "%{[kubernetes][namespace]}" }
-        }
-      }
-
-      # ── Нормализуем уровень лога ──────────────────────────
+      # ── Нормализуем уровень лога ────────────────────────────────
       if [log][level] and ![level] {
         mutate {
           add_field => { "level" => "%{[log][level]}" }
           uppercase => [ "level" ]
+        }
+      }
+
+      # ── Убираем шум ─────────────────────────────────────────────
+      if [log][logger] =~ "activemq" or [log][logger] =~ "org.apache.kafka" {
+        drop { }
+      }
+
+      # ── Парсим бизнес-события notifications ─────────────────────
+      # notifications-service пишет: "Notification sent: type=TRANSFER userId=42"
+      if [service_name] == "notifications-service" and [message] =~ "Notification" {
+        grok {
+          match => { "message" => "Notification %{WORD:notification_status}: type=%{WORD:notification_type}( userId=%{NUMBER:user_id})?" }
+          add_tag => [ "notification_event" ]
+          tag_on_failure => []
+        }
+      }
+
+      # ── Парсим общие бизнес-события ─────────────────────────────
+      if [message] =~ "User ID:" {
+        grok {
+          match => { "message" => "User ID: %{NUMBER:user_id} - Action: %{WORD:action}" }
+          add_tag => [ "business_event" ]
+          tag_on_failure => []
+        }
+      }
+
+      # ── Маскировка PII ──────────────────────────────────────────
+      if [namespace] == "mybank" {
+        mutate {
+          gsub => [
+            "message", "(?i)(firstName|lastName|fullName|recipientName|senderName|accountName)(\s*[:=]\s*)[\w\s\-\.]+", "\1\2[MASKED]"
+          ]
+        }
+        mutate {
+          gsub => [
+            "message", "(?i)(amount|sum|balance|credit|debit)(\s*[:=]\s*)\d+[\.,]?\d*", "\1\2***"
+          ]
+        }
+        if [user][full_name] {
+          mutate { replace => { "[user][full_name]" => "[MASKED]" } }
+        }
+        if [user][name] {
+          mutate { replace => { "[user][name]" => "[MASKED]" } }
+        }
+        if [transaction][amount] {
+          mutate { replace => { "[transaction][amount]" => "***" } }
         }
       }
     }
