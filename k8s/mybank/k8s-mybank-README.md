@@ -111,7 +111,7 @@ kubectl get pods -n ingress-nginx -w
 
 # Мониторинг
 127.0.0.1  prometheus.monitoring.local  grafana.monitoring.local
-127.0.0.1  alertmanager.monitoring.local  kibana.monitoring.local
+127.0.0.1  alertmanager.monitoring.local  kibana.monitoring.local  zipkin.monitoring.local
 ```
 
 > 💡 Если планируете Jenkins CI/CD — добавьте сразу все среды: `mybank.test.local keycloak.mybank.test.local mybank.prod.local keycloak.mybank.prod.local`.
@@ -224,10 +224,19 @@ kubectl get pods -n monitoring -w
 
 > 📁 Переходим в папку приложения:
 
+**Первая установка** (namespace не существует):
 ```bash
 cd k8s/mybank
-helm upgrade --install mybank . -n mybank --create-namespace -f values-local.yaml
+helm install mybank . -n mybank --create-namespace -f values-local.yaml
 ```
+
+**Обновление** (namespace уже существует):
+```bash
+cd k8s/mybank
+helm upgrade mybank . -n mybank -f values-local.yaml
+```
+
+> 💡 `helm upgrade --install` работает в обоих случаях, но явное разделение помогает понять что происходит — особенно если деплой упал и нужно разобраться на каком шаге.
 
 ### Шаг 8. Проверка готовности
 

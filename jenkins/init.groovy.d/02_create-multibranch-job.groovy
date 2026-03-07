@@ -12,8 +12,8 @@ def githubRepo    = env['GITHUB_REPOSITORY']
 def credentialsId = "github-creds"
 def scriptPath    = "jenkins/Jenkinsfile"
 
-// Фильтр: оставляем только ветку sprint-11-bank-features и все PR (PR-*)
-def branchRegex = '^(sprint-11-bank-features|PR-.*)$'
+// Фильтр: оставляем только ветку sprint-12-bank-features и все PR (PR-*)
+def branchRegex = '^(sprint-12-bank-features|PR-.*)$'
 
 println "--> Запуск create-multibranch-job.groovy"
 
