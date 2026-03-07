@@ -15,6 +15,10 @@ data:
         name: notification-service
       kafka:
         bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+        listener:
+          observation-enabled: true
+          missing-topics-fatal: false
+          ack-mode: record
         admin:
           fail-fast: false
         consumer:
@@ -29,9 +33,6 @@ data:
             spring.json.trusted.packages: com.mybank.*
             reconnect.backoff.ms: 1000
             reconnect.backoff.max.ms: 10000
-        listener:
-          missing-topics-fatal: false
-          ack-mode: record
       datasource:
         url: ${DB_URL}
         username: ${DB_USER}
@@ -80,10 +81,12 @@ data:
         sampling:
           probability: 1.0  # для проверки, чтобы всегда были трейсы
         service-name: ${spring.application.name}
-      zipkin:
-        tracing:
-          endpoint: http://{{ .Release.Name }}-zipkin:9411/api/v2/spans
+        export:
+          zipkin:
+            endpoint: http://{{ .Release.Name }}-zipkin:9411/api/v2/spans    
     
     logging:
       level:
         com.mybank.notifications: DEBUG
+        org.apache.kafka: WARN
+        org.springframework.kafka: WARN

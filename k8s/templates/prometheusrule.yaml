@@ -1,0 +1,13 @@
+{{- if .Values.prometheusRules.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Name }}-bank-alerts
+  namespace: monitoring
+  labels:
+    release: monitoring
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  groups:
+    {{- toYaml .Values.prometheusRules.groups | nindent 4 }}
+{{- end }}

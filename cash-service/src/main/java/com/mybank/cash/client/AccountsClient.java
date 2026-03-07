@@ -17,7 +17,7 @@ import org.springframework.web.client.RestClient;
 import java.math.BigDecimal;
 
 @Component
-public class AccountsClient {
+public class  AccountsClient {
 
     private static final Logger log = LoggerFactory.getLogger(AccountsClient.class);
     private static final String SERVICE_NAME = "accounts-service";

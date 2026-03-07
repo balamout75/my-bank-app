@@ -23,3 +23,6 @@ ingress:
 
 keycloak:
   clientSecret: ""  # Injected via --set from Jenkins credentials
+
+monitoring:
+  enabled: true

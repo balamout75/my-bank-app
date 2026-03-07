@@ -21,3 +21,6 @@ keycloak:
 
 db:
   schema: transfer
+
+monitoring:
+  enabled: true

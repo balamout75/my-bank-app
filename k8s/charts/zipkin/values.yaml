@@ -1,0 +1,22 @@
+﻿replicaCount: 1
+
+image:
+  repository: openzipkin/zipkin
+  tag: "2.24.3"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 9411
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}

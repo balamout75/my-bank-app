@@ -114,6 +114,7 @@ data:
               - org.springframework.web.client.HttpServerErrorException
               - org.springframework.web.client.ResourceAccessException
               - java.io.IOException
+
     management:
       endpoints:
         web:
@@ -131,9 +132,9 @@ data:
         sampling:
           probability: 1.0  # для проверки, чтобы всегда были трейсы
         service-name: ${spring.application.name}
-      zipkin:
-        tracing:
-          endpoint: http://{{ .Release.Name }}-zipkin:9411/api/v2/spans           
+        export:
+          zipkin:
+            endpoint: http://{{ .Release.Name }}-zipkin:9411/api/v2/spans
 
     logging:
       level:

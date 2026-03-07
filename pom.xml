@@ -41,9 +41,7 @@
         <lombok.version>1.18.42</lombok.version>
         <testcontainers.version>2.0.3</testcontainers.version>
         <com.github.ben-manes.caffeine.version>3.2.3</com.github.ben-manes.caffeine.version>
-        <io.micrometer.version>1.16.3</io.micrometer.version>
-        <io.zipkin.reporter2.version>3.5.1</io.zipkin.reporter2.version>
-
+        <net.ttddyy.observation.version>2.1.1</net.ttddyy.observation.version>
     </properties>
 
     <!-- Управление зависимостями для всех модулей -->
@@ -75,6 +73,14 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!-- DB Tracing -->
+            <dependency>
+                <groupId>net.ttddyy.observation</groupId>
+                <artifactId>datasource-micrometer-spring-boot</artifactId>
+                <version>${net.ttddyy.observation.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

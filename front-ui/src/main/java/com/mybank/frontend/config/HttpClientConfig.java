@@ -9,9 +9,10 @@ import org.springframework.web.client.RestClient;
 public class HttpClientConfig {
 
     @Bean
-    RestClient gatewayRestClient(@Value("${gateway.url:http://localhost:8090}") String gatewayUrl) {
-        return RestClient.builder()
+    RestClient gatewayRestClient(RestClient.Builder builder, @Value("${gateway.url:http://localhost:8090}") String gatewayUrl) {
+        return builder
                 .baseUrl(gatewayUrl)
                 .build();
     }
+
 }

@@ -21,3 +21,6 @@ keycloak:
 
 db:
   schema: accounts
+
+monitoring:
+  enabled: true

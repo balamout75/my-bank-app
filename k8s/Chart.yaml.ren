@@ -1,0 +1,53 @@
+apiVersion: v2
+name: mybank
+description: MyBank - Зонтичный Helm-чарт для микросервисного приложения «Банк»
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+dependencies:
+  - name: postgresql
+    version: 1.0.0
+    condition: postgresql.enabled
+  - name: kafka
+    version: 1.0.0
+    condition: kafka.enabled
+  - name: keycloak
+    version: 1.0.0
+    condition: keycloak.enabled
+  - name: gateway-service
+    version: 1.0.0
+    condition: gateway-service.enabled
+  - name: front-ui
+    version: 1.0.0
+    condition: front-ui.enabled
+  - name: accounts-service
+    version: 1.0.0
+    condition: accounts-service.enabled
+  - name: cash-service
+    version: 1.0.0
+    condition: cash-service.enabled
+  - name: transfer-service
+    version: 1.0.0
+    condition: transfer-service.enabled
+  - name: notifications-service
+    version: 1.0.0
+    condition: notifications-service.enabled
+  - name: zipkin
+    version: 1.0.0
+    condition: zipkin.enabled
+  - name: prometheus
+    version: 1.0.0
+    condition: prometheus.enabled
+  - name: grafana
+    version: 1.0.0
+    condition: grafana.enabled
+  - name: elasticsearch
+    version: 1.0.0
+    condition: elasticsearch.enabled
+  - name: logstash
+    version: 1.0.0
+    condition: logstash.enabled
+  - name: kibana
+    version: 1.0.0
+    condition: kibana.enabled

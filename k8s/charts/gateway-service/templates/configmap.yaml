@@ -60,25 +60,22 @@ data:
         enabled: false
 
     management:
-      endpoint:
-        gateway:
-          access: unrestricted
-        health:
-          show-details: always
-          probes:
-            enabled: true
-     
       endpoints:
         web:
           exposure:
-            include: health,info,gateway,metrics,prometheus
+            include: health,info,circuitbreakers,retries,metrics,prometheus
+      endpoint:
+        health:
+          show-details: always
+          probes:
+            enabled: true   # важно для k8s readiness/liveness
       tracing:
         sampling:
-          probability: 1.0
+          probability: 1.0  # для проверки, чтобы всегда были трейсы
         service-name: ${spring.application.name}
-      zipkin:
-        tracing:
-          endpoint: http://{{ .Release.Name }}-zipkin:9411/api/v2/spans
+        export:
+          zipkin:
+            endpoint: http://{{ .Release.Name }}-zipkin:9411/api/v2/spans
 
     logging:
       level:
