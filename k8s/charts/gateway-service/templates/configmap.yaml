@@ -78,5 +78,8 @@ data:
             endpoint: http://{{ .Release.Name }}-zipkin:9411/api/v2/spans
 
     logging:
+      structured:
+        format:
+          console: ecs 
       level:
         org.springframework.cloud.gateway: DEBUG

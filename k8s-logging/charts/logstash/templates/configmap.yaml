@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-pipeline
+  namespace: monitoring
+data:
+  logstash.conf: |
+    input {
+      # Filebeat → Logstash (основной источник в K8s)
+      beats {
+        port => 5044
+      }
+      # TCP совместимость с docker-compose (json_lines)
+      tcp {
+        port => 5000
+        codec => json_lines
+      }
+    }
+
+    filter {
+      # ── Убираем шум ──────────────────────────────────────
+      if [log][logger] =~ "activemq" or [log][logger] =~ "org.apache.kafka" {
+        drop { }
+      }
+
+      # ── Парсим бизнес-события ─────────────────────────────
+      if [message] =~ "User ID:" {
+        grok {
+          match => { "message" => "User ID: %{NUMBER:user_id} - Action: %{WORD:action}" }
+          add_tag => [ "business_event" ]
+        }
+      }
+
+      # ── Нормализуем service_name ──────────────────────────
+      # ECS формат: service.name → service_name для индекса
+      if [service][name] and ![service_name] {
+        mutate {
+          add_field => { "service_name" => "%{[service][name]}" }
+        }
+      }
+      if ![service_name] {
+        mutate {
+          add_field => { "service_name" => "unknown_service" }
+        }
+      }
+
+      # ── Добавляем namespace из Filebeat метаданных ────────
+      if [kubernetes][namespace] and ![namespace] {
+        mutate {
+          add_field => { "namespace" => "%{[kubernetes][namespace]}" }
+        }
+      }
+
+      # ── Нормализуем уровень лога ──────────────────────────
+      if [log][level] and ![level] {
+        mutate {
+          add_field => { "level" => "%{[log][level]}" }
+          uppercase => [ "level" ]
+        }
+      }
+    }
+
+    output {
+      elasticsearch {
+        hosts => ["http://elasticsearch-service:9200"]
+        index => "monitoring-logs-%{+YYYY.MM.dd}"
+      }
+      # Раскомментировать для отладки:
+      # stdout { codec => rubydebug }
+    }

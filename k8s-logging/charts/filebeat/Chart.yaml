@@ -1,0 +1,5 @@
+apiVersion: v2
+name: filebeat
+description: Filebeat DaemonSet — читает логи подов mybank
+version: 1.0.0
+appVersion: "8.12.0"

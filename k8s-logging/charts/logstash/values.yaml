@@ -1,0 +1,15 @@
+enabled: true
+image:
+  repository: docker.elastic.co/logstash/logstash
+  tag: "8.12.0"
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "100m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+javaOpts: "-Xms256m -Xmx256m"
+service:
+  beatsPort: 5044
+  tcpPort: 5000
