@@ -39,7 +39,7 @@ spec:
           startupProbe:
             httpGet:
               path: /actuator/health
-              port: 8080
+              port: 8090
             failureThreshold: 30
             periodSeconds: 10
           readinessProbe:

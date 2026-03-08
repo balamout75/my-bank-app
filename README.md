@@ -89,7 +89,7 @@ my-bank-app/
 ├── notifications-service/  # Микросервис уведомлений (Kafka consumer)
 ├── gateway-service/        # API Gateway
 ├── front-ui/               # Веб-интерфейс (Thymeleaf)
-├── keycloak/               # Realm export
+├── keycloak/               # Realm export (генерируется подстановкой значений)
 │
 ├── k8s/
 │   ├── mybank/             # Helm-чарт приложения     → k8s/mybank/README.md
@@ -189,7 +189,7 @@ helm upgrade --install mybank . -n mybank --create-namespace -f values-local.yam
 
 ## Личный контекст
 
-В этой работе я сознательно вышел из зоны комфорта — предыдущие проекты были на Gradle и WebFlux, здесь использованы **Maven** и классический **Spring MVC**. Это позволило глубже понять традиционный servlet-стек.
+В этой работе я вышел из зоны комфорта — предыдущие проекты были на Gradle и WebFlux, здесь использованы **Maven** и классический **Spring MVC**. Это позволило глубже понять традиционный servlet-стек.
 
 ---
 
