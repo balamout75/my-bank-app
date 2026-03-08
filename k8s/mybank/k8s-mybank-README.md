@@ -128,8 +128,8 @@ kubectl edit configmap coredns -n kube-system
 
 ```
     rewrite name keycloak.mybank.dev.local mybank-keycloak.mybank.svc.cluster.local
-    rewrite name keycloak.mybank.test.local mybank-test-keycloak.test.svc.cluster.local
-    rewrite name keycloak.mybank.prod.local mybank-prod-keycloak.prod.svc.cluster.local
+    rewrite name keycloak.mybank.test.local mybank-test-keycloak.mybank-test.svc.cluster.local
+    rewrite name keycloak.mybank.prod.local mybank-prod-keycloak.mybank-prod.svc.cluster.local
 ```
 
 > ⚠️ Команда чувствительна к форматированию и отступам. Проверьте что правила добавились корректно.

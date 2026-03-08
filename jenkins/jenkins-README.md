@@ -110,7 +110,7 @@ Jenkinsfile использует **shared functions** для устранени�
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  Build & Test                                               │
-│  mvn clean install -T 1C (компиляция + unit-тесты)          │
+│  mvn clean install (компиляция + unit-тесты)          │
 ├─────────────────────────────────────────────────────────────┤
 │  Build & Push Docker Images (parallel)                      │
 │  docker build × 6 сервисов параллельно → GHCR               │

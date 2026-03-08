@@ -26,12 +26,12 @@ spec:
             - containerPort: 9411
               name: http
           env:
-            - name: JAVA_OPTS
-              value: "-Xms512m -Xmx512m -XX:+ExitOnOutOfMemoryError"
             - name: STORAGE_TYPE
-              value: {{ .Values.storage.type | quote }}
+              value: {{ .Values.storage.type }}
+            {{- if eq .Values.storage.type "elasticsearch" }}
             - name: ES_HOSTS
-              value: {{ .Values.storage.esHosts | quote }}
+              value: {{ .Values.storage.esHosts }}
+            {{- end }}
           readinessProbe:
             httpGet:
               path: /health

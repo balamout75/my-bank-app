@@ -39,18 +39,22 @@ spec:
             - name: config
               mountPath: /config
               readOnly: true
-          readinessProbe:
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            failureThreshold: 30
+            periodSeconds: 10
+           readinessProbe:
             httpGet:
               path: /actuator/health
               port: 8081
-            initialDelaySeconds: 30
-            periodSeconds: 10
+             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /actuator/health
               port: 8081
-            initialDelaySeconds: 45
-            periodSeconds: 15
+             periodSeconds: 15
       volumes:
         - name: config
           configMap:
