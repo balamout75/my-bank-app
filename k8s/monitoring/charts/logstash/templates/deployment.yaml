@@ -24,6 +24,8 @@ spec:
             - containerPort: 5000
               name: tcp
           env:
+            - name: XPACK_MONITORING_ENABLED
+              value: "false"
             - name: LS_JAVA_OPTS
               value: {{ .Values.javaOpts | quote }}
           resources:

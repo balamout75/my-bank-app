@@ -33,19 +33,28 @@ spec:
             - name: config
               mountPath: /etc/filebeat
               readOnly: true
+            - name: data
+              mountPath: /usr/share/filebeat/data
             - name: varlog
               mountPath: /var/log
               readOnly: true
-            - name: varlibdockercontainers
+            # containerd: логи в /var/log/pods (покрыто varlog)
+            # docker:     логи в /var/lib/docker/containers
+            - name: varlibcontainers
               mountPath: /var/lib/docker/containers
               readOnly: true
       volumes:
         - name: config
           configMap:
             name: filebeat-config
+        - name: data
+          hostPath:
+            path: /var/lib/filebeat-data
+            type: DirectoryOrCreate
         - name: varlog
           hostPath:
             path: /var/log
-        - name: varlibdockercontainers
+        - name: varlibcontainers
           hostPath:
             path: /var/lib/docker/containers
+            type: DirectoryOrCreate

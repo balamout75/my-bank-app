@@ -142,7 +142,7 @@ data:
       # ── Маскировка PII ──────────────────────────────────────────
       # Regex fix: [^,}\]]+ вместо [\w\s\-\.]+ чтобы матчить Smith2, Alice и т.д.
       # останавливаемся на запятой, закрывающей скобке } или ]
-      if [namespace] == "mybank" {
+      if [namespace] =~ "^mybank" {
         mutate {
           gsub => [
             "message", "(?i)(firstName|lastName|fullName|recipientName|senderName|accountName)(\\s*[:=]\\s*)[^,}\\]]+", "\\1\\2[MASKED]"

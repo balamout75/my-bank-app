@@ -175,7 +175,12 @@ kube-prometheus-stack:
 ### Шаг 6. Установить чарт
 
 ```bash
-helm install k8s-monitoring . -n monitoring --create-namespace -f values-local.yaml
+cd k8s/monitoring
+helm dependency update
+helm upgrade --install k8s-monitoring . -n monitoring --create-namespace -f values-local.yaml
+
+ну, или при первой установке 
+helm upgrade --install k8s-monitoring . -n monitoring --create-namespace -f values-local.yaml
 ```
 
 ### Шаг 7. Проверить готовность
