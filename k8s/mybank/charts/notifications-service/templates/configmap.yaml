@@ -26,10 +26,10 @@ data:
           auto-offset-reset: earliest          
           enable-auto-commit: false            
           key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-          value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+          value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
           properties:
-            spring.json.use.type.headers: false    # Игнорировать Java-класс из заголовков
-            spring.json.value.default.type: com.mybank.notifications.dto.NotificationEvent		
+            spring.json.use.type.headers: false
+            spring.json.value.default.type: com.mybank.notifications.dto.NotificationEvent
             spring.json.trusted.packages: com.mybank.*
             reconnect.backoff.ms: 1000
             reconnect.backoff.max.ms: 10000
@@ -47,10 +47,6 @@ data:
         properties:
           hibernate:
             default_schema: {{ .Values.db.schema }}
-    # Отключаем Eureka
-    eureka:
-      client:
-        enabled: false
 
     application:
       outbox:

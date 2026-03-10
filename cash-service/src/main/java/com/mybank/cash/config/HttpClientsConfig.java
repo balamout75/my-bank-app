@@ -26,7 +26,7 @@ public class HttpClientsConfig {
     @Bean("accountsRestClient")
     public RestClient accountsRestClient(RestClient.Builder builder, OAuth2AuthorizedClientManager manager) {
         return builder
-                .baseUrl("lb://accounts-service")
+                .baseUrl("http://mybank-accounts-service:8080")
                 .requestInterceptor(new OAuth2ClientCredentialsInterceptor(manager, "cash-service"))
                 .build();
     }

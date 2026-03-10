@@ -1,7 +1,5 @@
 package com.mybank.cash.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mybank.cash.config.TestSecurityItConfig;
 import com.mybank.cash.outbox.OutboxProcessor;
 import com.mybank.cash.template.BaseIntegrationTest;
@@ -17,14 +15,13 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
-
-import java.math.BigDecimal;
-
 import static org.mockito.Mockito.doNothing;
-
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,7 +37,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 class CashControllerIT extends BaseIntegrationTest {
 
     @Autowired MockMvc mockMvc;
-    @Autowired ObjectMapper objectMapper;
+    @Autowired
+    ObjectMapper objectMapper;
     @MockitoBean AccountsClient accountsClient;
     @MockitoBean OutboxProcessor outboxProcessor;
 

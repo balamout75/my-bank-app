@@ -26,3 +26,9 @@ ingress:
   enabled: true
   className: nginx
   annotations: {}
+
+dependencies:
+  schedule: "0 * * * *"  # каждый час
+  image:
+    repository: openzipkin/zipkin-dependencies
+    tag: "latest"

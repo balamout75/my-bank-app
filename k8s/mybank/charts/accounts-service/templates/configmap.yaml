@@ -21,7 +21,7 @@ data:
           fail-fast: false
         producer:
           key-serializer: org.apache.kafka.common.serialization.StringSerializer
-          value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+          value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
           acks: all                # at-least-once: ждём подтверждения от всех реплик
           retries: 3
           properties:
@@ -60,10 +60,6 @@ data:
         properties:
           hibernate:
             default_schema: {{ .Values.db.schema }}
-    # Отключаем Eureka
-    eureka:
-      client:
-        enabled: false
 
     application:
       kafka:

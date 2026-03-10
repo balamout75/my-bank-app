@@ -14,13 +14,6 @@ public class NotificationKafkaListener {
 
     private final NotificationService notificationService;
 
-    /**
-     * Потребляет события из топика notifications.
-     *
-     * Стратегия: at-least-once — offset коммитится после обработки.
-     * Идемпотентность обеспечивается на уровне БД (service + operationId).
-     * При дублировании сообщения просто игнорируются.
-     */
     @KafkaListener(
             topics = "${application.kafka.topic.notifications:notifications}",
             groupId = "${spring.kafka.consumer.group-id:notifications-service}"
@@ -28,10 +21,8 @@ public class NotificationKafkaListener {
     public void onNotificationEvent(NotificationEvent event) {
         log.info("📩 KAFKA RECEIVED: service={}, opId={}, user={}",
                 event.service(), event.operationId(), event.username());
-
         try {
             boolean created = notificationService.createFromEvent(event);
-
             if (created) {
                 log.info("✅ NOTIFICATION CREATED: service={}, opId={}, user={}",
                         event.service(), event.operationId(), event.username());
@@ -42,7 +33,7 @@ public class NotificationKafkaListener {
         } catch (Exception e) {
             log.error("❌ NOTIFICATION ERROR: service={}, opId={}, error={}",
                     event.service(), event.operationId(), e.getMessage(), e);
-            throw e; // Повторная попытка через Kafka retry
+            throw e;
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.mybank.transfer.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.*;
@@ -26,7 +28,7 @@ public class HttpClientsConfig {
     @Bean("accountsRestClient")
     public RestClient accountsRestClient(RestClient.Builder builder, OAuth2AuthorizedClientManager manager) {
         return builder
-                .baseUrl("lb://accounts-service")
+                .baseUrl("http://mybank-accounts-service:8080")
                 .requestInterceptor(new OAuth2ClientCredentialsInterceptor(manager, "transfer-service"))
                 .build();
     }

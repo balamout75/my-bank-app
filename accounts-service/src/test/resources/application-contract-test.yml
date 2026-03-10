@@ -8,6 +8,11 @@ spring:
     config:
       enabled: false
 
-eureka:
-  client:
-    enabled: false
+stubrunner:
+  cloud:
+    eureka:
+      enabled: false
+    consul:
+      enabled: false
+    zookeeper:
+      enabled: false

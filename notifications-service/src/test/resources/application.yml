@@ -21,10 +21,6 @@ spring:
     config:
       enabled: false
 
-eureka:
-  client:
-    enabled: false
-
 logging:
   level:
     root: INFO

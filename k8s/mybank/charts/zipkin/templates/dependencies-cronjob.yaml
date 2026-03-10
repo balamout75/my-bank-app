@@ -1,0 +1,38 @@
+﻿{{- if eq .Values.storage.type "elasticsearch" }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mybank-zipkin-dependencies
+  labels:
+    app: zipkin-dependencies
+    app.kubernetes.io/name: zipkin-dependencies
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  schedule: {{ .Values.dependencies.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: zipkin-dependencies
+              image: "{{ .Values.dependencies.image.repository }}:{{ .Values.dependencies.image.tag }}"
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: STORAGE_TYPE
+                  value: elasticsearch
+                - name: ES_HOSTS
+                  value: {{ .Values.storage.esHosts | quote }}
+                - name: JAVA_OPTS
+                  value: "-Xms256m -Xmx512m"
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+{{- end }}

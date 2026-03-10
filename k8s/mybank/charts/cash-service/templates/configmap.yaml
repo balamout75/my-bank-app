@@ -21,7 +21,7 @@ data:
           fail-fast: false
         producer:
           key-serializer: org.apache.kafka.common.serialization.StringSerializer
-          value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+          value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
           acks: all                # at-least-once: ждём подтверждения от всех реплик
           retries: 3
           properties:
@@ -51,19 +51,6 @@ data:
           resourceserver:
             jwt:
               issuer-uri: http://{{ .Values.global.keycloakHost }}/realms/mybank
-      # Статические instances для lb:// (замена Eureka)
-      cloud:
-        discovery:
-          client:
-            simple:
-              instances:
-                accounts-service:
-                  - uri: http://mybank-accounts-service:8080
-
-    # Отключаем Eureka
-    eureka:
-      client:
-        enabled: false
 
     application:
       kafka:
