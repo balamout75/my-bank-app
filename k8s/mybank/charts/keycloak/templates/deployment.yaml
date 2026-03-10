@@ -31,22 +31,22 @@ spec:
             - name: KC_SECRET_ACCOUNTS
               valueFrom:
                 secretKeyRef:
-                  name: mybank-keycloak-realm-secrets
+                  name: {{ .Release.Name }}-keycloak-realm-secrets
                   key: KC_SECRET_ACCOUNTS
             - name: KC_SECRET_CASH
               valueFrom:
                 secretKeyRef:
-                  name: mybank-keycloak-realm-secrets
+                  name: {{ .Release.Name }}-keycloak-realm-secrets
                   key: KC_SECRET_CASH
             - name: KC_SECRET_TRANSFER
               valueFrom:
                 secretKeyRef:
-                  name: mybank-keycloak-realm-secrets
+                  name: {{ .Release.Name }}-keycloak-realm-secrets
                   key: KC_SECRET_TRANSFER
             - name: KC_SECRET_FRONTEND
               valueFrom:
                 secretKeyRef:
-                  name: mybank-keycloak-realm-secrets
+                  name: {{ .Release.Name }}-keycloak-realm-secrets
                   key: KC_SECRET_FRONTEND
           volumeMounts:
             - name: realm-template
@@ -71,7 +71,7 @@ spec:
             - name: KEYCLOAK_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: mybank-keycloak
+                  name: {{ .Release.Name }}-keycloak
                   key: KEYCLOAK_ADMIN_PASSWORD
             - name: KC_HTTP_ENABLED
               value: "true"
@@ -102,6 +102,6 @@ spec:
       volumes:
         - name: realm-template
           configMap:
-            name: mybank-keycloak-realm
+            name: {{ .Release.Name }}-keycloak-realm
         - name: realm-ready
           emptyDir: {}
