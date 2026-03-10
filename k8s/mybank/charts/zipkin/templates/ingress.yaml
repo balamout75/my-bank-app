@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Release.Name }}-zipkin
+  name: mybank-zipkin
   labels:
     app: zipkin
     app.kubernetes.io/name: zipkin
@@ -23,7 +23,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ .Release.Name }}-zipkin
+                name: mybank-zipkin
                 port:
                   number: {{ .Values.service.port }}
 {{- end }}

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-transfer-service
+  name: mybank-transfer-service
   labels:
     app: transfer-service
     app.kubernetes.io/name: transfer-service
@@ -30,7 +30,7 @@ spec:
               value: "optional:file:/config/application.yml"
           envFrom:
             - secretRef:
-                name: {{ .Release.Name }}-transfer-service
+                name: mybank-transfer-service
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
@@ -56,4 +56,4 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: {{ .Release.Name }}-transfer-service
+            name: mybank-transfer-service

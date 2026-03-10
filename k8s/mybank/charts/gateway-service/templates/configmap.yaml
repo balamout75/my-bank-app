@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-gateway-service
+  name: mybank-gateway-service
   labels:
     app: gateway-service
     app.kubernetes.io/name: gateway-service
@@ -22,21 +22,21 @@ data:
               # Маршруты через K8s DNS (вместо Eureka lb://)
               routes:
                 - id: accounts-service
-                  uri: http://{{ .Release.Name }}-accounts-service:{{ .Values.routes.accountsService.port }}
+                  uri: http://mybank-accounts-service:{{ .Values.routes.accountsService.port }}
                   predicates:
                     - Path=/api/accounts/**
                   filters:
                     - StripPrefix=1
 
                 - id: cash-service
-                  uri: http://{{ .Release.Name }}-cash-service:{{ .Values.routes.cashService.port }}
+                  uri: http://mybank-cash-service:{{ .Values.routes.cashService.port }}
                   predicates:
                     - Path=/api/cash/**
                   filters:
                     - StripPrefix=1
 
                 - id: transfer-service
-                  uri: http://{{ .Release.Name }}-transfer-service:{{ .Values.routes.transferService.port }}
+                  uri: http://mybank-transfer-service:{{ .Values.routes.transferService.port }}
                   predicates:
                     - Path=/api/transfer/**
                   filters:
@@ -63,7 +63,7 @@ data:
       endpoints:
         web:
           exposure:
-            include: health,info,circuitbreakers,retries,metrics,prometheus
+            include: health,info,metrics,prometheus
       endpoint:
         health:
           show-details: always
@@ -75,7 +75,7 @@ data:
         service-name: ${spring.application.name}
         export:
           zipkin:
-            endpoint: http://{{ .Release.Name }}-zipkin:9411/api/v2/spans
+            endpoint: http://mybank-zipkin:9411/api/v2/spans
 
     logging:
       structured:

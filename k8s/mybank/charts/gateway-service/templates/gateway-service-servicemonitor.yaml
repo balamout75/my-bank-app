@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ .Release.Name }}-gateway-service
+  name: mybank-gateway-service
   namespace: monitoring
   labels:
     release: monitoring
@@ -15,7 +15,6 @@ spec:
   selector:
     matchLabels:
       app: gateway-service
-      app.kubernetes.io/instance: {{ .Release.Name }}
   endpoints:
     - port: http
       path: /actuator/prometheus

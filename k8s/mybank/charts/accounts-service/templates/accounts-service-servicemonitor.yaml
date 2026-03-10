@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ .Release.Name }}-accounts-service
+  name: mybank-accounts-service
   namespace: monitoring          
   labels:
     release: monitoring          

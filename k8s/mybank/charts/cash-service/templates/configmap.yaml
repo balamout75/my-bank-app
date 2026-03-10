@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-cash-service
+  name: mybank-cash-service
   labels:
     app: cash-service
     app.kubernetes.io/name: cash-service
@@ -58,7 +58,7 @@ data:
             simple:
               instances:
                 accounts-service:
-                  - uri: http://{{ .Release.Name }}-accounts-service:8080
+                  - uri: http://mybank-accounts-service:8080
 
     # Отключаем Eureka
     eureka:
@@ -137,7 +137,7 @@ data:
         service-name: ${spring.application.name}
         export:
           zipkin:
-            endpoint: http://{{ .Release.Name }}-zipkin:9411/api/v2/spans    
+            endpoint: http://mybank-zipkin:9411/api/v2/spans    
 
     logging:
       structured:

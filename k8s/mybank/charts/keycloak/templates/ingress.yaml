@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Release.Name }}-keycloak
+  name: mybank-keycloak
   labels:
     app: keycloak
     app.kubernetes.io/name: keycloak
@@ -23,7 +23,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ .Release.Name }}-keycloak
+                name: mybank-keycloak
                 port:
                   number: {{ .Values.service.port }}
 {{- end }}

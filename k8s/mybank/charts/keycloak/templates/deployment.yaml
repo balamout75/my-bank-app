@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-keycloak
+  name: mybank-keycloak
   labels:
     app: keycloak
     app.kubernetes.io/name: keycloak
@@ -31,22 +31,22 @@ spec:
             - name: KC_SECRET_ACCOUNTS
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-keycloak-realm-secrets
+                  name: mybank-keycloak-realm-secrets
                   key: KC_SECRET_ACCOUNTS
             - name: KC_SECRET_CASH
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-keycloak-realm-secrets
+                  name: mybank-keycloak-realm-secrets
                   key: KC_SECRET_CASH
             - name: KC_SECRET_TRANSFER
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-keycloak-realm-secrets
+                  name: mybank-keycloak-realm-secrets
                   key: KC_SECRET_TRANSFER
             - name: KC_SECRET_FRONTEND
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-keycloak-realm-secrets
+                  name: mybank-keycloak-realm-secrets
                   key: KC_SECRET_FRONTEND
           volumeMounts:
             - name: realm-template
@@ -71,7 +71,7 @@ spec:
             - name: KEYCLOAK_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-keycloak
+                  name: mybank-keycloak
                   key: KEYCLOAK_ADMIN_PASSWORD
             - name: KC_HTTP_ENABLED
               value: "true"
@@ -83,22 +83,25 @@ spec:
             - name: realm-ready
               mountPath: /opt/keycloak/data/import
               readOnly: true
+          startupProbe:
+            tcpSocket:
+              port: 8080
+            failureThreshold: 30
+            periodSeconds: 10
           readinessProbe:
             tcpSocket:
               port: 8080
-            initialDelaySeconds: 60
             periodSeconds: 10
             failureThreshold: 15
           livenessProbe:
             tcpSocket:
               port: 8080
-            initialDelaySeconds: 120
             periodSeconds: 15
             failureThreshold: 10
 
       volumes:
         - name: realm-template
           configMap:
-            name: {{ .Release.Name }}-keycloak-realm
+            name: mybank-keycloak-realm
         - name: realm-ready
           emptyDir: {}

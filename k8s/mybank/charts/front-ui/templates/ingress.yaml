@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Release.Name }}-front-ui
+  name: mybank-front-ui
   labels:
     app: front-ui
     app.kubernetes.io/name: front-ui
@@ -24,7 +24,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ .Release.Name }}-gateway-service
+                name: mybank-gateway-service
                 port:
                   number: 8090
           # Всё остальное → Front UI
@@ -32,7 +32,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ .Release.Name }}-front-ui
+                name: mybank-front-ui
                 port:
                   number: {{ .Values.service.port }}
 {{- end }}

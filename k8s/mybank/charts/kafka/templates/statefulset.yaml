@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ .Release.Name }}-kafka
+  name: mybank-kafka
   labels:
     app: kafka
     app.kubernetes.io/name: kafka
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
-  serviceName: {{ .Release.Name }}-kafka
+  serviceName: mybank-kafka
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
@@ -35,11 +35,11 @@ spec:
             - name: KAFKA_PROCESS_ROLES
               value: "broker,controller"
             - name: KAFKA_CONTROLLER_QUORUM_VOTERS
-              value: "1@{{ .Release.Name }}-kafka-0.{{ .Release.Name }}-kafka.{{ .Release.Namespace }}.svc.cluster.local:9093"
+              value: "1@mybank-kafka-0.mybank-kafka.{{ .Release.Namespace }}.svc.cluster.local:9093"
             - name: KAFKA_LISTENERS
               value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
             - name: KAFKA_ADVERTISED_LISTENERS
-              value: "PLAINTEXT://{{ .Release.Name }}-kafka.{{ .Release.Namespace }}.svc.cluster.local:9092"
+              value: "PLAINTEXT://mybank-kafka.{{ .Release.Namespace }}.svc.cluster.local:9092"
             - name: KAFKA_CONTROLLER_LISTENER_NAMES
               value: "CONTROLLER"
             - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
@@ -61,16 +61,19 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/kafka/data
+          startupProbe:
+            tcpSocket:
+              port: 9092
+            failureThreshold: 30
+            periodSeconds: 10
           readinessProbe:
             tcpSocket:
               port: 9092
-            initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 10
           livenessProbe:
             tcpSocket:
               port: 9092
-            initialDelaySeconds: 60
             periodSeconds: 15
             failureThreshold: 10
   volumeClaimTemplates:

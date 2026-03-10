@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-accounts-service
+  name: mybank-accounts-service
   labels:
     app: accounts-service
     app.kubernetes.io/name: accounts-service
@@ -60,14 +60,6 @@ data:
         properties:
           hibernate:
             default_schema: {{ .Values.db.schema }}
-      # Статические instances для lb:// (замена Eureka)
-      cloud:
-        discovery:
-          client:
-            simple:
-              instances:
-                notifications-service:
-                  - uri: http://{{ .Release.Name }}-notifications-service:8080
     # Отключаем Eureka
     eureka:
       client:
@@ -85,47 +77,11 @@ data:
           limit: 10
         max-attempts: 5
 
-    resilience4j:
-      retry:
-        retry-aspect-order: 2
-        instances:
-          notifications-service:
-            max-attempts: 2
-            wait-duration: 300ms
-            exponential-backoff-multiplier: 2
-            retry-exceptions:
-              - org.springframework.web.client.ResourceAccessException
-              - java.net.ConnectException
-              - java.net.SocketTimeoutException
-              - java.io.IOException
-            ignore-exceptions:
-              - io.github.resilience4j.circuitbreaker.CallNotPermittedException
-              - org.springframework.web.client.HttpClientErrorException$BadRequest
-              - org.springframework.web.client.HttpClientErrorException$NotFound
-              - org.springframework.web.client.HttpClientErrorException$Forbidden
-              - org.springframework.web.client.HttpClientErrorException$Unauthorized
-      circuitbreaker:
-        circuitbreaker-aspect-order: 1
-        instances:
-          notifications-service:
-            record-exceptions:
-              - org.springframework.web.client.ResourceAccessException
-              - java.io.IOException
-              - java.net.SocketTimeoutException
-            register-health-indicator: true
-            sliding-window-type: COUNT_BASED
-            sliding-window-size: 5
-            minimum-number-of-calls: 3
-            failure-rate-threshold: 50
-            wait-duration-in-open-state: 15s
-            permitted-number-of-calls-in-half-open-state: 2
-            automatic-transition-from-open-to-half-open-enabled: true
-
     management:
       endpoints:
         web:
           exposure:
-            include: health,info,circuitbreakers,retries,metrics,prometheus
+            include: health,info,metrics,prometheus
       endpoint:
         health:
           show-details: always
@@ -140,7 +96,7 @@ data:
         service-name: ${spring.application.name}
         export:
           zipkin:
-            endpoint: http://{{ .Release.Name }}-zipkin:9411/api/v2/spans    
+            endpoint: http://mybank-zipkin:9411/api/v2/spans    
 
     logging:
       structured:

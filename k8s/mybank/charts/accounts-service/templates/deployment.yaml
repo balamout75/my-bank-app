@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-accounts-service
+  name: mybank-accounts-service
   labels:
     app: accounts-service
     app.kubernetes.io/name: accounts-service
@@ -32,7 +32,7 @@ spec:
               value: "file:/config/application-k8s.yml"
           envFrom:
             - secretRef:
-                name: {{ .Release.Name }}-accounts-service
+                name: mybank-accounts-service
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
@@ -58,4 +58,4 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: {{ .Release.Name }}-accounts-service
+            name: mybank-accounts-service

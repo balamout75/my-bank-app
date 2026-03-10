@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-front-ui
+  name: mybank-front-ui
   labels:
     app: front-ui
     app.kubernetes.io/name: front-ui
@@ -34,7 +34,7 @@ data:
                 issuer-uri: http://{{ .Values.global.keycloakHost }}/realms/mybank
     # Gateway URL — через K8s DNS (внутрикластерный)
     gateway:
-      url: http://{{ .Release.Name }}-gateway-service:8090
+      url: http://mybank-gateway-service:8090
 
     # Отключаем Eureka
     eureka:
@@ -134,7 +134,7 @@ data:
         service-name: ${spring.application.name}
         export:
           zipkin:
-            endpoint: http://{{ .Release.Name }}-zipkin:9411/api/v2/spans
+            endpoint: http://mybank-zipkin:9411/api/v2/spans
 
     logging:
       structured:

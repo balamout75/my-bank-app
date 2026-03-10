@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-transfer-service
+  name: mybank-transfer-service
   labels:
     app: transfer-service
     app.kubernetes.io/name: transfer-service
@@ -58,9 +58,7 @@ data:
             simple:
               instances:
                 accounts-service:
-                  - uri: http://{{ .Release.Name }}-accounts-service:8080
-                notifications-service:
-                  - uri: http://{{ .Release.Name }}-notifications-service:8080
+                  - uri: http://mybank-accounts-service:8080
 
     # Отключаем Eureka
     eureka:
@@ -96,19 +94,6 @@ data:
             ignore-exceptions:
               - io.github.resilience4j.circuitbreaker.CallNotPermittedException
               - org.springframework.web.client.HttpClientErrorException
-          notifications-service:
-            max-attempts: 2
-            wait-duration: 300ms
-            exponential-backoff-multiplier: 2
-            retry-exceptions:
-              - org.springframework.web.client.ResourceAccessException
-              - org.springframework.web.client.HttpServerErrorException
-              - java.net.ConnectException
-              - java.net.SocketTimeoutException
-              - java.io.IOException
-            ignore-exceptions:
-              - io.github.resilience4j.circuitbreaker.CallNotPermittedException
-              - org.springframework.web.client.HttpClientErrorException
       circuitbreaker:
         circuitbreaker-aspect-order: 1
         instances:
@@ -128,28 +113,10 @@ data:
               - org.springframework.web.client.HttpServerErrorException
               - java.io.IOException
               - java.net.SocketTimeoutException
-          notifications-service:
-            register-health-indicator: true
-            sliding-window-type: COUNT_BASED
-            sliding-window-size: 5
-            minimum-number-of-calls: 3
-            failure-rate-threshold: 50
-            wait-duration-in-open-state: 15s
-            permitted-number-of-calls-in-half-open-state: 2
-            automatic-transition-from-open-to-half-open-enabled: true
-            ignore-exceptions:
-              - org.springframework.web.client.HttpClientErrorException
-            record-exceptions:
-              - org.springframework.web.client.ResourceAccessException
-              - org.springframework.web.client.HttpServerErrorException
-              - java.io.IOException
-              - java.net.SocketTimeoutException
       timelimiter:
         instances:
           accounts-service:
             timeout-duration: 5s
-          notifications-service:
-            timeout-duration: 3s
 
     management:
       endpoints:
@@ -170,7 +137,7 @@ data:
         service-name: ${spring.application.name}
         export:
           zipkin:
-            endpoint: http://{{ .Release.Name }}-zipkin:9411/api/v2/spans    
+            endpoint: http://mybank-zipkin:9411/api/v2/spans    
 
     logging:
       structured:

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-accounts-service
+  name: mybank-accounts-service
   labels:
     app: accounts-service
     app.kubernetes.io/name: accounts-service

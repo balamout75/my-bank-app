@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-notifications-service
+  name: mybank-notifications-service
   labels:
     app: notifications-service
     app.kubernetes.io/name: notifications-service
@@ -12,7 +12,7 @@ data:
       port: 8080
     spring:
       application:
-        name: notification-service
+        name: notifications-service
       kafka:
         bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
         listener:
@@ -68,7 +68,7 @@ data:
       endpoints:
         web:
           exposure:
-            include: health,info,circuitbreakers,retries,metrics,prometheus
+            include: health,info,metrics,prometheus
       endpoint:
         health:
           show-details: always
@@ -83,7 +83,7 @@ data:
         service-name: ${spring.application.name}
         export:
           zipkin:
-            endpoint: http://{{ .Release.Name }}-zipkin:9411/api/v2/spans    
+            endpoint: http://mybank-zipkin:9411/api/v2/spans    
     
     logging:
       structured:

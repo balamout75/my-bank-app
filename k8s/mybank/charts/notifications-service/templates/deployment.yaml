@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-notifications-service
+  name: mybank-notifications-service
   labels:
     app: notifications-service
     app.kubernetes.io/name: notifications-service
@@ -30,7 +30,7 @@ spec:
               value: "optional:file:/config/application.yml"
           envFrom:
             - secretRef:
-                name: {{ .Release.Name }}-notifications-service
+                name: mybank-notifications-service
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
@@ -56,4 +56,4 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: {{ .Release.Name }}-notifications-service
+            name: mybank-notifications-service

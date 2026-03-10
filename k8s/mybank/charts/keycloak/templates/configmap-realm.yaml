@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-keycloak-realm
+  name: mybank-keycloak-realm
   labels:
     app: keycloak
     app.kubernetes.io/name: keycloak
@@ -31,7 +31,7 @@ data:
             { "name": "transfer.read" },
             { "name": "transfer.write" }
           ],
-          "notification-service": [
+          "notifications-service": [
             { "name": "notification.read" },
             { "name": "notification.write" }
           ]
@@ -73,7 +73,7 @@ data:
           "enabled": true,
           "serviceAccountClientId": "accounts-service",
           "clientRoles": {
-            "notification-service": ["notification.write"]
+            "notifications-service": ["notification.write"]
           }
         },
         {
@@ -81,16 +81,16 @@ data:
           "enabled": true,
           "serviceAccountClientId": "cash-service",
           "clientRoles": {
-            "notification-service": ["notification.write"],
+            "notifications-service": ["notification.write"],
             "accounts-service": ["balance.write"]
           }
         },
         {
-          "username": "service-account-reansfer-service",
+          "username": "service-account-transfer-service",
           "enabled": true,
           "serviceAccountClientId": "transfer-service",
           "clientRoles": {
-            "notification-service": ["notification.write"],
+            "notifications-service": ["notification.write"],
             "accounts-service": ["balance.transfer"]
           }
         }
@@ -153,7 +153,7 @@ data:
           "publicClient": false
         },
         {
-          "clientId": "notification-service",
+          "clientId": "notifications-service",
           "name": "Client Credentials для сервиса Notification Service",
           "enabled": true,
           "clientAuthenticatorType": "client-secret",
