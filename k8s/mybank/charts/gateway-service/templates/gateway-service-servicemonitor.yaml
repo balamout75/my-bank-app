@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: mybank-gateway-service
+  name: {{ .Release.Name }}-gateway-service
   namespace: monitoring
   labels:
     release: monitoring

@@ -66,7 +66,6 @@
 - Пользователь входит через **Authorization Code Flow** → JWT access token
 - Сервисы между собой — **Client Credentials Flow**
 - Каждый сервис одновременно OAuth2 **Client** и **Resource Server**
-- Актуатор-эндпоинты `/actuator/prometheus` открыты через `EndpointRequest.toAnyEndpoint().permitAll()`
 
 ---
 
@@ -99,7 +98,6 @@ my-bank-app/
 │
 ├── docker-bake.hcl         # Multi-target Docker build
 ├── Dockerfile.build        # Multi-stage Dockerfile (локальная сборка)
-├── Dockerfile.ci           # Lightweight Dockerfile (Jenkins CI, копирует JAR)
 ├── pom.xml                 # Корневой Maven POM
 ├── TECH_DEBT.md            # Технический долг
 └── README.md               # Этот файл
@@ -190,7 +188,7 @@ helm upgrade --install mybank . -n mybank --create-namespace -f values-local.yam
 ## Личный контекст
 
 В этой работе я вышел из зоны комфорта — предыдущие проекты были на Gradle и WebFlux, здесь использованы **Maven** и классический **Spring MVC**. Это позволило глубже понять традиционный servlet-стек.
-
+Очень много интересностей произошло из-за использования Spring Boot 4. Сериализаторы и Десериализаторы еще долго будут развлекать
 ---
 
 ## Автор

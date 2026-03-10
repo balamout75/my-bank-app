@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: mybank-transfer-service
+  name: {{ .Release.Name }}-transfer-service
   namespace: monitoring
   labels:
     release: monitoring
