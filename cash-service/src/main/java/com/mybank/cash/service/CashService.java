@@ -3,13 +3,15 @@ package com.mybank.cash.service;
 import com.mybank.cash.client.AccountsClient;
 import com.mybank.cash.dto.BalanceUpdateRequest;
 import com.mybank.cash.dto.CashOperationRequest;
+import com.mybank.cash.dto.CashOperationType;
 import com.mybank.cash.dto.OperationKeyResponse;
 import com.mybank.cash.dto.OperationStatus;
 import com.mybank.cash.dto.*;
 import com.mybank.cash.exception.InvalidOperationKeyException;
 import com.mybank.cash.model.CashOperation;
 import com.mybank.cash.repository.CashOperationRepository;
-import lombok.RequiredArgsConstructor;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,12 +19,20 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class CashService {
 
     private final CashOperationRepository operationRepository;
     private final AccountsClient accountsClient;
+    private final MeterRegistry meterRegistry;
+
+    public CashService(CashOperationRepository operationRepository,
+                       AccountsClient accountsClient,
+                       MeterRegistry meterRegistry) {
+        this.operationRepository = operationRepository;
+        this.accountsClient = accountsClient;
+        this.meterRegistry = meterRegistry;
+    }
 
 
     /**
@@ -100,6 +110,15 @@ public class CashService {
             operation.setCompletedAt(LocalDateTime.now());
             operation.setErrorMessage(e.getMessage());
             operationRepository.save(operation);
+
+            if (operation.getType() == CashOperationType.WITHDRAW) {
+                Counter.builder("cash_withdraw_failed_total")
+                        .description("Number of failed withdrawal attempts")
+                        .tag("username", operation.getUsername())
+                        .register(meterRegistry)
+                        .increment();
+            }
+
             log.error("❌ Operation FAILED: id={}, error={}", operation.getOperationId(), e.getMessage(), e);
             throw e;
         }

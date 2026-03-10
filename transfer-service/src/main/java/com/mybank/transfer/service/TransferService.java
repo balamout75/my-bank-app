@@ -5,7 +5,8 @@ import com.mybank.transfer.dto.*;
 import com.mybank.transfer.exception.InvalidOperationKeyException;
 import com.mybank.transfer.model.TransferOperation;
 import com.mybank.transfer.repository.TransferOperationRepository;
-import lombok.RequiredArgsConstructor;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,12 +14,20 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class TransferService {
 
     private final TransferOperationRepository operationRepository;
     private final AccountsClient accountsClient;
+    private final MeterRegistry meterRegistry;
+
+    public TransferService(TransferOperationRepository operationRepository,
+                           AccountsClient accountsClient,
+                           MeterRegistry meterRegistry) {
+        this.operationRepository = operationRepository;
+        this.accountsClient = accountsClient;
+        this.meterRegistry = meterRegistry;
+    }
 
     /**
      * Генерирует новый ключ операции
@@ -95,6 +104,14 @@ public class TransferService {
             operation.setCompletedAt(LocalDateTime.now());
             operation.setErrorMessage(e.getMessage());
             operationRepository.save(operation);
+
+            Counter.builder("transfer_failed_total")
+                    .description("Number of failed transfer attempts")
+                    .tag("sender", operation.getUsername())
+                    .tag("recipient", operation.getRecipient())
+                    .register(meterRegistry)
+                    .increment();
+
             log.error("❌ Operation FAILED: id={}, error={}", operation.getOperationId(), e.getMessage(), e);
             throw e;
         }

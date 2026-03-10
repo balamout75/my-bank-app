@@ -241,6 +241,7 @@ Analytics → Discover
 ```
 
 Добавить колонки: `kubernetes.namespace`, `service_name`, `log.level`, `message`, `kubernetes.pod.name`
+Для выполнения
 
 Сохранить как: **mybank-logs**
 

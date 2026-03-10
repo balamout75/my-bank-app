@@ -3,6 +3,8 @@ package com.mybank.notifications.service;
 import com.mybank.notifications.model.Notification;
 import com.mybank.notifications.model.OperationStatus;
 import com.mybank.notifications.repository.NotificationRepository;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +18,7 @@ import java.util.Map;
 public class OutboxProcessor {
 
     private final NotificationRepository notificationRepository;
+    private final MeterRegistry meterRegistry;
 
     @Value("${application.outbox.order.limit:10}")
     private int limit;
@@ -23,8 +26,10 @@ public class OutboxProcessor {
     @Value("${application.outbox.max-attempts:5}")
     private int maxAttempts;
 
-    public OutboxProcessor(NotificationRepository notificationRepository) {
+    public OutboxProcessor(NotificationRepository notificationRepository,
+                           MeterRegistry meterRegistry) {
         this.notificationRepository = notificationRepository;
+        this.meterRegistry = meterRegistry;
     }
 
     @Scheduled(fixedDelayString = "${application.outbox.fixed-delay-ms:5000}")
@@ -65,6 +70,12 @@ public class OutboxProcessor {
                         notification.getPayload());
                 notification.setStatus(OperationStatus.UNNOTIFIED);
                 notification.setError("notification unavailable");
+
+                Counter.builder("notification_failed_total")
+                        .description("Number of failed notification attempts")
+                        .tag("username", notification.getUsername())
+                        .register(meterRegistry)
+                        .increment();
             }
         }
         notification.touch();
