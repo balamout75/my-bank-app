@@ -235,7 +235,7 @@ Stack Management → Data Views → Create data view
 Analytics → Discover
 ```
 
-Добавить колонки: `service_name`, `level`, `message`, `kubernetes.pod.name`
+Добавить колонки: `kubernetes.namespace`, `service_name`, `log.level`, `message`, `kubernetes.pod.name`
 
 Сохранить как: **mybank-logs**
 
@@ -249,27 +249,35 @@ Stack Management → Saved Objects → Import
 |------|---------|
 | `kibana/notifications-dashboard.ndjson` | Операции через notifications-service |
 
-### 4. Полезные KQL-запросы
-
-```
+## Полезные KQL-запросы
+```kql
 # Только ошибки
-level: "ERROR"
+log.level: "ERROR"
 
 # Логи конкретного сервиса
-service_name: "accounts-service"
+service.name: "accounts-service"
 
 # Все уведомления
-service_name: "notification-service" AND message: *NOTIFIED*
+service.name: "notifications-service" AND message: *NOTIFIED*
 
 # Переводы
-service_name: "notification-service" AND message: *TRANSFER*
+service.name: "notifications-service" AND message: *TRANSFER*
 
 # Ошибки notifications
-service_name: "notification-service" AND message: *ERROR*
+service.name: "notifications-service" AND message: *ERROR*
 
 # По trace ID
 traceId: "abc123"
+
+# По namespace — фильтрация по среде (dev / test / prod)
+kubernetes.namespace: "mybank"
 ```
+
+> **Фильтр по `kubernetes.namespace`** особенно важен при использовании Dashboard:
+> без него все среды (`mybank`, `mybank-test`, `mybank-prod`) попадают в одну выборку,
+> и счётчики уведомлений, ошибок и операций суммируются по всем окружениям сразу.
+> Добавив этот фильтр в Dashboard как глобальный, вы получаете изолированный
+> срез метрик для каждой среды — что критично при параллельном деплое в test и prod.
 
 ---
 
