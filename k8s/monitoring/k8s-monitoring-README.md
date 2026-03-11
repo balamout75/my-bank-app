@@ -64,6 +64,73 @@ k8s/mybank/
     └── zipkin/
 ```
 ---
+## Метрики и алерты
+
+### Поставка метрик в Prometheus
+
+Каждый микросервис и Front UI используют **Spring Boot Actuator** + **Micrometer** с реестром `micrometer-registry-prometheus`. Метрики доступны на эндпоинте `/actuator/prometheus` и скрейпятся Prometheus через `ServiceMonitor` (CRD из kube-prometheus-stack, namespace `monitoring`).
+
+Стандартные метрики, доступные из коробки:
+
+| Категория | Что отслеживается |
+|-----------|-------------------|
+| HTTP-запросы | RPS, статусы 4xx/5xx, персентили таймингов (`http_server_requests_seconds_count`, `http_server_requests_seconds_bucket`) |
+| JVM память | Heap/non-heap usage (`jvm_memory_used_bytes`, `jvm_memory_max_bytes`) |
+| JVM потоки | Live/daemon threads (`jvm_threads_live_threads`) |
+| GC | Паузы и частота (`jvm_gc_pause_seconds_count`) |
+| CPU | Процесс и система (`process_cpu_usage`, `system_cpu_usage`) |
+| Spring Boot | Репозитории, Kafka listener и другие автоконфигурируемые метрики |
+
+### Кастомные бизнес-метрики
+
+В микросервисы добавлены Counter-метрики через `io.micrometer.core.instrument.Counter` + `MeterRegistry`:
+
+| Сервис | Метрика | Описание | Теги |
+|--------|---------|----------|------|
+| cash-service | `cash_withdraw_failed_total` | Неуспешные попытки снятия денег | `username` |
+| transfer-service | `transfer_failed_total` | Неуспешные попытки перевода | `sender`, `recipient` |
+| notifications-service | `notification_failed_total` | Невозможность доставки уведомления после исчерпания retry | `username` |
+
+### PrometheusRule — алерты
+
+Алерты описаны в `values.yaml` → `prometheusRules` и деплоятся через `PrometheusRule` CRD. Prometheus автоматически подхватывает правила и маршрутизирует срабатывания в Alertmanager.
+
+**mybank.availability** — доступность сервисов:
+
+| Алерт | Условие | Порог | Severity |
+|-------|---------|-------|----------|
+| ServiceDown | `up == 0` | 1 мин | critical |
+| HighErrorRate | `rate(5xx) / rate(all) > 5%` | 2 мин | critical |
+| SlowResponses | `P95 > 2s` | 5 мин | warning |
+
+**mybank.jvm** — здоровье JVM:
+
+| Алерт | Условие | Порог | Severity |
+|-------|---------|-------|----------|
+| HighHeapUsage | `heap used / heap max > 85%` | 5 мин | warning |
+
+**mybank.kubernetes** — состояние подов:
+
+| Алерт | Условие | Порог | Severity |
+|-------|---------|-------|----------|
+| PodCrashLooping | Под рестартуется | 5 мин | warning |
+| PodNotReady | Под не готов | 5 мин | warning |
+
+**mybank.business** — бизнес-метрики:
+
+| Алерт | Условие | Порог | Severity |
+|-------|---------|-------|----------|
+| HighWithdrawFailRate | `increase(cash_withdraw_failed_total[5m]) > 5` | 1 мин | warning |
+| HighTransferFailRate | `increase(transfer_failed_total[5m]) > 5` | 1 мин | warning |
+| NotificationDeliveryFailed | `increase(notification_failed_total[5m]) > 3` | 1 мин | critical |
+
+### Grafana Dashboard
+
+Dashboard **"MyBank — Business Metrics"** деплоится автоматически через ConfigMap в namespace `monitoring`. Содержит панели для всех метрик выше с переменной **Namespace** — можно фильтровать по `mybank`, `mybank-test`, `mybank-prod`.
+
+Проверка алертов: Prometheus UI → **Alerts**, или Alertmanager UI.
+
+---
 ## Предусловия
 - Docker Desktop с включённым Kubernetes
 - Helm v4+
