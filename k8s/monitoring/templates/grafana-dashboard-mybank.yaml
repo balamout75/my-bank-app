@@ -1,0 +1,223 @@
+﻿apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-mybank-business
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  mybank-business.json: |
+    {
+      "annotations": { "list": [] },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "links": [],
+      "templating": {
+        "list": [
+          {
+            "allValue": "mybank.*",
+            "current": { "selected": true, "text": "All", "value": "$__all" },
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "definition": "label_values(up{namespace=~\"mybank.*\"}, namespace)",
+            "includeAll": true,
+            "multi": true,
+            "name": "namespace",
+            "label": "Namespace",
+            "query": "label_values(up{namespace=~\"mybank.*\"}, namespace)",
+            "refresh": 2,
+            "sort": 1,
+            "type": "query"
+          }
+        ]
+      },
+      "panels": [
+        {
+          "title": "Неуспешные снятия (WITHDRAW) по пользователям",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "drawStyle": "bars",
+                "fillOpacity": 50,
+                "stacking": { "mode": "normal" }
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "increase(cash_withdraw_failed_total{namespace=~\"$namespace\"}[5m])",
+              "legendFormat": "{{`{{namespace}}`}} / {{`{{username}}`}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "title": "Неуспешные переводы по отправителям",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "drawStyle": "bars",
+                "fillOpacity": 50,
+                "stacking": { "mode": "normal" }
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "increase(transfer_failed_total{namespace=~\"$namespace\"}[5m])",
+              "legendFormat": "{{`{{namespace}}`}} / {{`{{sender}}`}} → {{`{{recipient}}`}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "title": "Неуспешные уведомления по пользователям",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "drawStyle": "bars",
+                "fillOpacity": 50,
+                "stacking": { "mode": "normal" }
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "increase(notification_failed_total{namespace=~\"$namespace\"}[5m])",
+              "legendFormat": "{{`{{namespace}}`}} / {{`{{username}}`}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "title": "Общий счётчик ошибок (все сервисы)",
+          "type": "stat",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 1 },
+                  { "color": "red", "value": 5 }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "reduceOptions": { "calcs": ["lastNotNull"] }
+          },
+          "targets": [
+            {
+              "expr": "increase(cash_withdraw_failed_total{namespace=~\"$namespace\"}[5m])",
+              "legendFormat": "Withdraw failed",
+              "refId": "A"
+            },
+            {
+              "expr": "increase(transfer_failed_total{namespace=~\"$namespace\"}[5m])",
+              "legendFormat": "Transfer failed",
+              "refId": "B"
+            },
+            {
+              "expr": "increase(notification_failed_total{namespace=~\"$namespace\"}[5m])",
+              "legendFormat": "Notification failed",
+              "refId": "C"
+            }
+          ]
+        },
+        {
+          "title": "HTTP 5xx по сервисам",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": { "drawStyle": "line", "fillOpacity": 20 },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "sum by (job, namespace)(rate(http_server_requests_seconds_count{namespace=~\"$namespace\",status=~\"5..\"}[5m]))",
+              "legendFormat": "{{`{{namespace}}`}} / {{`{{job}}`}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "title": "P95 Latency по сервисам",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": { "drawStyle": "line", "fillOpacity": 10 },
+              "unit": "s"
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.95, sum by (le, job, namespace)(rate(http_server_requests_seconds_bucket{namespace=~\"$namespace\"}[5m])))",
+              "legendFormat": "{{`{{namespace}}`}} / {{`{{job}}`}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "title": "JVM Heap Usage по подам",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": { "drawStyle": "line", "fillOpacity": 15 },
+              "unit": "bytes",
+              "max": 1
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "expr": "jvm_memory_used_bytes{namespace=~\"$namespace\",area=\"heap\"} / jvm_memory_max_bytes{namespace=~\"$namespace\",area=\"heap\"}",
+              "legendFormat": "{{`{{namespace}}`}} / {{`{{pod}}`}}",
+              "refId": "A"
+            }
+          ]
+        }
+      ],
+      "schemaVersion": 39,
+      "tags": ["mybank", "business"],
+      "time": { "from": "now-1h", "to": "now" },
+      "title": "MyBank — Business Metrics",
+      "uid": "mybank-business-metrics"
+    }

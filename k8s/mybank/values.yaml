@@ -123,3 +123,29 @@ prometheusRules:
             severity: warning
           annotations:
             summary: "Pod {{ $labels.pod }} не готов"
+
+    - name: mybank.business
+      rules:
+        - alert: HighWithdrawFailRate
+          expr: increase(cash_withdraw_failed_total{namespace="mybank"}[5m]) > 5
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Много неуспешных снятий у {{ $labels.username }}"
+
+        - alert: HighTransferFailRate
+          expr: increase(transfer_failed_total{namespace="mybank"}[5m]) > 5
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Много неуспешных переводов {{ $labels.sender }} → {{ $labels.recipient }}"
+
+        - alert: NotificationDeliveryFailed
+          expr: increase(notification_failed_total{namespace="mybank"}[5m]) > 3
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Не удаётся доставить уведомления для {{ $labels.username }}"
