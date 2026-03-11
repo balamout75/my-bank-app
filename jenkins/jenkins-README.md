@@ -357,6 +357,17 @@ keycloak:
 
 > ⚠️ В `values.yaml` все секреты — пустые placeholder'ы (`""`). Реальные значения передаются через `--set` (Jenkins) или `values-local.yaml` (dev).
 
+### Фильтр ветки для Jenkins
+
+В `.env` задаётся переменная `BRANCH_FILTER` — имя ветки, которую Jenkins будет мониторить и деплоить. Pull request'ы (`PR-*`) отслеживаются всегда.
+```
+BRANCH_FILTER=sprint-12-bank-features
+```
+
+Если переменная не задана — Jenkins мониторит `main` и `master` по умолчанию. Значение подхватывается в `02_create-multibranch-job.groovy` через `System.getenv()`.
+
+> ⚠️ После смены `BRANCH_FILTER` в `.env` необходимо пересоздать Jenkins-контейнер — init-скрипты выполняются только при старте.
+
 ---
 
 ## Docker-образы
