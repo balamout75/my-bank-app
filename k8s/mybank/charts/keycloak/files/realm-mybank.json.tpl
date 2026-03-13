@@ -1,0 +1,156 @@
+{
+  "realm": "mybank",
+  "enabled": true,
+  "roles": {
+    "realm": [
+      { "name": "Client" }
+    ],
+    "client": {
+      "accounts-service": [
+        { "name": "accounts.read" },
+        { "name": "accounts.write" },
+        { "name": "balance.read" },
+        { "name": "balance.write" },
+        { "name": "balance.transfer" }
+      ],
+      "cash-service": [
+        { "name": "cash.read" },
+        { "name": "cash.write" }
+      ],
+      "transfer-service": [
+        { "name": "transfer.read" },
+        { "name": "transfer.write" }
+      ],
+      "notifications-service": [
+        { "name": "notification.read" },
+        { "name": "notification.write" }
+      ]
+    }
+  },
+  "groups": [
+    {
+      "name": "mybank",
+      "clientRoles": {
+        "accounts-service": ["accounts.read", "accounts.write"],
+        "cash-service": ["cash.read", "cash.write"],
+        "transfer-service": ["transfer.read", "transfer.write"]
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "alice",
+      "email": "alice@mybank.com",
+      "firstName": "Alice",
+      "lastName": "Smith",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "alice", "temporary": false }],
+      "realmRoles": ["Client"],
+      "groups": ["mybank"]
+    },
+    {
+      "username": "bob",
+      "email": "bob@mybank.com",
+      "firstName": "Bob",
+      "lastName": "Marley",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "bob", "temporary": false }],
+      "realmRoles": ["Client"],
+      "groups": ["mybank"]
+    },
+    {
+      "username": "service-account-accounts-service",
+      "enabled": true,
+      "serviceAccountClientId": "accounts-service",
+      "clientRoles": {
+        "notifications-service": ["notification.write"]
+      }
+    },
+    {
+      "username": "service-account-cash-service",
+      "enabled": true,
+      "serviceAccountClientId": "cash-service",
+      "clientRoles": {
+        "notifications-service": ["notification.write"],
+        "accounts-service": ["balance.write"]
+      }
+    },
+    {
+      "username": "service-account-transfer-service",
+      "enabled": true,
+      "serviceAccountClientId": "transfer-service",
+      "clientRoles": {
+        "notifications-service": ["notification.write"],
+        "accounts-service": ["balance.transfer"]
+      }
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "front-ui",
+      "name": "Frontend",
+      "enabled": true,
+      "secret": "${KC_SECRET_FRONTEND}",
+      "clientAuthenticatorType": "client-secret",
+      "redirectUris": [
+        "http://localhost:8081/*",
+        "http://mybank.dev.local/*",
+        "http://mybank.test.local/*",
+        "http://mybank.prod.local/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8081",
+        "http://mybank.dev.local",
+        "http://mybank.test.local",
+        "http://mybank.prod.local"
+      ],
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "publicClient": false
+    },
+    {
+      "clientId": "accounts-service",
+      "name": "Client Credentials для сервиса Accounts Service",
+      "enabled": true,
+      "secret": "${KC_SECRET_ACCOUNTS}",
+      "clientAuthenticatorType": "client-secret",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "publicClient": false
+    },
+    {
+      "clientId": "cash-service",
+      "name": "Client Credentials для сервиса Cash Service",
+      "enabled": true,
+      "secret": "${KC_SECRET_CASH}",
+      "clientAuthenticatorType": "client-secret",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "publicClient": false
+    },
+    {
+      "clientId": "transfer-service",
+      "name": "Client Credentials для сервиса Transfer Service",
+      "enabled": true,
+      "secret": "${KC_SECRET_TRANSFER}",
+      "clientAuthenticatorType": "client-secret",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "publicClient": false
+    },
+    {
+      "clientId": "notifications-service",
+      "name": "Client Credentials для сервиса Notification Service",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "publicClient": false
+    }
+  ]
+}

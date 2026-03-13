@@ -1,0 +1,16 @@
+replicaCount: 1
+image:
+  repository: docker.elastic.co/elasticsearch/elasticsearch
+  tag: "8.12.0"
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "1000m"
+persistence:
+  size: 10Gi
+javaOpts: "-Xms512m -Xmx512m"
+service:
+  port: 9200

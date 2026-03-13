@@ -1,3 +1,22 @@
+// ─── Предусловия среды ─────────────────────────────────────────────────────
+//
+// Перед первым запуском пайплайна кластер должен быть подготовлен:
+//
+// 1. Ingress-nginx установлен:
+//    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/
+//                       controller-v1.12.0/deploy/static/provider/cloud/deploy.yaml
+//
+// 2. Мониторинг задеплоен (ServiceMonitor CRD нужны до деплоя mybank):
+//    → см. k8s/monitoring/README.md
+//    cd k8s/monitoring && helm install k8s-monitoring . -n monitoring --create-namespace -f values-local.yaml
+//
+// 3. CoreDNS rewrite настроен для keycloak.mybank.test.local / keycloak.mybank.prod.local
+//    → см. k8s/mybank/README.md, Шаг 3
+//
+// 4. /etc/hosts содержит записи для всех окружений
+//
+// ───────────────────────────────────────────────────────────────────────────
+
 pipeline {
     agent any
     environment {
@@ -7,18 +26,18 @@ pipeline {
         DB_NAME         = 'mybank'
         DB_USER         = 'mybank'
         IMAGE_TAG       = "${env.BUILD_NUMBER}"
-        CHART_DIR       = 'k8s'
-	TESTCONTAINERS_RYUK_DISABLED = 'true'
-        KC_SECRET_ACCOUNTS      = credentials('KC_SECRET_ACCOUNTS')
-        KC_SECRET_CASH          = credentials('KC_SECRET_CASH')
-        KC_SECRET_TRANSFER      = credentials('KC_SECRET_TRANSFER')
-        KC_SECRET_FRONTEND      = credentials('KC_SECRET_FRONTEND')
-        KC_ADMIN_PASSWORD       = credentials('KC_ADMIN_PASSWORD')
+        CHART_DIR       = 'k8s/mybank'
+        TESTCONTAINERS_RYUK_DISABLED = 'true'
+        KC_SECRET_ACCOUNTS  = credentials('KC_SECRET_ACCOUNTS')
+        KC_SECRET_CASH      = credentials('KC_SECRET_CASH')
+        KC_SECRET_TRANSFER  = credentials('KC_SECRET_TRANSFER')
+        KC_SECRET_FRONTEND  = credentials('KC_SECRET_FRONTEND')
+        KC_ADMIN_PASSWORD   = credentials('KC_ADMIN_PASSWORD')
     }
     stages {
         stage('Build & Test') {
             steps {
-                sh 'mvn clean install -DskipITs' 
+                sh 'mvn clean install -DskipITs'
             }
         }
         stage('Docker Build & Push') {
@@ -57,14 +76,14 @@ pipeline {
         stage('Deploy to TEST') {
             steps {
                 script {
-                    helmDeploy('test', 'mybank.test.local', 'keycloak.mybank.test.local')
+                    helmDeploy('mybank-test', 'mybank.test.local', 'keycloak.mybank.test.local', 'zipkin.mybank.test.local')
                 }
             }
         }
         stage('Verify TEST') {
             steps {
-                sh 'kubectl get pods -n test'
-                script { helmTest('test') }
+                sh 'kubectl get pods -n mybank-test'
+                script { helmTest('mybank-test') }
             }
         }
         stage('Manual Approval for PROD') {
@@ -75,14 +94,14 @@ pipeline {
         stage('Deploy to PROD') {
             steps {
                 script {
-                    helmDeploy('prod', 'mybank.prod.local', 'keycloak.mybank.prod.local')
+                    helmDeploy('mybank-prod', 'mybank.prod.local', 'keycloak.mybank.prod.local', 'zipkin.mybank.prod.local')
                 }
             }
         }
         stage('Verify PROD') {
             steps {
-                sh 'kubectl get pods -n prod'
-                script { helmTest('prod') }
+                sh 'kubectl get pods -n mybank-prod'
+                script { helmTest('mybank-prod') }
             }
         }
     }
@@ -101,7 +120,7 @@ pipeline {
 
 // ─── Shared Functions ──────────────────────────────────────────
 
-def helmDeploy(String namespace, String appHost, String keycloakHost) {
+def helmDeploy(String namespace, String appHost, String keycloakHost, String zipkinHost) {
     def services = [
         'accounts-service'      : 'mybank-accounts',
         'cash-service'          : 'mybank-cash',
@@ -123,10 +142,11 @@ def helmDeploy(String namespace, String appHost, String keycloakHost) {
         "--set ${svc}.keycloak.clientSecret=${secret}"
     }.join(' \\\n  ')
     sh """
-    helm upgrade --install mybank-${namespace} ${CHART_DIR} \\
+    helm upgrade --install ${namespace} ${CHART_DIR} \\
       --namespace ${namespace} --create-namespace \\
       --set global.appHost=${appHost} \\
       --set global.keycloakHost=${keycloakHost} \\
+      --set global.zipkinHost=${zipkinHost} \\
       --set global.postgresql.password=${DB_PASSWORD} \\
       --set keycloak.admin.password=${KC_ADMIN_PASSWORD} \\
       ${imageArgs} \\
@@ -137,8 +157,8 @@ def helmDeploy(String namespace, String appHost, String keycloakHost) {
 
 def helmTest(String namespace) {
     sh """
-    kubectl delete pod mybank-${namespace}-test-health -n ${namespace} --ignore-not-found
-    kubectl delete pod mybank-${namespace}-test-connectivity -n ${namespace} --ignore-not-found
-    helm test mybank-${namespace} -n ${namespace} || echo "⚠️ Some tests failed"
+    kubectl delete pod ${namespace}-test-health -n ${namespace} --ignore-not-found
+    kubectl delete pod ${namespace}-test-connectivity -n ${namespace} --ignore-not-found
+    helm test ${namespace} -n ${namespace} || echo "⚠️ Some tests failed"
     """
 }

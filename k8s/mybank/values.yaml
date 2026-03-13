@@ -1,0 +1,151 @@
+# ============================================================
+# MyBank — Глобальные настройки зонтичного Helm-чарта
+# ============================================================
+# Для ручного деплоя: helm install mybank . -n mybank --create-namespace
+# Для Jenkins:        секреты передаются через --set (см. Jenkinsfile)
+
+# Хосты (override через --set для TEST/PROD)
+global:
+  appHost: mybank.dev.local
+  keycloakHost: keycloak.mybank.dev.local
+  zipkinHost: zipkin.mybank.dev.local
+
+  # PostgreSQL (host = {{ .Release.Name }}-postgresql, задаётся в шаблонах)
+  postgresql:
+    port: 5432
+    database: mybank
+    username: mybank
+    password: ""  # Передано через --set global.postgresql.password
+
+# ============================================================
+# Подчарты
+# ============================================================
+postgresql:
+  enabled: true
+
+kafka:
+  enabled: true
+
+keycloak:
+  enabled: true
+
+gateway-service:
+  enabled: true
+
+front-ui:
+  enabled: true
+
+accounts-service:
+  enabled: true
+
+cash-service:
+  enabled: true
+
+transfer-service:
+  enabled: true
+
+notifications-service:
+  enabled: true
+
+zipkin:
+  enabled: true
+
+prometheusRules:
+  enabled: true
+  groups:
+    - name: mybank.availability
+      rules:
+        - alert: ServiceDown
+          expr: up{namespace="mybank"} == 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Сервис {{ $labels.job }} недоступен"
+
+        - alert: HighErrorRate
+          expr: |
+            sum by (job)(
+              rate(http_server_requests_seconds_count{namespace="mybank",status=~"5.."}[5m])
+            )
+            /
+            sum by (job)(
+              rate(http_server_requests_seconds_count{namespace="mybank"}[5m])
+            ) > 0.05
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Высокий процент 5xx в {{ $labels.job }}"
+
+        - alert: SlowResponses
+          expr: |
+            histogram_quantile(0.95,
+              sum by (le, job)(
+                rate(http_server_requests_seconds_bucket{namespace="mybank"}[5m])
+              )
+            ) > 2
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "P95 > 2с в {{ $labels.job }}"
+
+    - name: mybank.jvm
+      rules:
+        - alert: HighHeapUsage
+          expr: |
+            jvm_memory_used_bytes{namespace="mybank",area="heap"}
+            /
+            jvm_memory_max_bytes{namespace="mybank",area="heap"} > 0.85
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "JVM heap > 85% в {{ $labels.pod }}"
+
+    - name: mybank.kubernetes
+      rules:
+        - alert: PodCrashLooping
+          expr: |
+            rate(kube_pod_container_status_restarts_total{namespace="mybank"}[15m]) * 60 > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Pod {{ $labels.pod }} перезапускается"
+
+        - alert: PodNotReady
+          expr: |
+            kube_pod_status_ready{condition="true",namespace="mybank"} == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Pod {{ $labels.pod }} не готов"
+
+    - name: mybank.business
+      rules:
+        - alert: HighWithdrawFailRate
+          expr: increase(cash_withdraw_failed_total{namespace="mybank"}[5m]) > 5
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Много неуспешных снятий у {{ $labels.username }}"
+
+        - alert: HighTransferFailRate
+          expr: increase(transfer_failed_total{namespace="mybank"}[5m]) > 5
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Много неуспешных переводов {{ $labels.sender }} → {{ $labels.recipient }}"
+
+        - alert: NotificationDeliveryFailed
+          expr: increase(notification_failed_total{namespace="mybank"}[5m]) > 3
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Не удаётся доставить уведомления для {{ $labels.username }}"

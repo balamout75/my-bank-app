@@ -6,10 +6,12 @@ spring:
       group-id: notifications-service
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
       properties:
-        spring.json.trusted.packages: "com.mybank.*"
+        spring.json.use.type.headers: false
         spring.json.value.default.type: com.mybank.notifications.dto.NotificationEvent
+        spring.json.trusted.packages: com.mybank.*
+
 application:
   kafka:
     topic:

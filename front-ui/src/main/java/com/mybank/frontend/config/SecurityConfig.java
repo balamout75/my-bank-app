@@ -1,5 +1,6 @@
 package com.mybank.frontend.config;
 
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,6 +29,7 @@ public class SecurityConfig {
         http
             // Настройка авторизации запросов
             .authorizeHttpRequests(authz -> authz
+                .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/error", "/force-logout").permitAll()
                 .anyRequest().authenticated()
             )

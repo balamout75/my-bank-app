@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mybank-keycloak
+  labels:
+    app: keycloak
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: keycloak
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: keycloak
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      initContainers:
+        - name: realm-init
+          # eclipse-temurin:21-jre-alpine уже в локальном кэше Docker
+          image: eclipse-temurin:21-jre-alpine
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - apk add --no-cache gettext && envsubst < /tpl/realm-mybank.json.tpl > /realm/realm-mybank.json
+          env:
+            - name: KC_SECRET_ACCOUNTS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-keycloak-realm-secrets
+                  key: KC_SECRET_ACCOUNTS
+            - name: KC_SECRET_CASH
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-keycloak-realm-secrets
+                  key: KC_SECRET_CASH
+            - name: KC_SECRET_TRANSFER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-keycloak-realm-secrets
+                  key: KC_SECRET_TRANSFER
+            - name: KC_SECRET_FRONTEND
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-keycloak-realm-secrets
+                  key: KC_SECRET_FRONTEND
+          volumeMounts:
+            - name: realm-template
+              mountPath: /tpl
+            - name: realm-ready
+              mountPath: /realm
+
+      containers:
+        - name: keycloak
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - start-dev
+            - --import-realm
+            - --health-enabled=true
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: KEYCLOAK_ADMIN
+              value: {{ .Values.admin.username }}
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-keycloak
+                  key: KEYCLOAK_ADMIN_PASSWORD
+            - name: KC_HTTP_ENABLED
+              value: "true"
+            - name: KC_SPI_SECURITY_HEADERS_STRICT_TRANSPORT_SECURITY
+              value: ""
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: realm-ready
+              mountPath: /opt/keycloak/data/import
+              readOnly: true
+          startupProbe:
+            tcpSocket:
+              port: 8080
+            failureThreshold: 30
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 15
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            periodSeconds: 15
+            failureThreshold: 10
+
+      volumes:
+        - name: realm-template
+          configMap:
+            name: {{ .Release.Name }}-keycloak-realm
+        - name: realm-ready
+          emptyDir: {}

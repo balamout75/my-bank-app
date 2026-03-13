@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mybank-front-ui
+  labels:
+    app: front-ui
+    app.kubernetes.io/name: front-ui
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 8081
+      name: http
+  selector:
+    app: front-ui
+    app.kubernetes.io/instance: {{ .Release.Name }}

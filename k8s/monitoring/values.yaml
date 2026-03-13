@@ -1,0 +1,98 @@
+# ============================================================
+# k8s-monitoring — единый observability чарт
+# Namespace: monitoring
+# ============================================================
+
+# ── Prometheus + Grafana ─────────────────────────────────────
+prometheusStack:
+  enabled: true
+
+ingress:
+  hosts:
+    prometheus:   prometheus.monitoring.local
+    grafana:      grafana.monitoring.local
+    alertmanager: alertmanager.monitoring.local
+    kibana:       kibana.monitoring.local
+
+# Настройки kube-prometheus-stack передаются напрямую
+kube-prometheus-stack:
+  prometheus:
+    prometheusSpec:
+      # Обнаруживать ServiceMonitor-ы из любого namespace
+      serviceMonitorSelectorNilUsesHelmValues: false
+      podMonitorSelectorNilUsesHelmValues: false
+  grafana:
+    adminPassword: admin
+    service:
+      type: ClusterIP
+  alertmanager:
+    enabled: true
+
+# ── Elasticsearch ────────────────────────────────────────────
+elasticsearch:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: docker.elastic.co/elasticsearch/elasticsearch
+    tag: "8.12.0"
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+  persistence:
+    size: 10Gi
+  javaOpts: "-Xms512m -Xmx512m"
+  service:
+    port: 9200
+
+# ── Logstash ─────────────────────────────────────────────────
+logstash:
+  enabled: true
+  image:
+    repository: docker.elastic.co/logstash/logstash
+    tag: "8.12.0"
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  javaOpts: "-Xms256m -Xmx256m"
+  service:
+    beatsPort: 5044
+    tcpPort: 5000
+
+# ── Kibana ───────────────────────────────────────────────────
+kibana:
+  enabled: true
+  image:
+    repository: docker.elastic.co/kibana/kibana
+    tag: "8.12.0"
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "100m"
+    limits:
+      memory: "1.5Gi"      # OOMKilled при меньшем значении
+      cpu: "500m"
+  service:
+    port: 5601
+
+# ── Filebeat ─────────────────────────────────────────────────
+filebeat:
+  enabled: true
+  image:
+    repository: docker.elastic.co/beats/filebeat
+    tag: "8.12.0"
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "50m"
+    limits:
+      memory: "128Mi"
+      cpu: "200m"
+  watchNamespace: "mybank"

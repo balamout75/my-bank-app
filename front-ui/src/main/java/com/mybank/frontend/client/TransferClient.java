@@ -2,7 +2,6 @@ package com.mybank.frontend.client;
 
 import com.mybank.frontend.dto.client.TransferOperationRequest;
 import tools.jackson.databind.ObjectMapper;
-import com.mybank.frontend.dto.client.CashOperationRequest;
 import com.mybank.frontend.dto.client.OperationKeyResponse;
 import com.mybank.frontend.exception.InsufficientFundsClientException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;

@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mybank-gateway-service
+  labels:
+    app: gateway-service
+    app.kubernetes.io/name: gateway-service
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  application-k8s.yml: |
+    # Конфигурация Gateway для K8s (заменяет Spring Cloud Config + Eureka)
+    server:
+      port: 8090
+
+    spring:
+      application:
+        name: gateway-service      
+      cloud:
+        gateway:
+          server:
+            webflux:
+              # Маршруты через K8s DNS (вместо Eureka lb://)
+              routes:
+                - id: accounts-service
+                  uri: http://mybank-accounts-service:{{ .Values.routes.accountsService.port }}
+                  predicates:
+                    - Path=/api/accounts/**
+                  filters:
+                    - StripPrefix=1
+
+                - id: cash-service
+                  uri: http://mybank-cash-service:{{ .Values.routes.cashService.port }}
+                  predicates:
+                    - Path=/api/cash/**
+                  filters:
+                    - StripPrefix=1
+
+                - id: transfer-service
+                  uri: http://mybank-transfer-service:{{ .Values.routes.transferService.port }}
+                  predicates:
+                    - Path=/api/transfer/**
+                  filters:
+                    - StripPrefix=1
+
+              globalcors:
+                cors-configurations:
+                  "[/**]":
+                    allowed-origins: "*"
+                    allowed-methods: [GET, POST, PUT, DELETE, PATCH, OPTIONS]
+                    allowed-headers: "*"
+                    allow-credentials: false
+                    max-age: 3600
+
+              default-filters:
+                - PreserveHostHeader
+
+    # Отключаем Eureka
+    eureka:
+      client:
+        enabled: false
+
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: health,info,metrics,prometheus
+      endpoint:
+        health:
+          show-details: always
+          probes:
+            enabled: true   # важно для k8s readiness/liveness
+      tracing:
+        sampling:
+          probability: 1.0  # для проверки, чтобы всегда были трейсы
+        service-name: ${spring.application.name}
+        export:
+          zipkin:
+            endpoint: http://mybank-zipkin:9411/api/v2/spans
+
+    logging:
+      structured:
+        format:
+          console: ecs 
+      level:
+        org.springframework.cloud.gateway: DEBUG

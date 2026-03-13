@@ -12,6 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 @Service
 @Slf4j
@@ -57,15 +58,21 @@ public class OutboxProcessor {
             kafkaTemplate.send(notificationsTopic, op.getOperationId().toString(), event).get();
             op.setStatus(OperationStatus.NOTIFIED);
             log.info("✅ KAFKA SENT opId={} user={} topic={}", op.getOperationId(), op.getUsername(), notificationsTopic);
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
+            // Восстанавливаем флаг прерывания — иначе Scheduler не узнает
+            // что поток был прерван и graceful shutdown зависнет
+            Thread.currentThread().interrupt();
+            log.warn("⚠️ KAFKA INTERRUPTED opId={} user={}", op.getOperationId(), op.getUsername());
+            op.setAttempts(op.getAttempts() + 1);
+            op.setError("kafka send interrupted: " + e.getMessage());
+
+        } catch (ExecutionException e) {
             if (op.getAttempts() < maxAttempts) {
-                log.warn("⚠️ KAFKA RETRY opId={} user={} attempt={} error={}",
-                        op.getOperationId(), op.getUsername(), op.getAttempts(), e.getMessage());
+                log.warn("⚠️ KAFKA RETRY opId={} user={} attempt={} error={}", op.getOperationId(), op.getUsername(), op.getAttempts(), e.getMessage());
                 op.setAttempts(op.getAttempts() + 1);
                 op.setError("kafka send failed; will retry later: " + e.getMessage());
             } else {
-                log.error("💥 KAFKA FAILED opId={} user={} attempts={}",
-                        op.getOperationId(), op.getUsername(), op.getAttempts());
+                log.error("💥 KAFKA FAILED opId={} user={} attempts={}", op.getOperationId(), op.getUsername(), op.getAttempts());
                 op.setStatus(OperationStatus.UNNOTIFIED);
                 op.setError("kafka send failed after max attempts: " + e.getMessage());
             }

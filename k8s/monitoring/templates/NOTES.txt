@@ -1,0 +1,15 @@
+🚀 k8s-monitoring задеплоен!
+
+Проверить все поды:
+  kubectl get pods -n monitoring
+
+═══════════════════════════════════════
+  Доступ к интерфейсам
+═══════════════════════════════════════
+
+  Prometheus:    http://{{ .Values.ingress.hosts.prometheus }}
+  Grafana:       http://{{ .Values.ingress.hosts.grafana }}  (admin / {{ index .Values "kube-prometheus-stack" "grafana" "adminPassword" }})
+  Alertmanager:  http://{{ .Values.ingress.hosts.alertmanager }}
+  Kibana:        http://{{ .Values.ingress.hosts.kibana }}
+
+  ⚠️  Zipkin находится в чарте mybank (namespace: mybank), не здесь.

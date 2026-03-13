@@ -12,8 +12,9 @@ def githubRepo    = env['GITHUB_REPOSITORY']
 def credentialsId = "github-creds"
 def scriptPath    = "jenkins/Jenkinsfile"
 
-// Фильтр: оставляем только ветку sprint-11-bank-features и все PR (PR-*)
-def branchRegex = '^(sprint-11-bank-features|PR-.*)$'
+// Фильтр: оставляем только ветку, указанную в .env, и все PR (PR-*)
+def branchName = env['BRANCH_FILTER'] ?: 'main|master'
+def branchRegex = "^(${branchName}|PR-.*)\$"
 
 println "--> Запуск create-multibranch-job.groovy"
 
@@ -50,7 +51,7 @@ source.setTraits([
         new OriginPullRequestDiscoveryTrait(1),
         new ForkPullRequestDiscoveryTrait(1, new ForkPullRequestDiscoveryTrait.TrustPermission()),
 
-        // Фильтруем: sprint-11 + PR-*
+        // Фильтруем по BRANCH_FILTER из .env + все PR
         new RegexSCMHeadFilterTrait(branchRegex)
 ])
 

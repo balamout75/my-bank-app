@@ -1,0 +1,18 @@
+dependencies:
+- name: kube-prometheus-stack
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 82.10.3
+- name: elasticsearch
+  repository: file://charts/elasticsearch
+  version: 1.0.0
+- name: logstash
+  repository: file://charts/logstash
+  version: 1.0.0
+- name: kibana
+  repository: file://charts/kibana
+  version: 1.0.0
+- name: filebeat
+  repository: file://charts/filebeat
+  version: 1.0.0
+digest: sha256:9228057ea4b164e3f823040be375a00cd97d86e9a1076c3f3788f70679fb30cd
+generated: "2026-03-11T01:38:41.799325+08:00"

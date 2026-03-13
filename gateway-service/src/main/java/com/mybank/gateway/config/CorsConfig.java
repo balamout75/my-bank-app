@@ -26,8 +26,6 @@ public class CorsConfig {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
         
-        // Разрешенные origins
-        // В production заменить на конкретные домены!
         corsConfig.setAllowedOriginPatterns(List.of("*"));
         
         // Разрешенные HTTP методы

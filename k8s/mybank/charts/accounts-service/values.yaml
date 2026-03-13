@@ -1,0 +1,26 @@
+image:
+  repository: mybank/yp-mybank-accounts
+  tag: latest
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+service:
+  port: 8080
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+keycloak:
+  clientSecret: ""  # Injected via --set from Jenkins credentials
+
+db:
+  schema: accounts
+
+monitoring:
+  enabled: true

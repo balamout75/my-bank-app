@@ -1,6 +1,6 @@
 package com.mybank.accounts.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.mybank.accounts.config.TestSecurityItConfig;
 import com.mybank.accounts.dto.*;
 import com.mybank.accounts.outbox.OutboxProcessor;

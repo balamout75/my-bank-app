@@ -1,0 +1,34 @@
+replicaCount: 1
+
+image:
+  repository: openzipkin/zipkin
+  tag: "3.5"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 9411
+
+# Хранилище трейсов — Elasticsearch из k8s-monitoring
+storage:
+  type: elasticsearch
+  esHosts: "http://elasticsearch-service.monitoring:9200"
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+
+dependencies:
+  schedule: "0 * * * *"  # каждый час
+  image:
+    repository: openzipkin/zipkin-dependencies
+    tag: "latest"

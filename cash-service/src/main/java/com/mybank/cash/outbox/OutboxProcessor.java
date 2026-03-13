@@ -12,6 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 @Service
 @Slf4j
@@ -45,7 +46,7 @@ public class OutboxProcessor {
     }
 
     public void sendNotification(CashOperation op) {
-        Map<String, Object> payload = Map.of("opreration", op.getType (), "amount", op.getAmount());
+        Map<String, Object> payload = Map.of("operation", op.getType (), "amount", op.getAmount());
 
         NotificationEvent event = new NotificationEvent(
                 "cash-service",
@@ -57,19 +58,26 @@ public class OutboxProcessor {
             kafkaTemplate.send(notificationsTopic, op.getOperationId().toString(), event).get();
             op.setStatus(OperationStatus.NOTIFIED);
             log.info("✅ KAFKA SENT opId={} user={} topic={}", op.getOperationId(), op.getUsername(), notificationsTopic);
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
+            // Восстанавливаем флаг прерывания — иначе Scheduler не узнает
+            // что поток был прерван и graceful shutdown зависнет
+            Thread.currentThread().interrupt();
+            log.warn("⚠️ KAFKA INTERRUPTED opId={} user={}", op.getOperationId(), op.getUsername());
+            op.setNotificationAttempts(op.getNotificationAttempts() + 1);
+            op.setNotificationError("kafka send interrupted: " + e.getMessage());
+
+        } catch (ExecutionException e) {
             if (op.getNotificationAttempts() < maxAttempts) {
-                log.warn("⚠️ KAFKA RETRY opId={} user={} attempt={} error={}",
-                        op.getOperationId(), op.getUsername(), op.getNotificationAttempts(), e.getMessage());
+                log.warn("⚠️ KAFKA RETRY opId={} user={} attempt={} error={}", op.getOperationId(), op.getUsername(), op.getNotificationAttempts(), e.getMessage());
                 op.setNotificationAttempts(op.getNotificationAttempts() + 1);
                 op.setNotificationError("kafka send failed; will retry later: " + e.getMessage());
             } else {
-                log.error("💥 KAFKA FAILED opId={} user={} attempts={}",
-                        op.getOperationId(), op.getUsername(), op.getNotificationAttempts());
+                log.error("💥 KAFKA FAILED opId={} user={} attempts={}", op.getOperationId(), op.getUsername(), op.getNotificationAttempts());
                 op.setStatus(OperationStatus.UNNOTIFIED);
                 op.setNotificationError("kafka send failed after max attempts: " + e.getMessage());
             }
         }
+
         op.touch();
         cashOperationRepository.save(op);
     }

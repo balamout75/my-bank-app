@@ -1,0 +1,30 @@
+# ============================================================
+# values-local.yaml — переопределения для локальной разработки
+# Использование: helm install k8s-monitoring . -f values-local.yaml
+# ============================================================
+
+kube-prometheus-stack:
+  # Отключаем компоненты которых нет в docker-desktop
+  kubeEtcd:
+    enabled: false
+  kubeControllerManager:
+    enabled: false
+  kubeScheduler:
+    enabled: false
+  kubeProxy:
+    enabled: false
+  prometheus:
+    prometheusSpec:
+      serviceMonitorSelectorNilUsesHelmValues: false
+      podMonitorSelectorNilUsesHelmValues: false
+      resources:
+        requests:
+          memory: "512Mi"
+        limits:
+          memory: "1Gi"
+  grafana:
+    resources:
+      requests:
+        memory: "128Mi"
+      limits:
+        memory: "256Mi"

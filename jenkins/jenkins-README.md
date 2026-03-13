@@ -16,13 +16,38 @@ Developer                    Jenkins (Docker)                      Kubernetes
     │                             │  1. mvn clean install (тесты)       │
     │                             │  2. docker build (6 образов ∥)      │
     │                             │  3. docker push → GHCR              │
-    │                             │  4. helm deploy → namespace test ──▶│
+    │                             │  4. helm deploy → mybank-test ─────▶│
     │                             │  5. helm test TEST                  │
     │                             │  6. ⏸ Manual Approval               │
-    │                             │  7. helm deploy → namespace prod ──▶│
+    │                             │  7. helm deploy → mybank-prod ─────▶│
     │                             │  8. helm test PROD                  │
     │                             │                                     │
 ```
+
+---
+
+## Предусловия среды
+
+> ⚠️ Перед первым запуском пайплайна кластер должен быть подготовлен:
+
+**1. Ingress-nginx установлен:**
+```bash
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0/deploy/static/provider/cloud/deploy.yaml
+kubectl get pods -n ingress-nginx -w  # ждать 1/1 Running
+```
+
+**2. Мониторинг задеплоен** (ServiceMonitor CRD нужны до деплоя mybank):
+```bash
+cd k8s/monitoring
+helm install k8s-monitoring . -n monitoring --create-namespace -f values-local.yaml
+```
+→ см. [k8s/monitoring/README.md](../k8s/monitoring/README.md)
+
+**3. CoreDNS rewrite настроен** для всех окружений → см. [Шаг 3](#шаг-3-инфраструктура-kubernetes)
+
+**4. /etc/hosts содержит записи** для всех окружений → см. [Шаг 3](#шаг-3-инфраструктура-kubernetes)
+
+> 💡 Если уже выполнили развёртывание по инструкции `k8s/mybank/README.md` — Ingress и CoreDNS уже настроены, добавьте только записи для test/prod окружений.
 
 ---
 
@@ -30,8 +55,8 @@ Developer                    Jenkins (Docker)                      Kubernetes
 
 | Окружение | Namespace | Release | Приложение | Keycloak |
 |-----------|-----------|---------|-----------|----------|
-| TEST | test | mybank-test | http://mybank.test.local | http://keycloak.mybank.test.local |
-| PROD | prod | mybank-prod | http://mybank.prod.local | http://keycloak.mybank.prod.local |
+| TEST | mybank-test | mybank-test | http://mybank.test.local | http://keycloak.mybank.test.local |
+| PROD | mybank-prod | mybank-prod | http://mybank.prod.local | http://keycloak.mybank.prod.local |
 
 ---
 
@@ -85,49 +110,37 @@ Jenkinsfile использует **shared functions** для устранени�
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  Build & Test                                               │
-│  mvn clean install (компиляция + юнит/интеграционные тесты) │
+│  mvn clean install (компиляция + unit-тесты)          │
 ├─────────────────────────────────────────────────────────────┤
-│  Build Docker Images (parallel)                             │
-│  docker build × 6 сервисов параллельно (тег = BUILD_NUMBER) │
+│  Build & Push Docker Images (parallel)                      │
+│  docker build × 6 сервисов параллельно → GHCR               │
+│  тег = BUILD_NUMBER                                         │
 ├─────────────────────────────────────────────────────────────┤
-│  Push Docker Images                                         │
-│  docker push → ghcr.io/username/mybank-*:BUILD_NUMBER       │
+│  Prepare Helm                                               │
+│  helm dependency update k8s/mybank                          │
 ├─────────────────────────────────────────────────────────────┤
-│  Helm Deploy to TEST (namespace: test)                      │
-│  helmDeploy('test', ...) → --wait --timeout 5m              │
+│  Helm Deploy to TEST (namespace: mybank-test)               │
+│  helmDeploy('mybank-test', ...) → --wait --timeout 15m      │
 ├─────────────────────────────────────────────────────────────┤
 │  Verify TEST                                                │
-│  kubectl get pods -n test                                   │
-├─────────────────────────────────────────────────────────────┤
-│  Helm Test TEST                                             │
-│  helmTest('test') — health + connectivity (информативный)   │
+│  kubectl get pods -n mybank-test                            │
+│  helmTest('mybank-test')                                    │
 ├─────────────────────────────────────────────────────────────┤
 │  ⏸ Manual Approval                                          │
 │  "Deploy to PROD environment?" → [Yes, deploy]              │
 ├─────────────────────────────────────────────────────────────┤
-│  Helm Deploy to PROD (namespace: prod)                      │
-│  helmDeploy('prod', ...) → --wait --timeout 5m              │
+│  Helm Deploy to PROD (namespace: mybank-prod)               │
+│  helmDeploy('mybank-prod', ...) → --wait --timeout 15m      │
 ├─────────────────────────────────────────────────────────────┤
 │  Verify PROD                                                │
-│  kubectl get pods -n prod                                   │
-├─────────────────────────────────────────────────────────────┤
-│  Helm Test PROD                                             │
-│  helmTest('prod') — health + connectivity (информативный)   │
+│  kubectl get pods -n mybank-prod                            │
+│  helmTest('mybank-prod')                                    │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-- IMAGE_TAG = BUILD_NUMBER (автоинкремент Jenkins)
+- `IMAGE_TAG = BUILD_NUMBER` — автоинкремент Jenkins
 - Один и тот же тег используется в TEST и PROD — что протестировали, то и деплоим
 - Helm Tests работают в информативном режиме — при ошибке pipeline **не останавливается**, а выводит предупреждение
-
----
-
-## Предусловия
-
-- Docker Desktop с включённым Kubernetes
-- Helm v4+
-- kubectl
-- GitHub аккаунт с репозиторием проекта
 
 ---
 
@@ -180,15 +193,17 @@ KC_SECRET_FRONTEND=your-frontend-client-secret
 KC_ADMIN_PASSWORD=your-keycloak-admin-password
 ```
 
-> ⚠️ === ВНИМАНИЕ - ВСЕ НАСТРОЙКИ Keycloak надо перенести в keycloak/realm-mybank.json, там hardcode ===
+> ⚠️ Файл `.env` добавлен в `.gitignore` — **никогда не коммитить**.
 
 ### Шаг 3. Инфраструктура Kubernetes
-> ⚠️ ВНИМАНИЕ - Если Вы выполнили развертывание helm чартов по инструкции в /k8s, то пункт 3 следует пропустить, у Вас и так все настроено
+
+> ⚠️ Если уже выполнили развёртывание по `k8s/mybank/README.md` — пропустите этот шаг, всё уже настроено. Добавьте только строки для test/prod в hosts и CoreDNS.
 
 **Ingress-nginx:**
 
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0/deploy/static/provider/cloud/deploy.yaml
+kubectl get pods -n ingress-nginx -w
 ```
 
 **CoreDNS rewrite:**
@@ -200,10 +215,10 @@ kubectl edit configmap coredns -n kube-system
 Добавить перед `kubernetes cluster.local`:
 
 ```
-    rewrite name keycloak.mybank.local mybank-keycloak.mybank.svc.cluster.local
-    rewrite name keycloak.mybank.dev.local mybank-keycloak.mybank.svc.cluster.local
-    rewrite name keycloak.mybank.test.local mybank-test-keycloak.test.svc.cluster.local
-    rewrite name keycloak.mybank.prod.local mybank-prod-keycloak.prod.svc.cluster.local
+    rewrite name keycloak.mybank.local      mybank-keycloak.mybank.svc.cluster.local
+    rewrite name keycloak.mybank.dev.local  mybank-keycloak.mybank.svc.cluster.local
+    rewrite name keycloak.mybank.test.local mybank-test-keycloak.mybank-test.svc.cluster.local
+    rewrite name keycloak.mybank.prod.local mybank-prod-keycloak.mybank-prod.svc.cluster.local
 ```
 
 ```bash
@@ -213,9 +228,15 @@ kubectl rollout restart deployment coredns -n kube-system
 **Windows hosts** (`C:\Windows\System32\drivers\etc\hosts`):
 
 ```
-127.0.0.1 mybank.local keycloak.mybank.local mybank.dev.local keycloak.mybank.dev.local mybank.test.local keycloak.mybank.test.local mybank.prod.local keycloak.mybank.prod.local
+127.0.0.1  mybank.local           keycloak.mybank.local
+127.0.0.1  mybank.dev.local       keycloak.mybank.dev.local
+127.0.0.1  mybank.test.local      keycloak.mybank.test.local
+127.0.0.1  mybank.prod.local      keycloak.mybank.prod.local
+127.0.0.1  prometheus.monitoring.local  grafana.monitoring.local
+127.0.0.1  alertmanager.monitoring.local  kibana.monitoring.local
 ```
-> 💡 **Почему указаны все окружения?** Настройки hosts и CoreDNS включают хосты для dev, test и prod. Для Jenkins CI/CD нужны только test и prod, но мы включаем и dev — чтобы DNS-конфигурация была **единой точкой настройки** для всех вариантов развёртывания. Настроив DNS один раз, вы сможете переключаться между ручным деплоем (dev) и Jenkins (test/prod) без дополнительных изменений.
+
+> 💡 DNS настраивается один раз для всех окружений — dev, test и prod. Переключение между ручным деплоем и Jenkins не требует изменений в hosts.
 
 ### Шаг 4. Запуск Jenkins
 
@@ -267,7 +288,7 @@ Helm Deploy to PROD → Verify PROD → Helm Test PROD → ✅ Done
 
 ## Управление секретами
 
-### В Jenkins CI/CD (TEST / PROD)
+### Схема прохождения секретов
 
 ```
 .env (файл, НЕ коммитится)
@@ -276,20 +297,26 @@ Helm Deploy to PROD → Verify PROD → Helm Test PROD → ✅ Done
 Groovy-скрипт → Jenkins Credentials (хранятся в jenkins_home volume)
   │
   ▼
-Jenkinsfile → --set ... (передаются в Helm при деплое)
+Jenkinsfile → --set keycloak.clientSecrets.* и --set *.keycloak.clientSecret
   │
   ▼
-K8s Secrets → Pod env vars
+Helm → K8s Secret (keycloak-realm-secrets)
+  │
+  ▼
+Init Container (envsubst) → realm-mybank.json в памяти (emptyDir)
+  │
+  ▼
+Keycloak --import-realm
 ```
 
-Секреты **никогда не попадают в Git**. Путь: `.env` → Groovy → Jenkins Credentials → `--set` → K8s Secret.
+Секреты **никогда не попадают в Git**. `realm-mybank.json` в репозитории содержит только плейсхолдеры `${KC_SECRET_*}` — реальные значения подставляются при старте пода.
 
-### В ручном K8s-деплое (DEV)
+### В ручном K8s-деплое (DEV/LOCAL)
 
 Для локальной разработки секреты передаются через `values-local.yaml` (добавлен в `.gitignore`):
 
 ```yaml
-# k8s/values-local.yaml (НЕ коммитить!)
+# k8s/mybank/values-local.yaml (НЕ коммитить!)
 global:
   postgresql:
     password: "mybank_password"
@@ -315,12 +342,6 @@ keycloak:
     password: "admin"
 ```
 
-Деплой одной командой:
-
-```bash
-helm upgrade --install mybank . -n mybank -f values-local.yaml
-```
-
 ### Что хранится в K8s Secrets
 
 | Сервис | Ключи в Secret |
@@ -331,9 +352,21 @@ helm upgrade --install mybank . -n mybank -f values-local.yaml
 | notifications-service | DB_URL, DB_USER, DB_PASSWORD, KAFKA_BOOTSTRAP_SERVERS |
 | front-ui | OAUTH2_CLIENT_SECRET |
 | keycloak | KEYCLOAK_ADMIN_PASSWORD |
+| keycloak-realm-secrets | KC_SECRET_ACCOUNTS, KC_SECRET_CASH, KC_SECRET_TRANSFER, KC_SECRET_FRONTEND |
 | postgresql | POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD |
 
 > ⚠️ В `values.yaml` все секреты — пустые placeholder'ы (`""`). Реальные значения передаются через `--set` (Jenkins) или `values-local.yaml` (dev).
+
+### Фильтр ветки для Jenkins
+
+В `.env` задаётся переменная `BRANCH_FILTER` — имя ветки, которую Jenkins будет мониторить и деплоить. Pull request'ы (`PR-*`) отслеживаются всегда.
+```
+BRANCH_FILTER=sprint-12-bank-features
+```
+
+Если переменная не задана — Jenkins мониторит `main` и `master` по умолчанию. Значение подхватывается в `02_create-multibranch-job.groovy` через `System.getenv()`.
+
+> ⚠️ После смены `BRANCH_FILTER` в `.env` необходимо пересоздать Jenkins-контейнер — init-скрипты выполняются только при старте.
 
 ---
 
@@ -372,8 +405,8 @@ docker compose up --build
 ### Очистка зависших Helm-релизов
 
 ```bash
-helm uninstall mybank-test -n test
-helm uninstall mybank-prod -n prod
+helm uninstall mybank-test -n mybank-test
+helm uninstall mybank-prod -n mybank-prod
 ```
 
 ### Остановка Jenkins
@@ -388,12 +421,12 @@ docker compose down
 
 | Аспект | K8s (ручной) | Jenkins CI/CD |
 |--------|-------------|---------------|
-| Тесты (Java) | Не запускаются | `mvn clean install` |
+| Тесты (Java) | Не запускаются | `mvn clean install -T 1C` |
 | Сборка | `docker buildx bake` (локально) | `docker build` параллельно в Jenkins |
 | Образы | Локальные | GHCR (ghcr.io) |
 | Деплой | `helm install` вручную | Автоматически при push |
 | Секреты | `values-local.yaml` | `.env` → Jenkins Credentials → `--set` |
-| Окружения | Одно (mybank) | TEST + PROD |
+| Окружения | Одно (mybank) | mybank-test + mybank-prod |
 | Подтверждение | Нет | Manual Approval перед PROD |
 | Тег образа | latest | BUILD_NUMBER (версионирование) |
 | Helm Tests | `helm test` вручную | Автоматически после каждого деплоя |
@@ -407,11 +440,13 @@ docker compose down
 |----------|---------|---------|
 | `Bad credentials (401)` | Токен отозван/истёк | Пересоздать токен, обновить `.env`, `docker compose down -v && up --build` |
 | `Jenkinsfile not found` | Файл не запушен | `git add jenkins/Jenkinsfile && git push` |
-| `another operation in progress` | Зависший Helm релиз | `helm uninstall mybank-test -n test` |
-| `context deadline exceeded` | Поды не стартуют | Проверить логи: `kubectl logs -n test <pod>` |
+| `another operation in progress` | Зависший Helm релиз | `helm uninstall mybank-test -n mybank-test` |
+| `context deadline exceeded` | Поды не стартуют | `kubectl logs -n mybank-test <pod>` |
 | `admission webhook denied` | Конфликт Ingress хостов | Разные release names и хосты для TEST/PROD |
 | `Push blocked` | Секреты в Git | `git rm --cached jenkins/.env`, добавить в `.gitignore` |
 | Compilation error `\` | Пробел после `\` в Jenkinsfile | Убрать trailing spaces |
 | Helm Test Failed | Старые test-поды | Pipeline автоматически удаляет их перед запуском |
 | `localhost:9092` в логах Kafka | Нет KAFKA_BOOTSTRAP_SERVERS | Проверить secret.yaml сервиса и configmap |
 | `no main manifest attribute` | Нет spring-boot-maven-plugin | Добавить плагин в pom.xml сервиса |
+| Keycloak `Init:ErrImagePull` | Образ envsubst недоступен | Init container использует `eclipse-temurin:21-jre-alpine` — должен быть в кэше |
+| Keycloak `Init:CrashLoopBackOff` | Secret `keycloak-realm-secrets` не найден | Проверить что `keycloak-realm-secret.yaml` задеплоен в нужный namespace |

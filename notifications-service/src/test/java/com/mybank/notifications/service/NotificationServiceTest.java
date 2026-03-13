@@ -5,7 +5,6 @@ import com.mybank.notifications.model.Notification;
 import com.mybank.notifications.model.NotificationId;
 import com.mybank.notifications.model.OperationStatus;
 import com.mybank.notifications.repository.NotificationRepository;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
